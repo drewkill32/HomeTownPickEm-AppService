@@ -8,7 +8,7 @@ import {
   LogoutActions,
 } from "./ApiAuthorizationConstants";
 
-const ApiAuthorizationRoutes = (props) => {
+const ApiAuthorizationRoutes = () => {
   return (
     <Fragment>
       <Route
