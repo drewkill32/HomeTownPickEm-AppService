@@ -17,8 +17,8 @@ const Logout = ({ action }) => {
 
   const logout = async (returnUrl) => {
     const state = { returnUrl };
-    const isauthenticated = await authService.isAuthenticated();
-    if (isauthenticated) {
+    const isAuthenticated = await authService.isAuthenticated();
+    if (isAuthenticated) {
       const result = await authService.signOut(state);
       switch (result.status) {
         case AuthenticationResultStatus.Redirect:
