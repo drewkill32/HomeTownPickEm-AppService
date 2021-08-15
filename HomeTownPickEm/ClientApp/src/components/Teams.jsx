@@ -13,13 +13,15 @@ const TeamsTable = ({ teams }) => {
         </tr>
       </thead>
       <tbody>
-        {teams.map((team) => (
+        {teams.map((team, index) => (
           <tr key={team.id}>
             <td>
               <img
+                loading={index < 15 ? "eager" : "lazy"}
                 src={team.logos && team.logos.length > 0 && team.logos[0]}
                 alt={team.name}
                 width="25"
+                height="25"
               />
             </td>
             <td>{team.name}</td>
@@ -51,8 +53,7 @@ const Teams = () => {
   };
   return (
     <div>
-      <h1 id="tabelLabel">Weather forecast</h1>
-      <p>This component demonstrates fetching data from the server.</p>
+      <h1 id="tabelLabel">All Teams</h1>
       {loading ? (
         <p>
           <em>Loading...</em>
