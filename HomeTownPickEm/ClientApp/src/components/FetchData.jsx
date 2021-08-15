@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import authService from "./api-authorization/AuthorizeService";
 
 const renderForecastsTable = (forecasts) => {
@@ -36,6 +36,7 @@ const FetchData = () => {
 
   const populateWeatherData = async () => {
     const token = await authService.getAccessToken();
+    console.log("authToke", token);
     const response = await fetch("weatherforecast", {
       headers: !token ? {} : { Authorization: `Bearer ${token}` },
     });
