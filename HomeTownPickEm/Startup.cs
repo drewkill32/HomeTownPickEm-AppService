@@ -1,7 +1,12 @@
 using System;
 using System.Net.Http.Headers;
+using System.Reflection;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
+using IdentityServer4.EntityFramework.DbContexts;
+using IdentityServer4.EntityFramework.Options;
+using IdentityServer4.EntityFramework.Stores;
+using IdentityServer4.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -70,10 +75,11 @@ namespace HomeTownPickEm
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("DefaultConnection"); 
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
-
+                options.UseSqlite(connectionString));
+    
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -81,6 +87,24 @@ namespace HomeTownPickEm
 
             services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+                // .AddConfigurationStore(options =>
+                // {
+                //     options.ConfigureDbContext = builder =>
+                //         builder.UseSqlite(connectionString,
+                //             sql => sql.MigrationsAssembly(migrationsAssembly));
+                // })
+                // // this adds the operational data from DB (codes, tokens, consents)
+                // .AddOperationalStore(options =>
+                // {
+                //     options.ConfigureDbContext = builder =>
+                //         builder.UseSqlite(connectionString,
+                //             sql => sql.MigrationsAssembly(migrationsAssembly));
+                //
+                //     // this enables automatic token cleanup. this is optional.
+                //     options.EnableTokenCleanup = true;
+                //     options.TokenCleanupInterval = 30;
+                // });
+
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
@@ -103,4 +127,6 @@ namespace HomeTownPickEm
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }
     }
+
+    
 }

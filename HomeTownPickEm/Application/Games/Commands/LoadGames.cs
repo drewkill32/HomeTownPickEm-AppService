@@ -80,25 +80,11 @@ namespace HomeTownPickEm.Application.Games.Commands
                 var awayIds = games.Select(x => x.AwayId);
                 var ids = homeIds.Union(awayIds).Distinct().ToArray();
                 return await _context.Teams
-                    .Where(x => ids.Contains(x.Id)).Select(x => MapToDto(x))
+                    .Where(x => ids.Contains(x.Id)).Select(x => x.ToTeamDto())
                     .ToArrayAsync(cancellationToken);
             }
 
-            private static TeamDto MapToDto(Team team)
-            {
-                return new TeamDto
-                {
-                    Abbreviation = team.Abbreviation,
-                    Color = team.Color,
-                    Conference = team.Conference,
-                    Division = team.Division,
-                    Mascot = team.Mascot,
-                    Id = team.Id,
-                    Logos = team.Logos.Split(';', StringSplitOptions.RemoveEmptyEntries),
-                    School = team.School,
-                    AltColor = team.AltColor
-                };
-            }
+           
 
             private GameDto MapToDto(Game arg, IEnumerable<TeamDto> teams)
             {

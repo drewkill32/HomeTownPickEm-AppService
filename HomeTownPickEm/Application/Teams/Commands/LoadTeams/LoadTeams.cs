@@ -51,24 +51,9 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
-                return teams.Select(MapToDto).ToArray();
+                return teams.Select(x=> x.ToTeamDto()).ToArray();
             }
-
-            private TeamDto MapToDto(Team team)
-            {
-                return new()
-                {
-                    Abbreviation = team.Abbreviation,
-                    Color = team.Color,
-                    Conference = team.Conference,
-                    Division = team.Division,
-                    Mascot = team.Mascot,
-                    Id = team.Id,
-                    Logos = team.Logos.Split(';', StringSplitOptions.RemoveEmptyEntries),
-                    School = team.School,
-                    AltColor = team.AltColor
-                };
-            }
+            
 
             private Team MapToTeam(TeamResponse teamResponse)
             {
