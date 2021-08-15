@@ -3,14 +3,16 @@ using System;
 using HomeTownPickEm.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HomeTownPickEm.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210815161619_AddCalendar")]
+    partial class AddCalendar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,47 +102,6 @@ namespace HomeTownPickEm.Data.Migrations
                     b.HasKey("Season", "Week");
 
                     b.ToTable("Calendar");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.Game", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AwayId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("AwayPoints")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("HomeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("HomePoints")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Season")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SeasonType")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("StartDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("StartTimeTbd")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Week")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AwayId");
-
-                    b.HasIndex("HomeId");
-
-                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Team", b =>
@@ -410,25 +371,6 @@ namespace HomeTownPickEm.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.Game", b =>
-                {
-                    b.HasOne("HomeTownPickEm.Models.Team", "Away")
-                        .WithMany()
-                        .HasForeignKey("AwayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HomeTownPickEm.Models.Team", "Home")
-                        .WithMany()
-                        .HasForeignKey("HomeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Away");
-
-                    b.Navigation("Home");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using HomeTownPickEm.Teams.Commands;
-using HomeTownPickEm.Teams.Commands.LoadTeams;
+using HomeTownPickEm.Application.Teams.Commands;
+using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeTownPickEm.Controllers

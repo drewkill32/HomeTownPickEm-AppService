@@ -12,7 +12,7 @@ using HomeTownPickEm.Json;
 using HomeTownPickEm.Models;
 using MediatR;
 
-namespace HomeTownPickEm.Teams.Commands.LoadTeams
+namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
 {
     public class LoadTeams
     {

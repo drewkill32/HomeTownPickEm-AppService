@@ -15,11 +15,43 @@ namespace HomeTownPickEm.Data
         }
 
         public DbSet<Team> Teams { get; set; }
+        public DbSet<Calendar> Calendar { get; set; }
+
+        public DbSet<Game> Games { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             base.OnConfiguring(optionsBuilder);
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Team>()
+                .HasKey(x => x.Id);
+            builder.Entity<Team>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
+
+
+            builder.Entity<Calendar>()
+                .HasKey(x => new { x.Season, x.Week });
+
+
+            builder.Entity<Game>()
+                .HasKey(x => x.Id);
+            builder.Entity<Game>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
+
+            builder.Entity<Game>()
+                .HasOne(x => x.Away)
+                .WithMany();
+            builder.Entity<Game>()
+                .HasOne(x => x.Home)
+                .WithMany();
         }
     }
 }

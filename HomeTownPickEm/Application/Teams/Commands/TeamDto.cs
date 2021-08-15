@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace HomeTownPickEm.Teams.Commands
+namespace HomeTownPickEm.Application.Teams.Commands
 {
     public class TeamDto
     {
@@ -13,5 +13,7 @@ namespace HomeTownPickEm.Teams.Commands
         public string Color { get; set; }
         public string AltColor { get; set; }
         public IEnumerable<string> Logos { get; set; }
+
+        public string Name => $"{School} {Mascot}";
     }
 }
