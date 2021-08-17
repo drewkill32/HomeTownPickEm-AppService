@@ -17,6 +17,9 @@ namespace HomeTownPickEm.Data
         public DbSet<Team> Teams { get; set; }
         public DbSet<Calendar> Calendar { get; set; }
 
+        public DbSet<League> League { get; set; }
+        public DbSet<Pick> Pick { get; set; }
+
         public DbSet<Game> Games { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -29,29 +32,72 @@ namespace HomeTownPickEm.Data
         {
             base.OnModelCreating(builder);
 
+            //Team
             builder.Entity<Team>()
                 .HasKey(x => x.Id);
+
             builder.Entity<Team>()
                 .Property(x => x.Id)
                 .ValueGeneratedNever();
 
 
+            //Calendar
             builder.Entity<Calendar>()
                 .HasKey(x => new { x.Season, x.Week });
 
-
+            //Game
             builder.Entity<Game>()
                 .HasKey(x => x.Id);
             builder.Entity<Game>()
                 .Property(x => x.Id)
                 .ValueGeneratedNever();
-
             builder.Entity<Game>()
                 .HasOne(x => x.Away)
-                .WithMany();
+                .WithMany()
+                .HasForeignKey(x => x.AwayId);
+
             builder.Entity<Game>()
                 .HasOne(x => x.Home)
-                .WithMany();
+                .WithMany()
+                .HasForeignKey(x => x.HomeId);
+
+            //League
+            builder.Entity<League>()
+                .HasMany(x => x.LeagueSeasons)
+                .WithOne(x => x.League)
+                .HasForeignKey(x => x.LeagueId);
+            builder.Entity<League>()
+                .HasIndex(x => x.Name)
+                .IsUnique();
+
+            //LeagueSeason
+            builder.Entity<LeagueSeason>()
+                .HasMany(x => x.Members)
+                .WithMany(y => y.LeagueSeasons);
+
+            builder.Entity<LeagueSeason>()
+                .HasMany(x => x.Teams)
+                .WithMany(y => y.LeagueSeasons);
+
+            //Pick
+            builder.Entity<Pick>()
+                .HasOne(x => x.LeagueSeason)
+                .WithMany(x => x.Picks)
+                .HasForeignKey(x => x.LeagueSeasonId);
+
+            builder.Entity<Pick>()
+                .HasOne(x => x.Game)
+                .WithMany(x => x.Picks)
+                .HasForeignKey(x => x.GameId);
+
+            builder.Entity<Pick>()
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId);
+
+            builder.Entity<Pick>()
+                .HasMany(x => x.TeamsPicked)
+                .WithMany(x => x.Picks);
         }
     }
 }

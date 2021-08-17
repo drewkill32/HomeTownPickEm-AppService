@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace HomeTownPickEm.Models
 {
@@ -27,5 +28,6 @@ namespace HomeTownPickEm.Models
         public Team Away { get; set; }
 
         public int? AwayPoints { get; set; }
+        public ICollection<Pick> Picks { get; set; }
     }
 }
