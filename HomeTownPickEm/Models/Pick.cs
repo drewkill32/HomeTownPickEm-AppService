@@ -5,9 +5,9 @@ namespace HomeTownPickEm.Models
     public class Pick
     {
         public int Id { get; set; }
-        public int LeagueSeasonId { get; set; }
+        public int LeagueId { get; set; }
 
-        public LeagueSeason LeagueSeason { get; set; }
+        public League League { get; set; }
 
         public int GameId { get; set; }
 

@@ -27,6 +27,11 @@ namespace HomeTownPickEm.Models
     [DebuggerDisplay("[{Id}] {School} {Mascot}")]
     public class Team
     {
+        public Team()
+        {
+            Leagues = new HashSet<League>();
+        }
+
         public int Id { get; set; }
 
         public string School { get; set; }
@@ -37,7 +42,7 @@ namespace HomeTownPickEm.Models
         public string Color { get; set; }
         public string AltColor { get; set; }
         public string Logos { get; set; }
-        public ICollection<LeagueSeason> LeagueSeasons { get; set; }
+        public ICollection<League> Leagues { get; set; }
         public ICollection<Pick> Picks { get; set; }
     }
 }

@@ -62,28 +62,26 @@ namespace HomeTownPickEm.Data
                 .HasForeignKey(x => x.HomeId);
 
             //League
+
+
             builder.Entity<League>()
-                .HasMany(x => x.LeagueSeasons)
-                .WithOne(x => x.League)
-                .HasForeignKey(x => x.LeagueId);
-            builder.Entity<League>()
-                .HasIndex(x => x.Name)
+                .HasIndex(x => new { x.Name, Year = x.Season })
                 .IsUnique();
 
             //LeagueSeason
-            builder.Entity<LeagueSeason>()
+            builder.Entity<League>()
                 .HasMany(x => x.Members)
-                .WithMany(y => y.LeagueSeasons);
+                .WithMany(y => y.Leagues);
 
-            builder.Entity<LeagueSeason>()
+            builder.Entity<League>()
                 .HasMany(x => x.Teams)
-                .WithMany(y => y.LeagueSeasons);
+                .WithMany(y => y.Leagues);
 
             //Pick
             builder.Entity<Pick>()
-                .HasOne(x => x.LeagueSeason)
+                .HasOne(x => x.League)
                 .WithMany(x => x.Picks)
-                .HasForeignKey(x => x.LeagueSeasonId);
+                .HasForeignKey(x => x.LeagueId);
 
             builder.Entity<Pick>()
                 .HasOne(x => x.Game)

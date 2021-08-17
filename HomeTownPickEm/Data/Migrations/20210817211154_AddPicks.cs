@@ -12,7 +12,8 @@ namespace HomeTownPickEm.Data.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Season = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -20,67 +21,47 @@ namespace HomeTownPickEm.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LeagueSeason",
+                name: "ApplicationUserLeague",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    LeagueId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Year = table.Column<string>(type: "TEXT", nullable: true)
+                    LeaguesId = table.Column<int>(type: "INTEGER", nullable: false),
+                    MembersId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LeagueSeason", x => x.Id);
+                    table.PrimaryKey("PK_ApplicationUserLeague", x => new { x.LeaguesId, x.MembersId });
                     table.ForeignKey(
-                        name: "FK_LeagueSeason_League_LeagueId",
-                        column: x => x.LeagueId,
+                        name: "FK_ApplicationUserLeague_AspNetUsers_MembersId",
+                        column: x => x.MembersId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserLeague_League_LeaguesId",
+                        column: x => x.LeaguesId,
                         principalTable: "League",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ApplicationUserLeagueSeason",
+                name: "LeagueTeam",
                 columns: table => new
                 {
-                    LeagueSeasonsId = table.Column<int>(type: "INTEGER", nullable: false),
-                    MembersId = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicationUserLeagueSeason", x => new { x.LeagueSeasonsId, x.MembersId });
-                    table.ForeignKey(
-                        name: "FK_ApplicationUserLeagueSeason_AspNetUsers_MembersId",
-                        column: x => x.MembersId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ApplicationUserLeagueSeason_LeagueSeason_LeagueSeasonsId",
-                        column: x => x.LeagueSeasonsId,
-                        principalTable: "LeagueSeason",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LeagueSeasonTeam",
-                columns: table => new
-                {
-                    LeagueSeasonsId = table.Column<int>(type: "INTEGER", nullable: false),
+                    LeaguesId = table.Column<int>(type: "INTEGER", nullable: false),
                     TeamsId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LeagueSeasonTeam", x => new { x.LeagueSeasonsId, x.TeamsId });
+                    table.PrimaryKey("PK_LeagueTeam", x => new { x.LeaguesId, x.TeamsId });
                     table.ForeignKey(
-                        name: "FK_LeagueSeasonTeam_LeagueSeason_LeagueSeasonsId",
-                        column: x => x.LeagueSeasonsId,
-                        principalTable: "LeagueSeason",
+                        name: "FK_LeagueTeam_League_LeaguesId",
+                        column: x => x.LeaguesId,
+                        principalTable: "League",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_LeagueSeasonTeam_Teams_TeamsId",
+                        name: "FK_LeagueTeam_Teams_TeamsId",
                         column: x => x.TeamsId,
                         principalTable: "Teams",
                         principalColumn: "Id",
@@ -93,7 +74,7 @@ namespace HomeTownPickEm.Data.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    LeagueSeasonId = table.Column<int>(type: "INTEGER", nullable: false),
+                    LeagueId = table.Column<int>(type: "INTEGER", nullable: false),
                     GameId = table.Column<int>(type: "INTEGER", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: true),
                     Points = table.Column<int>(type: "INTEGER", nullable: false)
@@ -114,9 +95,9 @@ namespace HomeTownPickEm.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Pick_LeagueSeason_LeagueSeasonId",
-                        column: x => x.LeagueSeasonId,
-                        principalTable: "LeagueSeason",
+                        name: "FK_Pick_League_LeagueId",
+                        column: x => x.LeagueId,
+                        principalTable: "League",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -146,24 +127,19 @@ namespace HomeTownPickEm.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApplicationUserLeagueSeason_MembersId",
-                table: "ApplicationUserLeagueSeason",
+                name: "IX_ApplicationUserLeague_MembersId",
+                table: "ApplicationUserLeague",
                 column: "MembersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_League_Name",
+                name: "IX_League_Name_Season",
                 table: "League",
-                column: "Name",
+                columns: new[] { "Name", "Season" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_LeagueSeason_LeagueId",
-                table: "LeagueSeason",
-                column: "LeagueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LeagueSeasonTeam_TeamsId",
-                table: "LeagueSeasonTeam",
+                name: "IX_LeagueTeam_TeamsId",
+                table: "LeagueTeam",
                 column: "TeamsId");
 
             migrationBuilder.CreateIndex(
@@ -172,9 +148,9 @@ namespace HomeTownPickEm.Data.Migrations
                 column: "GameId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pick_LeagueSeasonId",
+                name: "IX_Pick_LeagueId",
                 table: "Pick",
-                column: "LeagueSeasonId");
+                column: "LeagueId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pick_UserId",
@@ -190,19 +166,16 @@ namespace HomeTownPickEm.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ApplicationUserLeagueSeason");
+                name: "ApplicationUserLeague");
 
             migrationBuilder.DropTable(
-                name: "LeagueSeasonTeam");
+                name: "LeagueTeam");
 
             migrationBuilder.DropTable(
                 name: "PickTeam");
 
             migrationBuilder.DropTable(
                 name: "Pick");
-
-            migrationBuilder.DropTable(
-                name: "LeagueSeason");
 
             migrationBuilder.DropTable(
                 name: "League");

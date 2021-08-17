@@ -11,21 +11,9 @@ namespace HomeTownPickEm.Models
             return new LeagueDto
             {
                 Id = league.Id,
-                Name = league.Name
-                //LeagueSeasons = league.LeagueSeasons.Select(ToLeagueSeasonDto);
-            };
-        }
-
-        public static LeagueDto ToLeagueDto(this League league, string year)
-        {
-            var season = league.LeagueSeasons.FirstOrDefault(x => x.Year == year);
-
-            return new LeagueDto
-            {
-                Id = league.Id,
                 Name = league.Name,
-                Year = season?.Year,
-                Teams = season?.Teams.Select(x => x.ToTeamDto()).ToArray()
+                Year = league.Season,
+                Teams = league?.Teams.Select(x => x.ToTeamDto()).ToArray()
             };
         }
     }
@@ -34,13 +22,21 @@ namespace HomeTownPickEm.Models
     {
         public League()
         {
-            LeagueSeasons = new HashSet<LeagueSeason>();
+            Teams = new HashSet<Team>();
+            Members = new HashSet<ApplicationUser>();
+            Picks = new HashSet<Pick>();
         }
 
         public int Id { get; set; }
 
         public string Name { get; set; }
 
-        public ICollection<LeagueSeason> LeagueSeasons { get; set; }
+        public string Season { get; set; }
+
+        public ICollection<Team> Teams { get; set; }
+
+        public ICollection<ApplicationUser> Members { get; set; }
+
+        public ICollection<Pick> Picks { get; set; }
     }
 }

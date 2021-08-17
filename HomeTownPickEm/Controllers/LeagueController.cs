@@ -8,9 +8,11 @@ namespace HomeTownPickEm.Controllers
 {
     public class LeagueController : ApiControllerBase
     {
-        [HttpPost]
-        public async Task<ActionResult> AddTeams(AddLeagueTeams.Command command)
+        [HttpPost("{name}/{season}/addTeam")]
+        public async Task<ActionResult> AddTeam(string name, string season, AddLeagueTeam.Command command)
         {
+            command.Name = name;
+            command.Season = season;
             var league = await Mediator.Send(command);
             return CreatedAtAction("GetLeague", league);
         }
@@ -24,13 +26,13 @@ namespace HomeTownPickEm.Controllers
             return CreatedAtAction("GetLeague", league);
         }
 
-        [HttpGet("{name}/{year}", Name = "GetLeague")]
-        public async Task<ActionResult<LeagueDto>> GetLeague(string name, string year)
+        [HttpGet("{name}/{season}", Name = "GetLeague")]
+        public async Task<ActionResult<LeagueDto>> GetLeague(string name, string season)
         {
             var league = await Mediator.Send(new GetLeague.Query
             {
                 Name = name,
-                Year = year
+                Year = season
             });
 
             return Ok(league);

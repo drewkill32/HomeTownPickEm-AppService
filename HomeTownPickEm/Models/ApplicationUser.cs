@@ -5,6 +5,6 @@ namespace HomeTownPickEm.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public ICollection<LeagueSeason> LeagueSeasons { get; set; }
+        public ICollection<League> Leagues { get; set; }
     }
 }

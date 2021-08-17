@@ -1,7 +1,9 @@
 using System;
 using System.Net.Http.Headers;
 using System.Reflection;
+using HomeTownPickEm.Application.Common.Behaviors;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Filters;
 using HomeTownPickEm.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -105,10 +107,7 @@ namespace HomeTownPickEm
             services.AddAuthentication()
                 .AddIdentityServerJwt();
 
-            services.AddControllersWithViews(options =>
-            {
-                //options.Filters.Add<ApiExceptionFilterAttribute>();
-            });
+            services.AddControllersWithViews(options => { options.Filters.Add<ApiExceptionFilterAttribute>(); });
             services.AddRazorPages();
 
             services.Configure<CFBDSettings>(Configuration.GetSection(CFBDSettings.SettingsKey));
@@ -121,7 +120,7 @@ namespace HomeTownPickEm
             });
 
             services.AddMediatR(typeof(Startup));
-
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }

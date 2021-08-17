@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeTownPickEm.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210817120036_AddPicks")]
+    [Migration("20210817211154_AddPicks")]
     partial class AddPicks
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,19 +18,19 @@ namespace HomeTownPickEm.Data.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.9");
 
-            modelBuilder.Entity("ApplicationUserLeagueSeason", b =>
+            modelBuilder.Entity("ApplicationUserLeague", b =>
                 {
-                    b.Property<int>("LeagueSeasonsId")
+                    b.Property<int>("LeaguesId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MembersId")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("LeagueSeasonsId", "MembersId");
+                    b.HasKey("LeaguesId", "MembersId");
 
                     b.HasIndex("MembersId");
 
-                    b.ToTable("ApplicationUserLeagueSeason");
+                    b.ToTable("ApplicationUserLeague");
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.ApplicationUser", b =>
@@ -169,31 +169,15 @@ namespace HomeTownPickEm.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("League");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.LeagueSeason", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("LeagueId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Year")
+                    b.Property<string>("Season")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeagueId");
+                    b.HasIndex("Name", "Season")
+                        .IsUnique();
 
-                    b.ToTable("LeagueSeason");
+                    b.ToTable("League");
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Pick", b =>
@@ -205,7 +189,7 @@ namespace HomeTownPickEm.Data.Migrations
                     b.Property<int>("GameId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("LeagueSeasonId")
+                    b.Property<int>("LeagueId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Points")
@@ -218,7 +202,7 @@ namespace HomeTownPickEm.Data.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.HasIndex("LeagueSeasonId");
+                    b.HasIndex("LeagueId");
 
                     b.HasIndex("UserId");
 
@@ -362,19 +346,19 @@ namespace HomeTownPickEm.Data.Migrations
                     b.ToTable("PersistedGrants");
                 });
 
-            modelBuilder.Entity("LeagueSeasonTeam", b =>
+            modelBuilder.Entity("LeagueTeam", b =>
                 {
-                    b.Property<int>("LeagueSeasonsId")
+                    b.Property<int>("LeaguesId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamsId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("LeagueSeasonsId", "TeamsId");
+                    b.HasKey("LeaguesId", "TeamsId");
 
                     b.HasIndex("TeamsId");
 
-                    b.ToTable("LeagueSeasonTeam");
+                    b.ToTable("LeagueTeam");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -524,11 +508,11 @@ namespace HomeTownPickEm.Data.Migrations
                     b.ToTable("PickTeam");
                 });
 
-            modelBuilder.Entity("ApplicationUserLeagueSeason", b =>
+            modelBuilder.Entity("ApplicationUserLeague", b =>
                 {
-                    b.HasOne("HomeTownPickEm.Models.LeagueSeason", null)
+                    b.HasOne("HomeTownPickEm.Models.League", null)
                         .WithMany()
-                        .HasForeignKey("LeagueSeasonsId")
+                        .HasForeignKey("LeaguesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -558,17 +542,6 @@ namespace HomeTownPickEm.Data.Migrations
                     b.Navigation("Home");
                 });
 
-            modelBuilder.Entity("HomeTownPickEm.Models.LeagueSeason", b =>
-                {
-                    b.HasOne("HomeTownPickEm.Models.League", "League")
-                        .WithMany("LeagueSeasons")
-                        .HasForeignKey("LeagueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("League");
-                });
-
             modelBuilder.Entity("HomeTownPickEm.Models.Pick", b =>
                 {
                     b.HasOne("HomeTownPickEm.Models.Game", "Game")
@@ -577,9 +550,9 @@ namespace HomeTownPickEm.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HomeTownPickEm.Models.LeagueSeason", "LeagueSeason")
+                    b.HasOne("HomeTownPickEm.Models.League", "League")
                         .WithMany("Picks")
-                        .HasForeignKey("LeagueSeasonId")
+                        .HasForeignKey("LeagueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -589,16 +562,16 @@ namespace HomeTownPickEm.Data.Migrations
 
                     b.Navigation("Game");
 
-                    b.Navigation("LeagueSeason");
+                    b.Navigation("League");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LeagueSeasonTeam", b =>
+            modelBuilder.Entity("LeagueTeam", b =>
                 {
-                    b.HasOne("HomeTownPickEm.Models.LeagueSeason", null)
+                    b.HasOne("HomeTownPickEm.Models.League", null)
                         .WithMany()
-                        .HasForeignKey("LeagueSeasonsId")
+                        .HasForeignKey("LeaguesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -681,11 +654,6 @@ namespace HomeTownPickEm.Data.Migrations
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.League", b =>
-                {
-                    b.Navigation("LeagueSeasons");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.LeagueSeason", b =>
                 {
                     b.Navigation("Picks");
                 });

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace HomeTownPickEm
+namespace HomeTownPickEm.Filters
 {
     public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
@@ -18,6 +18,7 @@ namespace HomeTownPickEm
             {
                 //{ typeof(ValidationException), HandleValidationException },
                 { typeof(NotFoundException), HandleNotFoundException },
+                { typeof(BadRequestException), HandleBadRequestException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException }
                 //{ typeof(ForbiddenAccessException), HandleForbiddenAccessException },
             };
@@ -28,6 +29,22 @@ namespace HomeTownPickEm
             HandleException(context);
 
             base.OnException(context);
+        }
+
+        private void HandleBadRequestException(ExceptionContext context)
+        {
+            var exception = context.Exception as BadRequestException;
+
+            var details = new ProblemDetails
+            {
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
+                Title = "The Request is invalid.",
+                Detail = exception.Message
+            };
+
+            context.Result = new BadRequestObjectResult(details);
+
+            context.ExceptionHandled = true;
         }
 
         private void HandleException(ExceptionContext context)

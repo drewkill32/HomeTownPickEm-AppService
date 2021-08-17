@@ -29,21 +29,11 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 var league = new League
                 {
                     Name = request.Name,
-                    LeagueSeasons =
-                    {
-                        new LeagueSeason
-                        {
-                            Year = request.Season
-                        }
-                    }
+                    Season = request.Season
                 };
                 _context.League.Add(league);
                 await _context.SaveChangesAsync(cancellationToken);
-                return new LeagueDto
-                {
-                    Name = request.Name,
-                    Id = league.Id
-                };
+                return league.ToLeagueDto();
             }
         }
     }
