@@ -22,9 +22,9 @@ namespace HomeTownPickEm.Models
     {
         public League()
         {
-            Teams = new HashSet<Team>();
-            Members = new HashSet<ApplicationUser>();
-            Picks = new HashSet<Pick>();
+            Teams = new HashSet<Team>(ModelEquality<Team>.IdComparer);
+            Members = new HashSet<ApplicationUser>(ModelEquality<ApplicationUser>.IdComparer);
+            Picks = new HashSet<Pick>(ModelEquality<Pick>.IdComparer);
         }
 
         public int Id { get; set; }

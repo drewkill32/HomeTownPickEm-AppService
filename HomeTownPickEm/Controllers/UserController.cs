@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
@@ -9,6 +10,21 @@ namespace HomeTownPickEm.Controllers
 {
     public class UserController : ApiControllerBase
     {
+        [HttpPost]
+        public async Task<ActionResult<UserDto>> AddUser(AddUser.Command command)
+        {
+            var user = await Mediator.Send(command);
+            return Ok(user);
+        }
+
+        [HttpPost("/api/users")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> AddUsers(AddUsers.Command command)
+        {
+            var users = (await Mediator.Send(command)).ToArray();
+
+            return Ok(users);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get(string id)
         {

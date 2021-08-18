@@ -68,7 +68,7 @@ namespace HomeTownPickEm.Data
                 .HasIndex(x => new { x.Name, Year = x.Season })
                 .IsUnique();
 
-            //LeagueSeason
+            //League
             builder.Entity<League>()
                 .HasMany(x => x.Members)
                 .WithMany(y => y.Leagues);
