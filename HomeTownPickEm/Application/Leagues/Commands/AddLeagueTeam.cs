@@ -15,7 +15,6 @@ namespace HomeTownPickEm.Application.Leagues.Commands
         {
             public string Name { get; set; }
             public string Season { get; set; }
-
             public int TeamId { get; set; }
         }
 
