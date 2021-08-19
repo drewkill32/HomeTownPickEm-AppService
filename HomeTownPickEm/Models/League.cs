@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HomeTownPickEm.Application.Leagues;
+using HomeTownPickEm.Application.Users;
 
 namespace HomeTownPickEm.Models
 {
@@ -13,7 +14,8 @@ namespace HomeTownPickEm.Models
                 Id = league.Id,
                 Name = league.Name,
                 Year = league.Season,
-                Teams = league?.Teams.Select(x => x.ToTeamDto()).ToArray()
+                Teams = league?.Teams.Select(x => x.ToTeamDto()).ToArray(),
+                Members = league?.Members.Select(x => x.ToUserDto()).ToArray()
             };
         }
     }

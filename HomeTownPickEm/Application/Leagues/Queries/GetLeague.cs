@@ -29,6 +29,9 @@ namespace HomeTownPickEm.Application.Leagues.Queries
             public async Task<LeagueDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 var league = await _context.League.Where(x => x.Name == request.Name)
+                    .Include(x => x.Teams)
+                    .Include(x => x.Members)
+                    .AsSingleQuery()
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (league == null)
