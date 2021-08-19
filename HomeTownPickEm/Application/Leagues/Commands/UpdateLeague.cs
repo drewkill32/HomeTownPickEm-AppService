@@ -49,13 +49,11 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                         $"No League found with name {request.Name} and Season {request.Season}");
                 }
 
-                //var newTeams = teams.Except(league.Teams,ModelEquality<Team>.IdComparer).ToArray();
                 foreach (var team in teams)
                 {
                     league.Teams.Add(team);
                 }
 
-                //var newMembers =  members.Except(league.Members,ModelEquality<ApplicationUser>.IdComparer).ToArray();
                 foreach (var member in members)
                 {
                     league.Members.Add(member);
@@ -71,6 +69,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
             private async Task<ApplicationUser[]> GetMembers(Command request, CancellationToken cancellationToken)
             {
                 var users = await _context.Users.Where(x => request.MemberIds.Contains(x.Id))
+                    .AsTracking()
                     .ToArrayAsync(cancellationToken);
 
                 var notFoundMembers = request.MemberIds.Except(users.Select(x => x.Id)).ToArray();
@@ -86,6 +85,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
             private async Task<Team[]> GetTeams(Command request, CancellationToken cancellationToken)
             {
                 var teams = await _context.Teams.Where(x => request.TeamIds.Contains(x.Id))
+                    .AsTracking()
                     .ToArrayAsync(cancellationToken);
 
                 var notFoundTeams = request.TeamIds.Except(teams.Select(x => x.Id)).ToArray();

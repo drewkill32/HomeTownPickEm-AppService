@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace HomeTownPickEm.Application.Teams.Commands
+namespace HomeTownPickEm.Application.Teams
 {
     public class TeamDto
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using HomeTownPickEm.Application.Teams.Commands;
+using HomeTownPickEm.Application.Teams;
 
 namespace HomeTownPickEm.Models
 {

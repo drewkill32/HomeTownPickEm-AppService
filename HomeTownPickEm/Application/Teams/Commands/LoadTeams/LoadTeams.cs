@@ -37,9 +37,9 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                     new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = new SnakeCaseNamingPolicy()
-                    }, cancellationToken);
+                    }, cancellationToken) ?? throw new InvalidOperationException("Thee return value was null");
 
-                var teams = teamsResponse.Select(MapToTeam);
+                var teams = teamsResponse.Select(MapToTeam).ToArray();
 
                 if (_context.Teams.Any())
                 {
@@ -51,9 +51,9 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
-                return teams.Select(x=> x.ToTeamDto()).ToArray();
+                return teams.Select(x => x.ToTeamDto()).ToArray();
             }
-            
+
 
             private Team MapToTeam(TeamResponse teamResponse)
             {

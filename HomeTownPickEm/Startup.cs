@@ -5,6 +5,7 @@ using HomeTownPickEm.Application.Common.Behaviors;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Filters;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -121,6 +122,7 @@ namespace HomeTownPickEm
 
             services.AddMediatR(typeof(Startup));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
+            services.AddScoped<GameTeamRepository>();
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }

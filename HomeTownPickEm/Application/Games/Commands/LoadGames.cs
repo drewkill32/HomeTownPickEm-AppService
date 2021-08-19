@@ -6,10 +6,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using HomeTownPickEm.Application.Teams.Commands;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Json;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,10 +29,13 @@ namespace HomeTownPickEm.Application.Games.Commands
         {
             private readonly ApplicationDbContext _context;
             private readonly HttpClient _httpClient;
+            private readonly GameTeamRepository _repository;
 
-            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
+            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context,
+                GameTeamRepository repository)
             {
                 _context = context;
+                _repository = repository;
                 _httpClient = httpClientFactory.CreateClient(CFBDSettings.SettingsKey);
             }
 
@@ -44,9 +47,9 @@ namespace HomeTownPickEm.Application.Games.Commands
                     new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = new SnakeCaseNamingPolicy()
-                    }, cancellationToken);
+                    }, cancellationToken) ?? throw new InvalidOperationException("The returned value was null");
 
-                var games = gamesResponse.Select(MapToGame);
+                var games = gamesResponse.Select(MapToGame).ToArray();
 
                 if (_context.Games.Any())
                 {
@@ -57,9 +60,10 @@ namespace HomeTownPickEm.Application.Games.Commands
                     _context.Games.AddRange(games);
                 }
 
-                var teamCollection = await GetTeamCollection(games, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
-                return games.Select(x => MapToDto(x, teamCollection)).ToArray();
+                await _repository.LoadTeamCollection(games, cancellationToken);
+
+                return games.Select(x => _repository.MapToDto(x)).ToArray();
             }
 
             private async Task<string> GetQueryString(Command request, CancellationToken cancellationToken)
@@ -73,37 +77,6 @@ namespace HomeTownPickEm.Application.Games.Commands
                 return $"year={request.Year}&seasonType={request.SeasonType}";
             }
 
-            private async Task<IEnumerable<TeamDto>> GetTeamCollection(IEnumerable<Game> games,
-                CancellationToken cancellationToken)
-            {
-                var homeIds = games.Select(x => x.HomeId);
-                var awayIds = games.Select(x => x.AwayId);
-                var ids = homeIds.Union(awayIds).Distinct().ToArray();
-                return await _context.Teams
-                    .Where(x => ids.Contains(x.Id)).Select(x => x.ToTeamDto())
-                    .ToArrayAsync(cancellationToken);
-            }
-
-           
-
-            private GameDto MapToDto(Game arg, IEnumerable<TeamDto> teams)
-            {
-                var game = new GameDto
-                {
-                    Id = arg.Id,
-                    Season = arg.Season,
-                    Week = arg.Week,
-                    AwayPoints = arg.AwayPoints,
-                    HomePoints = arg.HomePoints,
-                    SeasonType = arg.SeasonType,
-                    StartDate = arg.StartDate,
-                    StartTimeTbd = arg.StartTimeTbd,
-                    HomeTeam = teams.FirstOrDefault(x => x.Id == arg.HomeId),
-                    AwayTeam = teams.FirstOrDefault(x => x.Id == arg.AwayId)
-                };
-
-                return game;
-            }
 
             private Game MapToGame(GameResponse gameResponse)
             {

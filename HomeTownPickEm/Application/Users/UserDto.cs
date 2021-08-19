@@ -1,4 +1,4 @@
-using HomeTownPickEm.Application.Teams.Commands;
+using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Models;
 
 namespace HomeTownPickEm.Application.Users

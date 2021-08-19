@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using HomeTownPickEm.Application.Teams.Commands;
+using HomeTownPickEm.Application.Teams;
 
 namespace HomeTownPickEm.Application.Leagues
 {

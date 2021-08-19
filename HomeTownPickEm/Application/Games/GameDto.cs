@@ -1,8 +1,29 @@
 using System;
-using HomeTownPickEm.Application.Teams.Commands;
+using HomeTownPickEm.Application.Teams;
+using HomeTownPickEm.Models;
 
 namespace HomeTownPickEm.Application.Games
 {
+    public static class GameExtensions
+    {
+        public static GameDto ToGameDto(this Game game)
+        {
+            return new GameDto
+            {
+                Id = game.Id,
+                Week = game.Week,
+                Season = game.Season,
+                HomeTeam = game.Home?.ToTeamDto(),
+                AwayTeam = game.Away?.ToTeamDto(),
+                AwayPoints = game.AwayPoints,
+                HomePoints = game.HomePoints,
+                StartTimeTbd = game.StartTimeTbd,
+                SeasonType = game.SeasonType,
+                StartDate = game.StartDate
+            };
+        }
+    }
+
     public class GameDto
     {
         public int Id { get; set; }
