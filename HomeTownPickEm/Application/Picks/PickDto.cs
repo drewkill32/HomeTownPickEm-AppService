@@ -16,7 +16,7 @@ namespace HomeTownPickEm.Application.Picks
                 Points = pick.Points,
                 LeagueId = pick.LeagueId,
                 GameId = pick.GameId,
-                Game = pick.Game.ToGameDto(),
+                Game = pick.Game?.ToGameDto(),
                 TeamsPicked = pick.TeamsPicked.Select(x => x.ToTeamDto()).ToArray(),
                 UserId = pick.UserId
             };

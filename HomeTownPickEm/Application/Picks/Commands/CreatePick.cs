@@ -42,7 +42,6 @@ namespace HomeTownPickEm.Application.Picks.Commands
                     .Include(x => x.TeamsPicked)
                     .AsTracking()
                     .SingleOrDefaultAsync(cancellationToken);
-                var g = game;
 
                 var teams = await _context.Teams.Where(x => request.SelectedTeams.Contains(x.Id))
                     .AsTracking()
@@ -58,15 +57,17 @@ namespace HomeTownPickEm.Application.Picks.Commands
                         GameId = request.GameId,
                         Points = 0
                     };
+                    _context.Add(pick);
                 }
                 else
                 {
                     pick.TeamsPicked = teams;
                     pick.Points = 0;
+                    _context.Update(pick);
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
-
+                pick.Game = game;
                 return pick.ToPickDto();
             }
 
@@ -79,9 +80,9 @@ namespace HomeTownPickEm.Application.Picks.Commands
                     .Include(x => x.Teams)
                     .SingleOrDefaultAsync(cancellationToken)).Teams.Select(x => x.Id).ToArray();
 
-                if (request.SelectedTeams.Except(leagueTeamIds).Any())
+                if (!leagueTeamIds.Intersect(new[] { game.HomeId, game.AwayId }).Any())
                 {
-                    throw new BadRequestException("At least one of the team Ids must be in the league.");
+                    throw new BadRequestException("At least one of the teams must be in the league.");
                 }
 
                 if (game == null)
@@ -100,6 +101,13 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 if (request.SelectedTeams.Length > 2)
                 {
                     throw new BadRequestException("You cannot select more than two teams");
+                }
+
+                if (request.SelectedTeams.Length == 2 &&
+                    leagueTeamIds.Intersect(new[] { game.HomeId, game.AwayId }).Count() !=
+                    2) //must be a head-to-head matchup
+                {
+                    throw new BadRequestException("You cannot pick two teams unless it is a head-to-head matchup");
                 }
 
                 if (request.SelectedTeams.Except(new[] { game.HomeId, game.AwayId }).Any())

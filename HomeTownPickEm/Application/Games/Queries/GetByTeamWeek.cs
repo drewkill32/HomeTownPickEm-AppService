@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Data;
-using HomeTownPickEm.Models;
 using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +15,7 @@ namespace HomeTownPickEm.Application.Games.Queries
         {
             public int? Week { get; set; }
             public int? TeamId { get; set; }
+            public string Season { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<GameDto>>
@@ -31,7 +31,7 @@ namespace HomeTownPickEm.Application.Games.Queries
 
             public async Task<IEnumerable<GameDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                IQueryable<Game> query = _context.Games;
+                var query = _context.Games.Where(x => x.Season == request.Season);
                 if (request.TeamId.HasValue)
                 {
                     query = query.Where(x => x.HomeId == request.TeamId || x.AwayId == request.TeamId);
@@ -48,7 +48,8 @@ namespace HomeTownPickEm.Application.Games.Queries
                     .ToArrayAsync(cancellationToken);
 
                 await _repository.LoadTeamCollection(games, cancellationToken);
-                return games.Select(x => _repository.MapToDto(x));
+                return games.Select(x => _repository.MapToDto(x))
+                    .OrderBy(x => x.Week).ThenBy(x => x.StartDate).ToArray();
             }
         }
     }

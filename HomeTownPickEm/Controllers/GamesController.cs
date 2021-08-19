@@ -9,22 +9,27 @@ namespace HomeTownPickEm.Controllers
     //[Authorize]
     public class GamesController : ApiControllerBase
     {
-        [HttpGet("all")]
-        public async Task<ActionResult<GameDto>> GetAllGames()
+        [HttpGet("{season}/all")]
+        public async Task<ActionResult<GameDto>> GetAllGames(string season)
         {
-            var games = await Mediator.Send(new GetAllGames.Query());
+            var games = await Mediator.Send(new GetAllGames.Query
+            {
+                Season = season
+            });
             return Ok(games);
         }
 
-        [HttpGet("week/{week}")]
-        public async Task<ActionResult<GameDto>> GetByWeek(int week)
+        [HttpGet("{season}/week/{week}")]
+        public async Task<ActionResult<GameDto>> GetByWeek(string season, int week)
         {
             var games = await Mediator.Send(new GetByTeamWeek.Query
             {
+                Season = season,
                 Week = week
             });
             return Ok(games);
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<GameDto>> GetGame([FromRoute] int id)
@@ -36,11 +41,23 @@ namespace HomeTownPickEm.Controllers
             return Ok(games);
         }
 
-        [HttpGet("team/{teamId}/week/{week}")]
-        public async Task<ActionResult<GameDto>> GetGame(int teamId, int week)
+        [HttpGet("{season}/team/{teamId}/")]
+        public async Task<ActionResult<GameDto>> GetGameByTeam(string season, int teamId)
         {
             var games = await Mediator.Send(new GetByTeamWeek.Query
             {
+                Season = season,
+                TeamId = teamId
+            });
+            return Ok(games);
+        }
+
+        [HttpGet("{season}/team/{teamId}/week/{week}")]
+        public async Task<ActionResult<GameDto>> GetGameByTeamWeek(string season, int teamId, int week)
+        {
+            var games = await Mediator.Send(new GetByTeamWeek.Query
+            {
+                Season = season,
                 TeamId = teamId,
                 Week = week
             });
