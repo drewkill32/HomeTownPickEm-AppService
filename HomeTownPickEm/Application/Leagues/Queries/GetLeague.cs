@@ -15,6 +15,8 @@ namespace HomeTownPickEm.Application.Leagues.Queries
         {
             public string Name { get; set; }
             public string Year { get; set; }
+
+            public bool IncludePicks { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, LeagueDto>
@@ -28,10 +30,15 @@ namespace HomeTownPickEm.Application.Leagues.Queries
 
             public async Task<LeagueDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var league = await _context.League.Where(x => x.Name == request.Name)
+                IQueryable<League> query = _context.League.Where(x => x.Name == request.Name)
                     .Include(x => x.Teams)
-                    .Include(x => x.Members)
-                    .AsSingleQuery()
+                    .Include(x => x.Members);
+                if (request.IncludePicks)
+                {
+                    query = query.Include(x => x.Picks);
+                }
+
+                var league = await query.AsSplitQuery()
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (league == null)

@@ -17,12 +17,13 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpGet("{name}/{season}", Name = "GetLeague")]
-        public async Task<ActionResult<LeagueDto>> GetLeague(string name, string season)
+        public async Task<ActionResult<LeagueDto>> GetLeague(string name, string season, [FromQuery] bool picks)
         {
             var league = await Mediator.Send(new GetLeague.Query
             {
                 Name = name,
-                Year = season
+                Year = season,
+                IncludePicks = picks
             });
 
             return Ok(league);

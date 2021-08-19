@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HomeTownPickEm.Application.Leagues;
+using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Users;
 
 namespace HomeTownPickEm.Models
@@ -14,8 +15,9 @@ namespace HomeTownPickEm.Models
                 Id = league.Id,
                 Name = league.Name,
                 Year = league.Season,
-                Teams = league?.Teams.Select(x => x.ToTeamDto()).ToArray(),
-                Members = league?.Members.Select(x => x.ToUserDto()).ToArray()
+                Teams = league.Teams?.Select(x => x.ToTeamDto()),
+                Members = league.Members?.Select(x => x.ToUserDto()),
+                Picks = league.Picks?.Select(x => x.ToPickDto())
             };
         }
     }
@@ -26,7 +28,7 @@ namespace HomeTownPickEm.Models
         {
             Teams = new HashSet<Team>(ModelEquality<Team>.IdComparer);
             Members = new HashSet<ApplicationUser>(ModelEquality<ApplicationUser>.IdComparer);
-            Picks = new HashSet<Pick>(ModelEquality<Pick>.IdComparer);
+            Picks = new HashSet<Pick>();
         }
 
         public int Id { get; set; }

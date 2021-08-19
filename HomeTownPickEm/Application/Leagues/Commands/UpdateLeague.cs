@@ -39,8 +39,9 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                     await _context.League.Where(x => x.Name == request.Name && x.Season == request.Season)
                         .Include(x => x.Teams)
                         .Include(x => x.Members)
+                        .Include(x => x.Picks)
                         .AsTracking()
-                        .AsSingleQuery()
+                        .AsSplitQuery()
                         .SingleOrDefaultAsync(cancellationToken);
 
                 if (league == null)
@@ -49,15 +50,10 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                         $"No League found with name {request.Name} and Season {request.Season}");
                 }
 
-                foreach (var team in teams)
-                {
-                    league.Teams.Add(team);
-                }
+                UpdateMembers(members, league);
 
-                foreach (var member in members)
-                {
-                    league.Members.Add(member);
-                }
+                await UpdateTeams(teams, league);
+
 
                 _context.League.Update(league);
 
@@ -65,6 +61,28 @@ namespace HomeTownPickEm.Application.Leagues.Commands
 
                 return league.ToLeagueDto();
             }
+
+            private async Task AddPicks(League league, Team team, MinGame[] gameIds)
+            {
+                var gamesToAdd = gameIds.Where(x => x.ContainsTeam(team.Id)).ToArray();
+
+                foreach (var member in league.Members)
+                {
+                    foreach (var game in gamesToAdd)
+                    {
+                        var pick = new Pick
+                        {
+                            LeagueId = league.Id,
+                            Points = 0,
+                            UserId = member.Id,
+                            GameId = game.Id
+                        };
+                        await _context.Pick.AddAsync(pick);
+                        league.Picks.Add(pick);
+                    }
+                }
+            }
+
 
             private async Task<ApplicationUser[]> GetMembers(Command request, CancellationToken cancellationToken)
             {
@@ -82,6 +100,19 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 return users;
             }
 
+            private async Task<MinGame[]> GetMinGames(int[] teamIds)
+            {
+                var gameIds = await _context.Games.Where(x => teamIds.Contains(x.HomeId) || teamIds.Contains(x.AwayId))
+                    .Select(x => new MinGame
+                    {
+                        Id = x.Id,
+                        HomeId = x.HomeId,
+                        AwayId = x.AwayId
+                    })
+                    .ToArrayAsync();
+                return gameIds;
+            }
+
             private async Task<Team[]> GetTeams(Command request, CancellationToken cancellationToken)
             {
                 var teams = await _context.Teams.Where(x => request.TeamIds.Contains(x.Id))
@@ -96,6 +127,73 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 }
 
                 return teams;
+            }
+
+            private static void RemovePicks(League league, Team team, MinGame[] gameIds)
+            {
+                var gamesToRemove = gameIds.Where(x => x.ContainsTeam(team.Id)).Select(x => x.Id)
+                    .ToArray();
+                var picksToRemove = league.Picks.Where(x => gamesToRemove.Contains(x.GameId)).ToArray();
+                foreach (var pick in picksToRemove)
+                {
+                    league.Picks.Remove(pick);
+                }
+            }
+
+            private void UpdateMembers(ApplicationUser[] members, League league)
+            {
+                var newMembers = members.Except(league.Members, ModelEquality<ApplicationUser>.IdComparer).ToArray();
+                var oldMembers = league.Members.Except(members, ModelEquality<ApplicationUser>.IdComparer).ToArray();
+                foreach (var member in newMembers)
+                {
+                    league.Members.Add(member);
+                }
+
+                foreach (var member in oldMembers)
+                {
+                    league.Members.Remove(member);
+                    var picksToRemove = league.Picks.Where(x => x.UserId == member.Id).ToArray();
+                    foreach (var pick in picksToRemove)
+                    {
+                        league.Picks.Remove(pick);
+                    }
+                }
+            }
+
+            private async Task UpdateTeams(Team[] teams, League league)
+            {
+                var newTeams = teams.Except(league.Teams, ModelEquality<Team>.IdComparer).ToArray();
+                var oldTeams = league.Teams.Except(teams, ModelEquality<Team>.IdComparer).ToArray();
+                var teamIds = newTeams.Select(x => x.Id).Concat(oldTeams.Select(x => x.Id)).ToArray();
+
+                var gameIds = await GetMinGames(teamIds);
+
+                foreach (var team in newTeams)
+                {
+                    league.Teams.Add(team);
+
+                    await AddPicks(league, team, gameIds);
+                }
+
+                foreach (var team in oldTeams)
+                {
+                    league.Teams.Remove(team);
+                    RemovePicks(league, team, gameIds);
+                }
+            }
+
+            private struct MinGame
+            {
+                public int Id { get; set; }
+
+                public int HomeId { get; set; }
+
+                public int AwayId { get; set; }
+
+                public bool ContainsTeam(int teamId)
+                {
+                    return teamId == HomeId || teamId == AwayId;
+                }
             }
         }
     }

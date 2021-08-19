@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Application.Users;
 
@@ -16,7 +17,8 @@ namespace HomeTownPickEm.Application.Leagues
 
         public string Year { get; set; }
 
-        public ICollection<TeamDto> Teams { get; set; }
-        public ICollection<UserDto> Members { get; set; }
+        public IEnumerable<TeamDto> Teams { get; set; }
+        public IEnumerable<UserDto> Members { get; set; }
+        public IEnumerable<PickDto> Picks { get; set; }
     }
 }

@@ -39,7 +39,21 @@ namespace HomeTownPickEm.Models
                 throw new InvalidOperationException($"The type {x.GetType()} does not have an Id property");
             }
 
-            return idProp.GetValue(x).Equals(idProp.GetValue(y));
+            var xVal = idProp.GetValue(x) ??
+                       throw new NullReferenceException($"The Id Property on {typeof(TModel)} is null");
+            var yVal = idProp.GetValue(y) ??
+                       throw new NullReferenceException($"The Id Property on {typeof(TModel)} is null");
+            if (idProp.PropertyType != typeof(int))
+            {
+                return xVal.Equals(yVal);
+            }
+
+            if ((int)xVal == 0 && (int)yVal == 0)
+            {
+                return false;
+            }
+
+            return xVal.Equals(yVal);
         }
 
         public int GetHashCode(TModel obj)
