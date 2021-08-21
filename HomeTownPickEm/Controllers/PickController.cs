@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Commands;
@@ -12,6 +13,8 @@ namespace HomeTownPickEm.Controllers
         public async Task<ActionResult<PickDto>> CreatePick(int id, SelectTeam.Command command)
         {
             command.Id = id;
+
+            command.UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var pick = await Mediator.Send(command);
             return Ok(pick);
         }

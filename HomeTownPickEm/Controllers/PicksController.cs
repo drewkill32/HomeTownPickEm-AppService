@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
-using HomeTownPickEm.Application.Picks.Commands;
 using HomeTownPickEm.Application.Picks.Queries;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,14 +8,6 @@ namespace HomeTownPickEm.Controllers
 {
     public class PicksController : ApiControllerBase
     {
-        [HttpPut("{id}")]
-        public async Task<ActionResult<PickDto>> CreatePick(int id, SelectTeam.Command command)
-        {
-            command.Id = id;
-            var pick = await Mediator.Send(command);
-            return Ok(pick);
-        }
-
         [HttpGet("{leagueId}")]
         public async Task<ActionResult<IEnumerable<PickDto>>> GetPicks(int leagueId)
         {

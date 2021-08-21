@@ -14,7 +14,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
     {
         public class Command : IRequest<PickDto>
         {
-            public int SelectedTeam { get; set; }
+            public int? SelectedTeam { get; set; }
 
             public string UserId { get; set; }
             public int Id { get; set; }
@@ -40,28 +40,37 @@ namespace HomeTownPickEm.Application.Picks.Commands
                     throw new ForbiddenAccessException();
                 }
 
-                var team = await GetTeam(request, pick.GameId, cancellationToken);
+                if (request.SelectedTeam.HasValue)
+                {
+                    var team = await GetTeam(request.SelectedTeam.Value, pick.GameId, cancellationToken);
 
-                pick.SelectedTeamId = team.Id;
-                
+                    pick.SelectedTeamId = team.Id;
+                }
+                else
+                {
+                    pick.SelectedTeamId = null;
+                }
+
+
+                _context.Update(pick);
                 await _context.SaveChangesAsync(cancellationToken);
-                pick.SelectedTeam = team;
                 return pick.ToPickDto();
             }
 
-            private async Task<Team> GetTeam(Command request, int gameId, CancellationToken cancellationToken)
+            private async Task<Team> GetTeam(int teamId, int gameId, CancellationToken cancellationToken)
             {
-                var selectedTeam = (await _context.Teams
-                        .SingleOrDefaultAsync(x => x.Id == request.SelectedTeam, cancellationToken))
-                    .GuardAgainstNotFound(request.SelectedTeam);
-
                 var game = (await _context.Games
                         .SingleOrDefaultAsync(x => x.Id == gameId, cancellationToken))
                     .GuardAgainstNotFound(gameId);
 
-                GuardAgainstTeamNotPlaying(request.SelectedTeam, game);
-
                 GuardAgainstPickPastCutoff(game);
+
+                var selectedTeam = (await _context.Teams
+                        .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
+                    .GuardAgainstNotFound(teamId);
+
+                GuardAgainstTeamNotPlaying(teamId, game);
+
 
                 return selectedTeam;
             }
@@ -81,7 +90,8 @@ namespace HomeTownPickEm.Application.Picks.Commands
             {
                 if (game.HomeId != teamId && game.AwayId != teamId)
                 {
-                    throw new BadRequestException("You picked a team that is not playing this game");
+                    throw new BadRequestException(
+                        $"You picked a team that is not playing this game. GameId: {game.Id} teamId: {teamId}");
                 }
             }
         }
