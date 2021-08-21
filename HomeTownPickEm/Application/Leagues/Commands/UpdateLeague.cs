@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                         $"No League found with name {request.Name} and Season {request.Season}");
                 }
 
-                UpdateMembers(members, league);
+                await UpdateMembers(members, league);
 
                 await UpdateTeams(teams, league);
 
@@ -62,9 +63,9 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 return league.ToLeagueDto();
             }
 
-            private async Task AddPicks(League league, Team team, MinGame[] gameIds)
+            private async Task AddPicks(League league, IEnumerable<Team> teams, MinGame[] gameIds)
             {
-                var gamesToAdd = gameIds.Where(x => x.ContainsTeam(team.Id)).ToArray();
+                var gamesToAdd = gameIds.Where(x => teams.Any(team => x.ContainsTeam(team.Id))).ToArray();
 
                 foreach (var member in league.Members)
                 {
@@ -140,13 +141,15 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 }
             }
 
-            private void UpdateMembers(ApplicationUser[] members, League league)
+            private async Task UpdateMembers(ApplicationUser[] members, League league)
             {
                 var newMembers = members.Except(league.Members, ModelEquality<ApplicationUser>.IdComparer).ToArray();
                 var oldMembers = league.Members.Except(members, ModelEquality<ApplicationUser>.IdComparer).ToArray();
                 foreach (var member in newMembers)
                 {
                     league.Members.Add(member);
+                    var gameIds = await GetMinGames(league.Teams.Select(x => x.Id).ToArray());
+                    await AddPicks(league, league.Teams, gameIds);
                 }
 
                 foreach (var member in oldMembers)
@@ -172,7 +175,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 {
                     league.Teams.Add(team);
 
-                    await AddPicks(league, team, gameIds);
+                    await AddPicks(league, new[] { team }, gameIds);
                 }
 
                 foreach (var team in oldTeams)

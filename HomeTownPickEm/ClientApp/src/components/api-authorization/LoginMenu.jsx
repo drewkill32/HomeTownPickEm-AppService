@@ -1,24 +1,24 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { NavItem, NavLink } from "reactstrap";
-import { Link } from "react-router-dom";
+import React, {Fragment, useEffect, useState} from "react";
+import {NavItem, NavLink} from "reactstrap";
+import {Link} from "react-router-dom";
 import authService from "./AuthorizeService";
-import { ApplicationPaths } from "./ApiAuthorizationConstants";
+import {ApplicationPaths} from "./ApiAuthorizationConstants";
 
-const AuthenticatedView = ({ userName, profilePath, logoutPath }) => {
-  return (
-    <Fragment>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to={profilePath}>
-          Hello {userName}
-        </NavLink>
-      </NavItem>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to={logoutPath}>
-          Logout
-        </NavLink>
-      </NavItem>
-    </Fragment>
-  );
+const AuthenticatedView = ({userName, profilePath, logoutPath}) => {
+    return (
+        <Fragment>
+            <NavItem>
+                <NavLink tag={Link} className="text-dark" to={profilePath}>
+                    Hello {userName}
+                </NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink tag={Link} className="text-dark" to={logoutPath}>
+                    Logout
+                </NavLink>
+            </NavItem>
+        </Fragment>
+    );
 };
 
 const AnonymousView = ({ registerPath, loginPath }) => {
@@ -43,9 +43,13 @@ const LoginMenu = () => {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    const subscription = authService.subscribe(() => populateState());
-    populateState();
-    return () => subscription.unsubscribe();
+      const subscription = authService.subscribe(() => populateState());
+      populateState();
+      return () => {
+          if (typeof subscription === "function") {
+              subscription.unsubscribe();
+          }
+      };
   }, []);
 
   const populateState = async () => {
