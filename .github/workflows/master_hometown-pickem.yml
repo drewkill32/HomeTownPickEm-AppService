@@ -27,11 +27,7 @@ jobs:
       uses: actions/setup-node@v2.4.0
       with:
          node-version: '12.x'
-         
-    - name: NPM Install
-      run: |
-        cd  HomeTownPickEm/ClientApp
-        npm install
+       
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
