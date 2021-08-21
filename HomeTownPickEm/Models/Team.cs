@@ -1,28 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using HomeTownPickEm.Application.Teams;
 
 namespace HomeTownPickEm.Models
 {
-    public static class TeamExtensions
-    {
-        public static TeamDto ToTeamDto(this Team team)
-        {
-            return new()
-            {
-                Abbreviation = team.Abbreviation,
-                Color = team.Color,
-                Conference = team.Conference,
-                Division = team.Division,
-                Mascot = team.Mascot,
-                Id = team.Id,
-                Logos = team.Logos.Split(';', StringSplitOptions.RemoveEmptyEntries),
-                School = team.School,
-                AltColor = team.AltColor
-            };
-        }
-    }
+    
 
     [DebuggerDisplay("[{Id}] {School} {Mascot}")]
     public class Team
@@ -43,6 +24,5 @@ namespace HomeTownPickEm.Models
         public string AltColor { get; set; }
         public string Logos { get; set; }
         public ICollection<League> Leagues { get; set; }
-        public ICollection<Pick> Picks { get; set; }
     }
 }

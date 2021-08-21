@@ -94,8 +94,9 @@ namespace HomeTownPickEm.Data
                 .HasForeignKey(x => x.UserId);
 
             builder.Entity<Pick>()
-                .HasMany(x => x.TeamsPicked)
-                .WithMany(x => x.Picks);
+                .HasOne(x => x.SelectedTeam)
+                .WithMany()
+                .HasForeignKey(x => x.SelectedTeamId);
         }
     }
 }

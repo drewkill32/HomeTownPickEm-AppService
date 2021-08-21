@@ -11,6 +11,7 @@ export const useAuth = () => {
   const popUpDisabled = true;
 
   const updateState = (u) => {
+    console.log("updated user", {user: u});
     setUser(u);
     setIsAuthenticated(Boolean(u));
     notifySubscribers();
@@ -55,6 +56,7 @@ export const useAuth = () => {
   const getAccessToken = async () => {
     await ensureUserManagerInitialized();
     const user = await userManager.getUser();
+    console.log("get token", {user: user});
     return user && user.access_token;
   };
 

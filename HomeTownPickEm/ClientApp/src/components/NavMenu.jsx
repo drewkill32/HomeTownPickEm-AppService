@@ -1,14 +1,6 @@
-import React, { useState } from "react";
-import {
-  Collapse,
-  Container,
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  NavItem,
-  NavLink,
-} from "reactstrap";
-import { Link } from "react-router-dom";
+import React, {useState} from "react";
+import {Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from "reactstrap";
+import {Link} from "react-router-dom";
 import LoginMenu from "./api-authorization/LoginMenu";
 import "./NavMenu.css";
 
@@ -44,6 +36,11 @@ const NavMenu = () => {
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/teams">
                   Teams
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className="text-dark" to="/picks">
+                  Picks
                 </NavLink>
               </NavItem>
               <LoginMenu></LoginMenu>

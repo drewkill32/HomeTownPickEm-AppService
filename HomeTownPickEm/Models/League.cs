@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Picks;
+using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Application.Users;
 
 namespace HomeTownPickEm.Models

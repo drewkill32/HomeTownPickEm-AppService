@@ -12,7 +12,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/all")]
         public async Task<ActionResult<GameDto>> GetAllGames(string season)
         {
-            var games = await Mediator.Send(new GetAllGames.Query
+            var games = await Mediator.Send(new GetGames.Query
             {
                 Season = season
             });
@@ -22,7 +22,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/week/{week}")]
         public async Task<ActionResult<GameDto>> GetByWeek(string season, int week)
         {
-            var games = await Mediator.Send(new GetByTeamWeek.Query
+            var games = await Mediator.Send(new GetGames.Query
             {
                 Season = season,
                 Week = week
@@ -44,7 +44,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/team/{teamId}/")]
         public async Task<ActionResult<GameDto>> GetGameByTeam(string season, int teamId)
         {
-            var games = await Mediator.Send(new GetByTeamWeek.Query
+            var games = await Mediator.Send(new GetGames.Query
             {
                 Season = season,
                 TeamId = teamId
@@ -55,7 +55,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/team/{teamId}/week/{week}")]
         public async Task<ActionResult<GameDto>> GetGameByTeamWeek(string season, int teamId, int week)
         {
-            var games = await Mediator.Send(new GetByTeamWeek.Query
+            var games = await Mediator.Send(new GetGames.Query
             {
                 Season = season,
                 TeamId = teamId,

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using HomeTownPickEm.Application.Exceptions;
+using HomeTownPickEm.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -19,8 +20,8 @@ namespace HomeTownPickEm.Filters
                 //{ typeof(ValidationException), HandleValidationException },
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(BadRequestException), HandleBadRequestException },
-                { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException }
-                //{ typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+                { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
+                { typeof(ForbiddenAccessException), HandleForbiddenAccessException }
             };
         }
 

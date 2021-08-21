@@ -3,19 +3,21 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Games.Queries
 {
-    public class GetByTeamWeek
+    public class GetGames
     {
         public class Query : IRequest<IEnumerable<GameDto>>
         {
+            public string Season { get; set; }
+
             public int? Week { get; set; }
             public int? TeamId { get; set; }
-            public string Season { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<GameDto>>
@@ -31,25 +33,23 @@ namespace HomeTownPickEm.Application.Games.Queries
 
             public async Task<IEnumerable<GameDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var query = _context.Games.Where(x => x.Season == request.Season);
-                if (request.TeamId.HasValue)
-                {
-                    query = query.Where(x => x.HomeId == request.TeamId || x.AwayId == request.TeamId);
-                }
-
-                if (request.Week.HasValue)
-                {
-                    query = query.Where(x => x.Week == request.Week);
-                }
-
-                var games = await query
+                var games = await _context.Games
+                    .Where(x => x.Season == request.Season)
+                    .WhereTeamIs(request.TeamId)
+                    .WhereWeekIs(request.Week)
                     .Include(x => x.Away)
                     .Include(x => x.Home)
                     .ToArrayAsync(cancellationToken);
 
                 await _repository.LoadTeamCollection(games, cancellationToken);
+                
+                
                 return games.Select(x => _repository.MapToDto(x))
-                    .OrderBy(x => x.Week).ThenBy(x => x.StartDate).ToArray();
+                    .OrderBy(x => x.Week)
+                    .ThenBy(x => x.StartDate)
+                    .ThenBy(x => x.AwayTeam.Name)
+                    .ToArray();
+                
             }
         }
     }

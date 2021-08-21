@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import authService from "./api-authorization/AuthorizeService";
 
 const TeamsTable = ({ teams }) => {
@@ -16,13 +16,16 @@ const TeamsTable = ({ teams }) => {
         {teams.map((team, index) => (
           <tr key={team.id}>
             <td>
-              <img
-                loading={index < 15 ? "eager" : "lazy"}
-                src={team.logos && team.logos.length > 0 && team.logos[0]}
-                alt={team.name}
-                width="25"
-                height="25"
-              />
+                <img
+                    onError={(e) =>
+                        (e.target.src = "https://placehold.jp/50x50.png")
+                    }
+                    loading={index < 15 ? "eager" : "lazy"}
+                    src={team.logo}
+                    alt={team.name}
+                    width="25"
+                    height="25"
+                />
             </td>
             <td>{team.name}</td>
             <td>{team.conference}</td>
@@ -43,11 +46,11 @@ const Teams = () => {
   }, []);
 
   const populateTeams = async () => {
-    const token = await authService.getAccessToken();
-    const response = await fetch("api/teams/all", {
-      headers: !token ? {} : { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
+      const token = await authService.getAccessToken();
+      const response = await fetch("api/teams", {
+          headers: !token ? {} : {Authorization: `Bearer ${token}`},
+      });
+      const data = await response.json();
     setTeams(data);
     setLoading(false);
   };

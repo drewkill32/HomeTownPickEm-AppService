@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using HomeTownPickEm.Application.Games;
 using HomeTownPickEm.Application.Teams;
@@ -10,16 +9,27 @@ namespace HomeTownPickEm.Application.Picks
     {
         public static PickDto ToPickDto(this Pick pick)
         {
-            return new PickDto
+            var pickDto = new PickDto
             {
                 Id = pick.Id,
                 Points = pick.Points,
                 LeagueId = pick.LeagueId,
                 GameId = pick.GameId,
                 Game = pick.Game?.ToGameDto(),
-                TeamsPicked = pick.TeamsPicked?.Select(x => x.ToTeamDto()).ToArray(),
+                SelectedTeam = pick.SelectedTeam?.ToTeamDto(),
                 UserId = pick.UserId
             };
+            if (pick.League != null && pick.Game != null)
+            {
+                var game = pick.Game;
+                var leagueTeams = pick.League.Teams;
+                if (leagueTeams.Any(x => x.Id == game.AwayId) && leagueTeams.Any(x => x.Id == game.HomeId))
+                {
+                    pickDto.Head2Head = true;
+                }
+            }
+
+            return pickDto;
         }
     }
 
@@ -35,9 +45,9 @@ namespace HomeTownPickEm.Application.Picks
 
         public string UserId { get; set; }
 
-
+        public bool Head2Head { get; set; }
         public int Points { get; set; }
 
-        public ICollection<TeamDto> TeamsPicked { get; set; }
+        public TeamDto SelectedTeam { get; set; }
     }
 }

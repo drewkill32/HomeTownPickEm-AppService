@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace HomeTownPickEm.Models
 {
     public class Pick
@@ -20,6 +18,8 @@ namespace HomeTownPickEm.Models
         public int Points { get; set; }
 
 
-        public ICollection<Team> TeamsPicked { get; set; }
+        public Team SelectedTeam { get; set; }
+
+        public int? SelectedTeamId { get; set; }
     }
 }

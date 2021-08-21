@@ -10,10 +10,26 @@ namespace HomeTownPickEm.Controllers
     //[Authorize]
     public class TeamsController : ApiControllerBase
     {
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TeamDto>>> Get([FromQuery] string conference,
+            [FromQuery] string name, [FromQuery] int? top)
+        {
+            var teams = await Mediator.Send(new GetTeams.Query
+            {
+                Conference = conference,
+                Name = name,
+                Top = top
+            });
+            return Ok(teams);
+        }
+
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetAll()
         {
-            var teams = await Mediator.Send(new GetAll.Query());
+            var teams = await Mediator.Send(new GetTeams.Query
+            {
+                IncludeNoConference = true
+            });
             return Ok(teams);
         }
 
