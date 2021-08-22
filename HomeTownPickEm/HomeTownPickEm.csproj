@@ -22,13 +22,6 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.9" />
     </ItemGroup>
-
-    <ItemGroup>
-        <None Update="app2.db">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        </None>
-    </ItemGroup>
     <ItemGroup>
         <!-- Don't publish the SPA source files, but do show them in the project files list -->
         <Content Remove="$(SpaRoot)**" />
