@@ -81,28 +81,12 @@ namespace HomeTownPickEm
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
+                .AddDeveloperSigningCredential()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-            // .AddConfigurationStore(options =>
-            // {
-            //     options.ConfigureDbContext = builder =>
-            //         builder.UseSqlite(connectionString,
-            //             sql => sql.MigrationsAssembly(migrationsAssembly));
-            // })
-            // // this adds the operational data from DB (codes, tokens, consents)
-            // .AddOperationalStore(options =>
-            // {
-            //     options.ConfigureDbContext = builder =>
-            //         builder.UseSqlite(connectionString,
-            //             sql => sql.MigrationsAssembly(migrationsAssembly));
-            //
-            //     // this enables automatic token cleanup. this is optional.
-            //     options.EnableTokenCleanup = true;
-            //     options.TokenCleanupInterval = 30;
-            // });
 
 
             services.AddAuthentication()
