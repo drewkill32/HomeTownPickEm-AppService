@@ -19,6 +19,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
             public string Season { get; set; }
             public int[] TeamIds { get; set; } = Array.Empty<int>();
             public string[] MemberIds { get; set; } = Array.Empty<string>();
+            public bool KeepExisting { get; set; }
         }
 
         public class CommandHandler : IRequestHandler<Command, LeagueDto>
@@ -32,10 +33,6 @@ namespace HomeTownPickEm.Application.Leagues.Commands
 
             public async Task<LeagueDto> Handle(Command request, CancellationToken cancellationToken)
             {
-                var members = await GetMembers(request, cancellationToken);
-                var teams = await GetTeams(request, cancellationToken);
-
-
                 var league =
                     await _context.League.Where(x => x.Name == request.Name && x.Season == request.Season)
                         .Include(x => x.Teams)
@@ -44,6 +41,10 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                         .AsTracking()
                         .AsSplitQuery()
                         .SingleOrDefaultAsync(cancellationToken);
+
+                var members = await GetMembers(request, league, cancellationToken);
+                var teams = await GetTeams(request, league, cancellationToken);
+
 
                 if (league == null)
                 {
@@ -85,20 +86,30 @@ namespace HomeTownPickEm.Application.Leagues.Commands
             }
 
 
-            private async Task<ApplicationUser[]> GetMembers(Command request, CancellationToken cancellationToken)
+            private async Task<ApplicationUser[]> GetMembers(Command request, League league,
+                CancellationToken cancellationToken)
             {
-                var users = await _context.Users.Where(x => request.MemberIds.Contains(x.Id))
-                    .AsTracking()
-                    .ToArrayAsync(cancellationToken);
+                var users = request.KeepExisting
+                    ? league.Members.ToDictionary(x => x.Id, x => x)
+                    : new Dictionary<string, ApplicationUser>();
 
-                var notFoundMembers = request.MemberIds.Except(users.Select(x => x.Id)).ToArray();
+                var usersToAdd = await _context.Users.Where(x => request.MemberIds.Contains(x.Id))
+                    .AsTracking()
+                    .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+                var notFoundMembers = request.MemberIds.Except(usersToAdd.Select(x => x.Key)).ToArray();
                 if (notFoundMembers.Any())
                 {
                     throw new NotFoundException(
                         $"member(s) not found with Id(s): '{string.Join(", ", notFoundMembers)}'");
                 }
 
-                return users;
+                foreach (var userEntry in usersToAdd)
+                {
+                    users.TryAdd(userEntry.Key, userEntry.Value);
+                }
+
+                return users.Select(x => x.Value).ToArray();
             }
 
             private async Task<MinGame[]> GetMinGames(int[] teamIds)
@@ -114,20 +125,30 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 return gameIds;
             }
 
-            private async Task<Team[]> GetTeams(Command request, CancellationToken cancellationToken)
+            private async Task<Team[]> GetTeams(Command request, League league, CancellationToken cancellationToken)
             {
-                var teams = await _context.Teams.Where(x => request.TeamIds.Contains(x.Id))
-                    .AsTracking()
-                    .ToArrayAsync(cancellationToken);
+                var teams = request.KeepExisting
+                    ? league.Teams.ToDictionary(x => x.Id, x => x)
+                    : new Dictionary<int, Team>();
 
-                var notFoundTeams = request.TeamIds.Except(teams.Select(x => x.Id)).ToArray();
+
+                var teamsToAdd = await _context.Teams.Where(x => request.TeamIds.Contains(x.Id))
+                    .AsTracking()
+                    .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+                var notFoundTeams = request.TeamIds.Except(teams.Select(x => x.Key)).ToArray();
                 if (notFoundTeams.Any())
                 {
                     throw new NotFoundException(
                         $"team(s) not found with Id(s): '{string.Join(", ", notFoundTeams.Select(x => x.ToString()))}'");
                 }
 
-                return teams;
+                foreach (var teamEntry in teamsToAdd)
+                {
+                    teams.TryAdd(teamEntry.Key, teamEntry.Value);
+                }
+
+                return teams.Select(x => x.Value).ToArray();
             }
 
             private static void RemovePicks(League league, Team team, MinGame[] gameIds)
