@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Services
@@ -88,16 +87,11 @@ namespace HomeTownPickEm.Services
 
         private async ValueTask AddLeagues(CancellationToken cancellationToken)
         {
-            if (!_env.IsDevelopment())
-            {
-                return;
-            }
-
             if (!_context.League.Any())
             {
                 _context.League.Add(new League
                 {
-                    Name = "Test League",
+                    Name = "St. Pete Pick Em",
                     Season = DateTime.Now.Year.ToString()
                 });
                 await _context.SaveChangesAsync(cancellationToken);
@@ -129,17 +123,25 @@ namespace HomeTownPickEm.Services
                 var registerUserCommand = new Register.Command();
 
                 _config.GetSection("User").Bind(registerUserCommand);
+
+
+                var league = await _context.League.OrderBy(x => x.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (league != null)
+                {
+                    registerUserCommand.LeagueIds = new[] { league.Id };
+                }
+
                 var teamName = _config.GetSection("User")["Team"]?.ToLower();
                 var team = await _context.Teams
                     .OrderBy(x => x.Id)
                     .FirstOrDefaultAsync(x => x.School.ToLower().Contains(teamName),
                         cancellationToken);
+                if (team != null)
+                {
+                    registerUserCommand.TeamId = team.Id;
+                }
 
-                var league = await _context.League.OrderBy(x => x.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                registerUserCommand.TeamId = team.Id;
-                registerUserCommand.LeagueIds = new[] { league.Id };
                 await _mediator.Send(registerUserCommand, cancellationToken);
             }
         }
