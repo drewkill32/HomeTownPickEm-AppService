@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from "reactstrap";
 import {Link} from "react-router-dom";
-import LoginMenu from "./api-authorization/LoginMenu";
+import LoginMenu from "./Login/LoginMenu";
 import "./NavMenu.css";
 
 const NavMenu = () => {
@@ -19,9 +19,9 @@ const NavMenu = () => {
       >
         <Container>
           <NavbarBrand tag={Link} to="/">
-            HomeTownPickEm
+            St. Pete Pick-Em
           </NavbarBrand>
-          <NavbarToggler onClick={toggleNavbar} className="mr-2" />
+          <NavbarToggler onClick={toggleNavbar} className="mr-2"/>
           <Collapse
             className="d-sm-inline-flex flex-sm-row-reverse"
             isOpen={!collapsed}

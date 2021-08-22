@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
@@ -26,7 +27,7 @@ namespace HomeTownPickEm.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetUser")]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get(string id)
         {
             var users = await Mediator.Send(new GetUser.Query
@@ -56,7 +57,11 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDto>> Register(Register.Command command)
         {
-            return await Mediator.Send(command);
+            var user = await Mediator.Send(command);
+            return new ObjectResult(user)
+            {
+                StatusCode = (int)HttpStatusCode.Created
+            };
         }
 
         [HttpPut("{id}")]

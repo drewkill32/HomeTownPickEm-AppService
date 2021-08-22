@@ -29,14 +29,6 @@ namespace HomeTownPickEm.Controllers
             return Ok(league);
         }
 
-        [HttpPut("{name}/{season}")]
-        public async Task<ActionResult> UpdateLeague(string name, string season, UpdateLeague.Command command)
-        {
-            command.Name = name;
-            command.Season = season;
-            var league = await Mediator.Send(command);
-            return CreatedAtAction("GetLeague", league);
-        }
 
         [HttpPut("{name}/{season}/user/{userId}")]
         public async Task<ActionResult> UpdateLeague(string name, string season, string userId,

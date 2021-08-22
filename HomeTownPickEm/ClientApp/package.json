@@ -7,6 +7,7 @@
     "axios": "^0.21.1",
     "bootstrap": "^5.1.0",
     "eslint": "^5.16.0",
+    "formik": "^2.2.9",
     "jquery": "^3.5.1",
     "js-cookie": "^3.0.0",
     "merge": "^2.1.1",

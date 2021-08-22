@@ -103,7 +103,7 @@ namespace HomeTownPickEm
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
 
-
+            services.AddScoped<ILeagueServiceFactory, LeagueServiceFactory>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {

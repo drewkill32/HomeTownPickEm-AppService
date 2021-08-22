@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
-import authService from "./api-authorization/AuthorizeService";
+import {useAuth} from "../hooks/useAuth";
 import {Spinner} from "reactstrap";
 
 const PicksTable = ({picks}) => {
@@ -23,6 +23,7 @@ const PicksTable = ({picks}) => {
 };
 
 const PickRow = ({pick, index}) => {
+    const {getToken} = useAuth();
     const [loading, setLoading] = useState(false);
     const [selectedId, setSelectedId] = useState(
         pick.selectedTeam && pick.selectedTeam.id
@@ -34,7 +35,7 @@ const PickRow = ({pick, index}) => {
     const handleChange = async (teamId) => {
         setLoading(true);
         try {
-            const token = await authService.getAccessToken();
+            const token = await getToken();
             const response = await fetch(`api/pick/${pick.id}`, {
                 method: "PUT",
                 headers: !token
@@ -48,14 +49,14 @@ const PickRow = ({pick, index}) => {
             await response.json();
             setSelectedId(teamId);
         } catch (error) {
-      console.error(error);
-    }
-    setLoading(false);
-  };
+            console.error(error);
+        }
+        setLoading(false);
+    };
 
-  return (
-      <tr key={pick.id}>
-          <td>
+    return (
+        <tr key={pick.id}>
+            <td>
         <span>
           <input
               class="form-check-input"
@@ -77,8 +78,8 @@ const PickRow = ({pick, index}) => {
           />
           <span>{pick.game.awayTeam.name}</span>
         </span>
-          </td>
-          <td>
+            </td>
+            <td>
         <span>
           <span>{pick.head2Head}</span>
           <input
@@ -100,46 +101,43 @@ const PickRow = ({pick, index}) => {
           />
           <span>{pick.game.homeTeam.name}</span>
         </span>
-          </td>
-          <td>{loading && <Spinner color="primary"> </Spinner>}</td>
-      </tr>
+            </td>
+            <td>{loading && <Spinner color="primary"> </Spinner>}</td>
+        </tr>
   );
 };
 
 const Picks = () => {
     const [picks, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
+    const {getToken, user} = useAuth();
     const {week} = useParams();
     useEffect(() => {
         populatePicks();
     }, []);
 
     const populatePicks = async () => {
-        const token = await authService.getAccessToken();
-        const user = await authService.getUser();
-        if (!user) {
-            throw new Error("User not found");
-        }
-    const id = user.sub;
-    const response = await fetch(`api/picks/1/${id}/week/${week}`, {
-        headers: !token ? {} : {Authorization: `Bearer ${token}`},
-    });
-    const data = await response.json();
-    setTeams(data);
-    setLoading(false);
-  };
-  return (
-      <div>
-          <h1 id="tabelLabel">Picks</h1>
-          {loading ? (
-              <p>
-                  <em>Loading...</em>
-              </p>
-          ) : (
-              <PicksTable picks={picks}/>
-          )}
-      </div>
-  );
+        const token = getToken();
+        const id = user.id;
+        const response = await fetch(`api/picks/1/${id}/week/${week}`, {
+            headers: !token ? {} : {Authorization: `Bearer ${token}`},
+        });
+        const data = await response.json();
+        setTeams(data);
+        setLoading(false);
+    };
+    return (
+        <div>
+            <h1 id="tabelLabel">Picks</h1>
+            {loading ? (
+                <p>
+                    <em>Loading...</em>
+                </p>
+            ) : (
+                <PicksTable picks={picks}/>
+            )}
+        </div>
+    );
 };
 
 export default Picks;

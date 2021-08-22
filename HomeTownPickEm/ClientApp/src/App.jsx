@@ -1,35 +1,35 @@
 import React from "react";
 import "./custom.css";
 
+import {ProviderAuth} from "./hooks/useAuth";
 import {Route, Switch} from "react-router";
 import Layout from "./components/Layout";
 import Home from "./components/Home";
-import FetchData from "./components/FetchData";
-import Counter from "./components/Counter";
-import AuthorizeRoute from "./components/api-authorization/AuthorizeRoute";
-import ApiAuthorizationRoutes from "./components/api-authorization/ApiAuthorizationRoutes";
-import {ApplicationPaths} from "./components/api-authorization/ApiAuthorizationConstants";
+
+import AuthorizeRoute from "./components/AuthorizeRoute";
 
 import Teams from "./components/Teams";
 import Picks from "./components/Picks";
 import NotFound from "./components/NotFound";
+import Register from "./components/Login/Register";
+import Login from "./components/Login/Login";
+import Logout from "./components/Login/Logout";
 
 const App = () => {
   return (
-      <Layout>
-        <Switch>
-          <Route exact path="/" component={Home}/>
-          <Route path="/counter" component={Counter}/>
-          <AuthorizeRoute path="/fetch-data" component={FetchData}/>
-          <AuthorizeRoute path="/teams" component={Teams}/>
-          <AuthorizeRoute path="/picks/:week" component={Picks}/>
-          <Route
-              path={ApplicationPaths.ApiAuthorizationPrefix}
-              component={ApiAuthorizationRoutes}
-          />
-          <Route path="*" component={NotFound}/>
-      </Switch>
-    </Layout>
+      <ProviderAuth>
+        <Layout>
+          <Switch>
+            <Route exact path="/" component={Home}/>
+            <Route path="/register" component={Register}/>
+            <Route path="/login" component={Login}/>
+            <Route path="/logout" component={Logout}/>
+            <AuthorizeRoute path="/teams" component={Teams}/>
+            <AuthorizeRoute path="/picks/:week" component={Picks}/>
+            <Route path="*" component={NotFound}/>
+          </Switch>
+        </Layout>
+      </ProviderAuth>
   );
 };
 
