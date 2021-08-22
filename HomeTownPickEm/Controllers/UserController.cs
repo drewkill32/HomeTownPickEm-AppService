@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Application.Users.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeTownPickEm.Controllers
@@ -42,6 +43,20 @@ namespace HomeTownPickEm.Controllers
             var users = await Mediator.Send(new GetAllUsers.Query());
 
             return Ok(users);
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserDto>> Login(Login.Query query)
+        {
+            return await Mediator.Send(query);
+        }
+
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserDto>> Register(Register.Command command)
+        {
+            return await Mediator.Send(command);
         }
 
         [HttpPut("{id}")]

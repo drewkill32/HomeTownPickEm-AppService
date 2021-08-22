@@ -5,7 +5,7 @@ namespace HomeTownPickEm.Application.Users
 {
     public static class UserExtensions
     {
-        public static UserDto ToUserDto(this ApplicationUser user)
+        public static UserDto ToUserDto(this ApplicationUser user, string token = "")
         {
             return new UserDto
             {
@@ -13,7 +13,8 @@ namespace HomeTownPickEm.Application.Users
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Team = user.Team?.ToTeamDto() ?? new TeamDto()
+                Team = user.Team?.ToTeamDto() ?? new TeamDto(),
+                Token = token
             };
         }
     }
@@ -25,5 +26,7 @@ namespace HomeTownPickEm.Application.Users
         public TeamDto Team { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
+
+        public string Token { get; set; }
     }
 }
