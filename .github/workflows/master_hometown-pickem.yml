@@ -28,6 +28,10 @@ jobs:
       with:
          node-version: '12.21.x'
        
+    - name: Display Node Version
+      run: |
+        node --version
+        npm --version
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
