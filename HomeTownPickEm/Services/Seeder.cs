@@ -11,7 +11,6 @@ using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,18 +22,17 @@ namespace HomeTownPickEm.Services
     {
         private readonly IConfiguration _config;
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _env;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public Seeder(IWebHostEnvironment env,
-            IMediator mediator, ApplicationDbContext context,
+        public Seeder(
+            IMediator mediator,
+            ApplicationDbContext context,
             IConfiguration config,
             UserManager<ApplicationUser> userManager,
             ILogger<DatabaseInit> logger)
         {
-            _env = env;
             _mediator = mediator;
             _context = context;
             _config = config;
