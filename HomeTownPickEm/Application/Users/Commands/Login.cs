@@ -7,6 +7,7 @@ using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
@@ -24,17 +25,21 @@ namespace HomeTownPickEm.Application.Users.Commands
         {
             private readonly ApplicationDbContext _context;
             private readonly IJwtGenerator _jwtGenerator;
+            private readonly ILogger<Handler> _logger;
             private readonly SignInManager<ApplicationUser> _signInManager;
             private readonly UserManager<ApplicationUser> _userManager;
 
             public Handler(ApplicationDbContext context,
-                UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+                UserManager<ApplicationUser> userManager,
+                SignInManager<ApplicationUser> signInManager,
+                ILogger<Handler> logger,
                 IJwtGenerator jwtGenerator)
             {
                 _context = context;
                 _jwtGenerator = jwtGenerator;
                 _userManager = userManager;
                 _signInManager = signInManager;
+                _logger = logger;
             }
 
             public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
@@ -43,6 +48,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 
                 if (user == null)
                 {
+                    _logger.LogCritical("No user found with email <{email}>", request.Email);
                     throw new ForbiddenAccessException();
                 }
 
@@ -58,6 +64,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                     return fullUser.ToUserDto(token);
                 }
 
+                _logger.LogWarning("User {Email} attempted to log in with an incorrect password.", request.Email);
                 throw new ForbiddenAccessException();
             }
         }

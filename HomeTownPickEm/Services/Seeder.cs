@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Calendar.Commands;
+using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Application.Games.Commands;
 using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
 using HomeTownPickEm.Application.Users.Commands;
@@ -49,6 +51,19 @@ namespace HomeTownPickEm.Services
             await AddCalendar(cancellationToken);
             await AddGames(cancellationToken);
             await AddUsers(cancellationToken);
+            await AddAdminUserClaim(cancellationToken);
+        }
+
+        private async Task AddAdminUserClaim(CancellationToken cancellationToken)
+        {
+            var email = _config.GetSection("User")["Email"];
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                throw new NotFoundException($"There is no user with the email <{email}>");
+            }
+
+            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
         }
 
         private async Task AddCalendar(CancellationToken cancellationToken)
