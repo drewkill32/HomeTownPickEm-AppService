@@ -32,8 +32,8 @@ namespace HomeTownPickEm.Services
 
     public interface ILeagueService
     {
-        Task<Team> AddTeam(int teamId, CancellationToken cancellationToken);
-        Task<ApplicationUser> AddUser(string userId, CancellationToken cancellationToken);
+        Task<Team> AddTeamAsync(int teamId, CancellationToken cancellationToken);
+        Task<ApplicationUser> AddUserAsync(string userId, CancellationToken cancellationToken);
         Task RemoveTeam(int teamId, CancellationToken cancellationToken);
         Task RemoveUser(string userId, CancellationToken cancellationToken);
     }
@@ -52,11 +52,15 @@ namespace HomeTownPickEm.Services
         }
 
 
-        public async Task<ApplicationUser> AddUser(string userId, CancellationToken cancellationToken)
+        public async Task<ApplicationUser> AddUserAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = (await _context.Users.SingleOrDefaultAsync(x => x.Id == userId, cancellationToken))
+            var user = (await _context.Users
+                    .AsTracking()
+                    .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken))
                 .GuardAgainstNotFound(userId);
-
+            var league = await GetLeague(cancellationToken);
+            league.Members.Add(user);
+            await _context.SaveChangesAsync(cancellationToken);
             await AddPicks(user, cancellationToken);
             return user;
         }
@@ -65,15 +69,26 @@ namespace HomeTownPickEm.Services
         {
             var user = (await _context.Users.SingleOrDefaultAsync(x => x.Id == userId, cancellationToken))
                 .GuardAgainstNotFound(userId);
+            var league = await GetLeague(cancellationToken);
+            var member = league.Members.SingleOrDefault(x => x.Id == userId);
+            if (member != null)
+            {
+                league.Members.Remove(member);
+            }
 
+            await _context.SaveChangesAsync(cancellationToken);
             await RemovePicks(user, cancellationToken);
         }
 
-        public async Task<Team> AddTeam(int teamId, CancellationToken cancellationToken)
+        public async Task<Team> AddTeamAsync(int teamId, CancellationToken cancellationToken)
         {
-            var team = (await _context.Teams.SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
+            var team = (await _context.Teams
+                    .AsTracking()
+                    .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
                 .GuardAgainstNotFound(teamId);
-
+            var league = await GetLeague(cancellationToken);
+            league.Teams.Add(team);
+            await _context.SaveChangesAsync(cancellationToken);
             await AddPicks(team, cancellationToken);
             return team;
         }
@@ -83,13 +98,21 @@ namespace HomeTownPickEm.Services
         {
             var team = (await _context.Teams.SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
                 .GuardAgainstNotFound(teamId);
+            var league = await GetLeague(cancellationToken);
 
+            var teamToRemove = league.Teams.SingleOrDefault(x => x.Id == teamId);
+            if (teamToRemove != null)
+            {
+                league.Teams.Remove(teamToRemove);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
             await RemovePicks(team, cancellationToken);
         }
 
         private async Task AddPicks(Team team, CancellationToken cancellationToken)
         {
-            var games = await GetGames(cancellationToken);
+            var games = await GetGames(team, cancellationToken);
             var gamesToAdd = games.Where(x => x.ContainsTeam(team.Id)).ToArray();
             var league = await GetLeague(cancellationToken);
 
@@ -131,8 +154,6 @@ namespace HomeTownPickEm.Services
             }
 
             await _context.SaveChangesAsync(cancellationToken);
-
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async ValueTask<GameProjection[]> GetGames(CancellationToken cancellationToken)
@@ -153,6 +174,19 @@ namespace HomeTownPickEm.Services
                 })
                 .ToArrayAsync(cancellationToken);
             return _games;
+        }
+
+        private async ValueTask<GameProjection[]> GetGames(Team team, CancellationToken cancellationToken)
+        {
+            var teamIds = new[] { team.Id };
+            return await _context.Games.Where(x => teamIds.Contains(x.HomeId) || teamIds.Contains(x.AwayId))
+                .Select(x => new GameProjection
+                {
+                    Id = x.Id,
+                    HomeId = x.HomeId,
+                    AwayId = x.AwayId
+                })
+                .ToArrayAsync(cancellationToken);
         }
 
         private async ValueTask<League> GetLeague(CancellationToken cancellationToken)

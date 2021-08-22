@@ -57,6 +57,7 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDto>> Register(Register.Command command)
         {
+            command.LeagueIds = new[] { 1 };
             var user = await Mediator.Send(command);
             return new ObjectResult(user)
             {

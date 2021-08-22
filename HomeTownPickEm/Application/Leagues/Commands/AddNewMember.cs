@@ -35,7 +35,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                         x.Season == request.Season && x.Name == request.Name, cancellationToken))
                     .GuardAgainstNotFound($"No League {request.Name} - ({request.Season}) found");
                 var service = _leagueServiceFactory.Create(league.Id);
-                await service.AddUser(request.UserId, cancellationToken);
+                await service.AddUserAsync(request.UserId, cancellationToken);
                 return league.ToLeagueDto();
             }
         }

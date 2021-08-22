@@ -9,7 +9,7 @@ const Logout = () => {
     signOut();
     setIsSignedOut(true);
   }, [signOut]);
-
+  console.log("signout");
   if (isSignedOut) {
     return <Redirect to="/login"/>;
   } else {

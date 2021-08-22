@@ -94,13 +94,19 @@ namespace HomeTownPickEm
             });
             services.AddRazorPages();
 
-            var builder = services.AddIdentityCore<ApplicationUser>();
+            var builder = services.AddIdentityCore<ApplicationUser>(opt =>
+            {
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 4;
+            });
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
             identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
             identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
+
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
-
+            services.AddScoped<Seeder>();
+            services.AddHostedService<SeederWorkerService>();
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
 
             services.AddScoped<ILeagueServiceFactory, LeagueServiceFactory>();

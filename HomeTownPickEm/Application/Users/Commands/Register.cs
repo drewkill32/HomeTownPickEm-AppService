@@ -6,6 +6,7 @@ using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
+using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 
             public string LastName { get; set; }
 
-            public int? TeamId { get; set; }
+            public int TeamId { get; set; }
 
             public int[] LeagueIds { get; set; } = Array.Empty<int>();
         }
@@ -33,14 +34,18 @@ namespace HomeTownPickEm.Application.Users.Commands
         {
             private readonly ApplicationDbContext _context;
             private readonly IJwtGenerator _jwtGenerator;
+            private readonly ILeagueServiceFactory _leagueServiceFactory;
             private readonly UserManager<ApplicationUser> _userManager;
 
-            public Handler(ApplicationDbContext context, UserManager<ApplicationUser> userManager,
+            public Handler(ApplicationDbContext context,
+                ILeagueServiceFactory leagueServiceFactory,
+                UserManager<ApplicationUser> userManager,
                 IJwtGenerator jwtGenerator)
             {
                 _userManager = userManager;
                 _jwtGenerator = jwtGenerator;
                 _context = context;
+                _leagueServiceFactory = leagueServiceFactory;
             }
 
             public async Task<UserDto> Handle(Command request, CancellationToken cancellationToken)
@@ -69,13 +74,26 @@ namespace HomeTownPickEm.Application.Users.Commands
                     UserName = request.Email,
                     FirstName = request.FirstName,
                     LastName = request.LastName,
-                    TeamId = request.TeamId,
                     Leagues = leagues
                 };
+                if (request.TeamId != 0)
+                {
+                    user.TeamId = request.TeamId;
+                }
 
                 var result = await _userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
                 {
+                    foreach (var league in leagues)
+                    {
+                        var leagueService = _leagueServiceFactory.Create(league.Id);
+                        await leagueService.AddUserAsync(user.Id, cancellationToken);
+                        if (user.TeamId.HasValue)
+                        {
+                            await leagueService.AddTeamAsync(user.TeamId.Value, cancellationToken);
+                        }
+                    }
+
                     var fullUser = await _context.Users
                         .Include(x => x.Team)
                         .Include(x => x.Leagues)

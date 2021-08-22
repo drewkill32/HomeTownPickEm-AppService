@@ -12,7 +12,7 @@ const AuthenticatedView = ({userName}) => {
                 </NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-dark" to="logout">
+                <NavLink tag={Link} className="text-dark" to="/logout">
                     Logout
                 </NavLink>
             </NavItem>
@@ -42,7 +42,6 @@ const LoginMenu = () => {
     const [userName, setUserName] = useState("");
 
     useEffect(() => {
-        console.log({user});
         setUserName(user && user.email);
     }, [user]);
 

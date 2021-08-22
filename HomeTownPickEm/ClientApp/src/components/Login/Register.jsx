@@ -3,10 +3,12 @@ import {useAuth} from "../../hooks/useAuth";
 import {Button, Input} from "reactstrap";
 import {ErrorMessage, Formik} from "formik";
 import {useHistory} from "react-router-dom";
+import useGetTeams from "../../hooks/useGetTeams";
 
 const Register = () => {
     const auth = useAuth();
     const history = useHistory();
+    const {data: teams} = useGetTeams();
 
     return (
         <div>
@@ -16,6 +18,7 @@ const Register = () => {
                     password: "",
                     firstName: "",
                     lastName: "",
+                    teamId: "",
                     confirmPassword: "",
                 }}
                 validate={(values) => {
@@ -33,6 +36,9 @@ const Register = () => {
                     if (!values.firstName) {
                         errors.firstName = "Required";
                     }
+                    if (!values.teamId) {
+                        errors.teamId = "Required";
+                    }
                     if (!values.lastName) {
                         errors.lastName = "Required";
                     }
@@ -47,11 +53,13 @@ const Register = () => {
                 }}
                 onSubmit={async (values) => {
                     try {
+                        const teamId = parseInt(values.teamId, 0);
                         await auth.register({
                             email: values.email,
                             password: values.password,
                             firstName: values.firstName,
                             lastName: values.lastName,
+                            teamId: teamId,
                         });
                         history.push("/login", {
                             email: values.email,
@@ -68,6 +76,7 @@ const Register = () => {
                       handleChange,
                       handleBlur,
                       handleSubmit,
+                      setFieldValue,
                       isSubmitting,
                       isValid,
                       /* and other goodies */
@@ -93,7 +102,7 @@ const Register = () => {
                                 First Name
                             </label>
                             <Input
-                                type="firstName"
+                                type="text"
                                 name="firstName"
                                 id="firstName"
                                 placeholder="First Name"
@@ -108,7 +117,7 @@ const Register = () => {
                                 Last Name
                             </label>
                             <Input
-                                type="lastName"
+                                type="text"
                                 name="lastName"
                                 id="lastName"
                                 placeholder="Last Name"
@@ -119,6 +128,28 @@ const Register = () => {
                             <ErrorMessage name="lastName"/>
                         </div>
                         <div className="form-group row mb-2">
+                            <label htmlFor="teamId" className="col-sm-2 col-form-label">
+                                Team
+                            </label>
+                            <Input
+                                type="select"
+                                name="teamId"
+                                id="teamId"
+                                placeholder="Team"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.teamId}
+                            >
+                                {teams &&
+                                teams.map((team) => (
+                                    <option key={team.id} value={`${team.id}`}>
+                                        {team.name}
+                                    </option>
+                                ))}
+                            </Input>
+                            <ErrorMessage name="lastName"/>
+                        </div>
+                        <div className="form-group row mb-2">
                             <label htmlFor="password" className="col-sm-2 col-form-label">
                                 Password
                             </label>
@@ -126,6 +157,7 @@ const Register = () => {
                                 type="password"
                                 name="password"
                                 id="password"
+                                autoComplete="on"
                                 placeholder="Password"
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -144,6 +176,7 @@ const Register = () => {
                                 type="password"
                                 name="confirmPassword"
                                 id="confirmPassword"
+                                autoComplete="on"
                                 placeholder="Confirm Password"
                                 onChange={handleChange}
                                 onBlur={handleBlur}

@@ -22,6 +22,7 @@ export const useAuth = () => {
 };
 
 const register = async (user) => {
+  console.log("register", {user});
   try {
     var response = await fetch("api/user/register", {
       method: "POST",

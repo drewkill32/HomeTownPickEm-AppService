@@ -20,7 +20,6 @@ namespace HomeTownPickEm
             {
                 var seeder = ActivatorUtilities.CreateInstance<DatabaseInit>(scope.ServiceProvider);
                 await seeder.Init();
-                await seeder.Seed();
             }
 
             await host.RunAsync();

@@ -41,9 +41,7 @@ namespace HomeTownPickEm.Application.Teams.Queries
                 var teams = await query.ToArrayAsync(cancellationToken);
 
                 return teams.Select(x => x.ToTeamDto())
-                    .OrderBy(x => x.Conference)
-                    .ThenBy(x => x.Division)
-                    .ThenBy(x => x.Name)
+                    .OrderBy(x => x.Name)
                     .ToArray();
             }
         }
