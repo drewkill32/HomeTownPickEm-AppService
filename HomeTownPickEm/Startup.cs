@@ -91,7 +91,8 @@ namespace HomeTownPickEm
             services.AddAuthentication()
                 .AddIdentityServerJwt();
 
-            services.AddControllersWithViews(options => { options.Filters.Add<ApiExceptionFilterAttribute>(); });
+            services.AddControllersWithViews(options => { options.Filters.Add<ApiExceptionFilterAttribute>(); })
+                .AddNewtonsoftJson();
             services.AddRazorPages();
 
             services.Configure<CFBDSettings>(Configuration.GetSection(CFBDSettings.SettingsKey));
