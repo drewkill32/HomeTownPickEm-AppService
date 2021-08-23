@@ -13,8 +13,7 @@ namespace HomeTownPickEm.Controllers
         public async Task<ActionResult<PickDto>> CreatePick(int id, SelectTeam.Command command)
         {
             command.Id = id;
-
-            command.UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
             var pick = await Mediator.Send(command);
             return Ok(pick);
         }

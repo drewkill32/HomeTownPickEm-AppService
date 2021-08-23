@@ -5,8 +5,10 @@ using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Application.Picks.Commands
 {
@@ -15,18 +17,23 @@ namespace HomeTownPickEm.Application.Picks.Commands
         public class Command : IRequest<PickDto>
         {
             public int? SelectedTeam { get; set; }
-
-            public string UserId { get; set; }
+            
             public int Id { get; set; }
         }
 
         public class CommandHandler : IRequestHandler<Command, PickDto>
         {
             private readonly ApplicationDbContext _context;
+            private readonly IUserAccessor _userAccessor;
+            private readonly ILogger<CommandHandler> _logger;
 
-            public CommandHandler(ApplicationDbContext context)
+            public CommandHandler(ApplicationDbContext context, 
+                IUserAccessor userAccessor,
+                    ILogger<CommandHandler> logger)
             {
                 _context = context;
+                _userAccessor = userAccessor;
+                _logger = logger;
             }
 
             public async Task<PickDto> Handle(Command request, CancellationToken cancellationToken)
@@ -35,11 +42,15 @@ namespace HomeTownPickEm.Application.Picks.Commands
                         .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken))
                     .GuardAgainstNotFound(request.Id);
 
-                if (pick.UserId != request.UserId)
+                var user = (await _userAccessor.GetCurrentUserAsync())
+                    .GuardAgainstNotFound("No current user found");
+
+                if (pick.UserId != user.Id)
                 {
+                    _logger.LogError($"The user {_userAccessor.GetCurrentUsername()} is not valid of the pick Id: {pick.Id}");
                     throw new ForbiddenAccessException();
                 }
-
+                
                 if (request.SelectedTeam.HasValue)
                 {
                     var team = await GetTeam(request.SelectedTeam.Value, pick.GameId, cancellationToken);
