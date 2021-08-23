@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Fragment } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Progress } from "reactstrap";
-import { useWeek } from "../hooks/useWeek";
+import useGetPicks from "../hooks/useGetPicks";
 
 const PicksTable = ({ picks }) => {
   return (
@@ -58,7 +58,7 @@ const PickRow = ({ pick, index }) => {
         <td>
           <span>
             <input
-              class="form-check-input"
+              className="form-check-input"
               type="radio"
               value=""
               id="flexCheckDefault"
@@ -103,7 +103,7 @@ const PickRow = ({ pick, index }) => {
         </td>
       </tr>
       <tr>
-        <td colspan="2">
+        <td colSpan="2">
           {loading && <Progress animated color="primary" value="100" />}
         </td>
       </tr>
@@ -112,37 +112,20 @@ const PickRow = ({ pick, index }) => {
 };
 
 const Picks = () => {
-  const [picks, setTeams] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { getToken, user } = useAuth();
-  const week = useWeek();
+  const { status, data: picks, error } = useGetPicks();
 
-  useEffect(() => {
-    populatePicks();
-  }, []);
-
-  const populatePicks = async () => {
-    const token = getToken();
-    const id = user.id;
-    const response = await fetch(`api/picks/1/${id}/week/${week}`, {
-      headers: !token ? {} : { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
-    setTeams(data);
-    setLoading(false);
-  };
-  return (
-    <div>
-      <h1 id="tabelLabel">Picks</h1>
-      {loading ? (
-        <p>
-          <em>Loading...</em>
-        </p>
-      ) : (
+  if (status === "loading") {
+    return <Progress animated color="primary" value="100" />;
+  }
+  if (status === "success") {
+    return (
+      <div>
+        <h1 id="tabelLabel">Picks</h1>
         <PicksTable picks={picks} />
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+  return <div>Error Loading Picks: {error}</div>;
 };
 
 export default Picks;
