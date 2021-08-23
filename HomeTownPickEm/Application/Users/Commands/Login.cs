@@ -52,6 +52,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                     throw new ForbiddenAccessException();
                 }
 
+                var claims = await _userManager.GetClaimsAsync(user);
                 var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
                 if (result.Succeeded)

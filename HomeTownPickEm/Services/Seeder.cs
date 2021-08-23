@@ -14,6 +14,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Services
@@ -24,6 +25,7 @@ namespace HomeTownPickEm.Services
         private readonly ApplicationDbContext _context;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public Seeder(
@@ -31,12 +33,14 @@ namespace HomeTownPickEm.Services
             ApplicationDbContext context,
             IConfiguration config,
             UserManager<ApplicationUser> userManager,
+            IServiceScopeFactory scopeFactory,
             ILogger<DatabaseInit> logger)
         {
             _mediator = mediator;
             _context = context;
             _config = config;
             _userManager = userManager;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -54,13 +58,20 @@ namespace HomeTownPickEm.Services
         private async Task AddAdminUserClaim(CancellationToken cancellationToken)
         {
             var email = _config.GetSection("User")["Email"];
-            var user = await _userManager.FindByEmailAsync(email);
+            using var scope = _scopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var user = await userManager.Users.SingleOrDefaultAsync(x => x.Email == email,
+                cancellationToken);
             if (user == null)
             {
                 throw new NotFoundException($"There is no user with the email <{email}>");
             }
 
-            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+            var claims = await userManager.GetClaimsAsync(user);
+            if (!claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "Admin"))
+            {
+                await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+            }
         }
 
         private async Task AddCalendar(CancellationToken cancellationToken)
