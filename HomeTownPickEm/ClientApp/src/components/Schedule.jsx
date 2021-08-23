@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useQuery } from "react-query";
 import { useHistory } from "react-router";
 import { Button } from "reactstrap";
@@ -24,12 +24,12 @@ const Schedule = () => {
     if (direction === "next") {
       history.push({
         pathname: "/picks",
-        search: `?week=${parseInt(week) + 1}`,
+        search: `?week=${parseInt(week, 10) + 1}`,
       });
     } else {
       history.push({
         pathname: "/picks",
-        search: `?week=${parseInt(week) - 1}`,
+        search: `?week=${parseInt(week, 10) - 1}`,
       });
     }
   };
