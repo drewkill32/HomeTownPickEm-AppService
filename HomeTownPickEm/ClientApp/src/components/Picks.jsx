@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Progress } from "reactstrap";
+import { useWeek } from "../hooks/useWeek";
 
 const PicksTable = ({ picks }) => {
   return (
@@ -115,7 +115,8 @@ const Picks = () => {
   const [picks, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const { getToken, user } = useAuth();
-  const { week } = useParams();
+  const week = useWeek();
+
   useEffect(() => {
     populatePicks();
   }, []);

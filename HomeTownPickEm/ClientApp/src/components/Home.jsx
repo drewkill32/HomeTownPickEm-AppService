@@ -5,9 +5,8 @@ import { Redirect } from "react-router-dom";
 const Home = () => {
   const { user } = useAuth();
 
-  const week = 1;
   if (user) {
-    return <Redirect to={`/picks/${week}`} />;
+    return <Redirect to="/picks" />;
   }
   return <Redirect to="/login" />;
 };

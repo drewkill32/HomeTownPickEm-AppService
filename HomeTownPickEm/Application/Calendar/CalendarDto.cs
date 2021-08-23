@@ -2,6 +2,22 @@ using System;
 
 namespace HomeTownPickEm.Application.Calendar
 {
+
+    public static class CalendarDtoExtensions
+    {
+        public static CalendarDto ToCalendarDto(this Models.Calendar calendar)
+        {
+            return new CalendarDto
+            {
+                Season = calendar.Season,
+                SeasonType = calendar.SeasonType,
+                Week = calendar.Week,
+                FirstGameStart = calendar.FirstGameStart,
+                LastGameStart = calendar.LastGameStart
+            };
+        }
+    }
+    
     public class CalendarDto
     {
         public string Season { get; set; }
