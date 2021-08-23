@@ -42,14 +42,9 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .Include(x => x.Game.Home)
                     .Include(x => x.User)
                     .Include(x => x.SelectedTeam)
-                    .Include(x => x.League.Teams)
                     .AsSplitQuery()
                     .ToArrayAsync(cancellationToken);
-
-                if (!picks.Any())
-                {
-                    throw new NotFoundException("No picks found");
-                }
+                
 
                 var orderedPicks = picks
                     .OrderBy(x => x.Game.Week)

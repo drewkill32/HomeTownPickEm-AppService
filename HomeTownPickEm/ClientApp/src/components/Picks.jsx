@@ -2,27 +2,37 @@ import React, { useEffect, useState, Fragment } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Progress } from "reactstrap";
 import useGetPicks from "../hooks/useGetPicks";
+import Schedule from "./Schedule";
 
-const PicksTable = ({ picks }) => {
-  return (
-    <table className="table table-striped" aria-labelledby="tabelLabel">
-      <thead>
-        <tr>
-          <th>Away</th>
-          <th>Home</th>
-        </tr>
-      </thead>
-      <tbody>
-        {picks.map((pick, index) => {
-          return <PickRow key={pick.id} pick={pick} index={index} />;
-        })}
-      </tbody>
-    </table>
-  );
+const PicksTable = () => {
+  const { status, data: picks, error } = useGetPicks();
+  if (status === "loading") {
+    return <Progress animated color="primary" value="100" />;
+  }
+  console.log(picks);
+  if (status === "success" && picks) {
+    return (
+      <table className="table table-striped" aria-labelledby="tabelLabel">
+        <thead>
+          <tr>
+            <th>Away</th>
+            <th>Home</th>
+          </tr>
+        </thead>
+        <tbody>
+          {picks.map((pick, index) => {
+            return <PickRow key={pick.id} pick={pick} index={index} />;
+          })}
+        </tbody>
+      </table>
+    );
+  }
+  return <div>{error.message}</div>;
 };
 
 const PickRow = ({ pick, index }) => {
   const { getToken } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState(
     pick.selectedTeam && pick.selectedTeam.id
@@ -112,20 +122,12 @@ const PickRow = ({ pick, index }) => {
 };
 
 const Picks = () => {
-  const { status, data: picks, error } = useGetPicks();
-
-  if (status === "loading") {
-    return <Progress animated color="primary" value="100" />;
-  }
-  if (status === "success") {
-    return (
-      <div>
-        <h1 id="tabelLabel">Picks</h1>
-        <PicksTable picks={picks} />
-      </div>
-    );
-  }
-  return <div>Error Loading Picks: {error}</div>;
+  return (
+    <div>
+      <Schedule />
+      <PicksTable />
+    </div>
+  );
 };
 
 export default Picks;

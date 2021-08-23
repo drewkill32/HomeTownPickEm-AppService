@@ -6,6 +6,7 @@ export const useWeek = () => {
   const history = useHistory();
   var params = new URLSearchParams(location.search);
   let week = params.get("week");
+
   if (week) {
     Cookies.set("currWeek", week, { expires: 180 });
   } else {
@@ -14,6 +15,11 @@ export const useWeek = () => {
       history.push({
         pathname: location.pathname,
         search: "?week=" + week,
+      });
+    } else {
+      history.push({
+        pathname: location.pathname,
+        search: "?week=1",
       });
     }
   }
