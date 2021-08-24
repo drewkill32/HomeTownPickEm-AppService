@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Leagues.Commands;
 using HomeTownPickEm.Application.Leagues.Queries;
+using HomeTownPickEm.Application.Teams;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeTownPickEm.Controllers
@@ -27,6 +30,18 @@ namespace HomeTownPickEm.Controllers
             });
 
             return Ok(league);
+        }
+
+        [HttpGet("{id}/availableteams")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<TeamDto>>> GetNotInLeague(int id)
+        {
+            var query = new TeamsNotInLeague.Query
+            {
+                LeagueId = id
+            };
+            var teams = await Mediator.Send(query);
+            return Ok(teams);
         }
 
 

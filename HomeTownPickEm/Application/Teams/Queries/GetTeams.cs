@@ -17,6 +17,7 @@ namespace HomeTownPickEm.Application.Teams.Queries
 
             public string Conference { get; set; }
 
+
             public string Name { get; set; }
             public int? Top { get; set; }
         }
@@ -36,6 +37,8 @@ namespace HomeTownPickEm.Application.Teams.Queries
                     .IncludeNoConference(request.IncludeNoConference)
                     .WhereConferenceIs(request.Conference)
                     .WhereNameLike(request.Name)
+                    .OrderBy(x => x.School)
+                    .ThenBy(x => x.Mascot)
                     .Top(request.Top);
 
                 var teams = await query.ToArrayAsync(cancellationToken);

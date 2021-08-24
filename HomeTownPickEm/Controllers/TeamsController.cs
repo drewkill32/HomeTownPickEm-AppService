@@ -24,6 +24,7 @@ namespace HomeTownPickEm.Controllers
             return Ok(teams);
         }
 
+
         [HttpGet("all")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetAll()
@@ -34,6 +35,7 @@ namespace HomeTownPickEm.Controllers
             });
             return Ok(teams);
         }
+
 
         [HttpPost("load")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> LoadTeams()
