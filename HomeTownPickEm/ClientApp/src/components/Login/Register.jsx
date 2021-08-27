@@ -1,56 +1,59 @@
 import React from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { Button, Input, Alert } from "reactstrap";
-import { ErrorMessage, Formik } from "formik";
-import { useHistory } from "react-router-dom";
+import {useAuth} from "../../hooks/useAuth";
+import {Alert, Button, Input} from "reactstrap";
+import {ErrorMessage, Formik} from "formik";
+import {useHistory} from "react-router-dom";
 import useGetTeams from "../../hooks/useGetTeams";
 
 const Register = () => {
   const auth = useAuth();
   const history = useHistory();
-  const { data: teams } = useGetTeams();
+  const {data: teams} = useGetTeams();
 
   return (
-    <div>
-      <Formik
-        initialValues={{
-          email: "",
-          password: "",
-          firstName: "",
-          lastName: "",
-          teamId: "",
-          confirmPassword: "",
-        }}
-        validate={(values) => {
-          const errors = {};
-          if (!values.email) {
-            errors.email = "Required";
-          } else if (
-            !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-          ) {
-            errors.email = "Invalid email address";
-          }
-          if (!values.password) {
-            errors.password = "Required";
-          }
-          if (!values.firstName) {
-            errors.firstName = "Required";
-          }
-          if (!values.teamId) {
-            errors.teamId = "Required";
-          }
-          if (!values.lastName) {
-            errors.lastName = "Required";
-          }
-          if (!values.confirmPassword) {
-            errors.confirmPassword = "Required";
-          }
-          if (values.password !== values.confirmPassword) {
-            errors.confirmPassword = "Passwords do not match";
-          }
+      <div>
+        <Formik
+            initialValues={{
+              email: "",
+              password: "",
+              firstName: "",
+              lastName: "",
+              teamId: "",
+              confirmPassword: "",
+            }}
+            validate={(values) => {
+              const errors = {};
+              if (!values.email) {
+                errors.email = "Required";
+              }
+              if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+                errors.email = "Invalid email address";
+              }
+              if (!values.password) {
+                errors.password = "Required";
+              }
+              if (!values.firstName) {
+                errors.firstName = "Required";
+              }
+              if (!values.teamId) {
+                errors.teamId = "Required";
+              }
+              if (!values.lastName) {
+                errors.lastName = "Required";
+              }
+              if (!values.confirmPassword) {
+                errors.confirmPassword = "Required";
+              }
+              if (values.password !== values.confirmPassword) {
+                errors.confirmPassword = "Passwords do not match";
+              }
+              if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/i.test(values.password)) {
+                errors.password =
+                    "Your password must be at least 4 characters long and contain an upper and lower case letters and at least one number.";
+              }
 
-          return errors;
-        }}
+              return errors;
+            }}
         onSubmit={async (values) => {
           try {
             const teamId = parseInt(values.teamId, 0);
@@ -73,7 +76,6 @@ const Register = () => {
           values,
           errors,
           touched,
-          dirty,
           handleChange,
           handleBlur,
           handleSubmit,
@@ -132,22 +134,23 @@ const Register = () => {
                 Team
               </label>
               <Input
-                type="select"
-                name="teamId"
-                id="teamId"
-                placeholder="Team"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.teamId}
+                  type="select"
+                  name="teamId"
+                  id="teamId"
+                  placeholder="Team"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.teamId}
               >
+                <option value="">Please pick a team</option>
                 {teams &&
-                  teams.map((team) => (
+                teams.map((team) => (
                     <option key={team.id} value={`${team.id}`}>
                       {team.name}
                     </option>
-                  ))}
+                ))}
               </Input>
-              <ErrorMessage name="lastName" />
+              <ErrorMessage name="teamId"/>
             </div>
             <div className="form-group row mb-2">
               <label htmlFor="password" className="col-sm-2 col-form-label">
@@ -190,10 +193,10 @@ const Register = () => {
               letter, number)
             </Alert>
             <Button
-              type="submit"
-              className="mt-4"
-              color="primary"
-              disabled={!dirty && isSubmitting && !isValid}
+                type="submit"
+                className="mt-4"
+                color="primary"
+                disabled={!touched && isSubmitting && !isValid}
             >
               Submit
             </Button>
