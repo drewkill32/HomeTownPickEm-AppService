@@ -1,4 +1,4 @@
-namespace HomeTownPickEm
+namespace HomeTownPickEm.Config
 {
     public class CFBDSettings
     {

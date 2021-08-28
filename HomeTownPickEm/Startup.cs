@@ -2,6 +2,7 @@ using System;
 using System.Net.Http.Headers;
 using System.Text;
 using HomeTownPickEm.Application.Common.Behaviors;
+using HomeTownPickEm.Config;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Filters;
 using HomeTownPickEm.Models;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
@@ -123,6 +125,9 @@ namespace HomeTownPickEm
                 });
 
             services.Configure<CFBDSettings>(Configuration.GetSection(CFBDSettings.SettingsKey));
+            services.Configure<SendGridSettings>(Configuration.GetSection(SendGridSettings.SettingsKey));
+            services.AddSingleton<IEmailSender, SendGridEmailSender>();
+
             services.AddHttpClient(CFBDSettings.SettingsKey, (provider, client) =>
             {
                 var settings = provider.GetService<IOptions<CFBDSettings>>().Value;
