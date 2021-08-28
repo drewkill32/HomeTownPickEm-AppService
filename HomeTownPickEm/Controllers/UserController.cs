@@ -65,6 +65,15 @@ namespace HomeTownPickEm.Controllers
             };
         }
 
+
+        [HttpPost("unsafelyresetpassword")]
+        [AllowAnonymous]
+        public async Task<ActionResult> Register(UnSafelyResetPassword.Command command)
+        {
+            await Mediator.Send(command);
+            return Ok();
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUser.Command command)
         {

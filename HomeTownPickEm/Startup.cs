@@ -105,6 +105,8 @@ namespace HomeTownPickEm
             identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
             identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
 
+
+            identityBuilder.AddDefaultTokenProviders();
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<Seeder>();
