@@ -101,11 +101,24 @@ namespace HomeTownPickEm.Services
                 _context.League.Add(new League
                 {
                     Name = "St. Pete Pick Em",
+                    Slug = "st-pete-pick-em",
                     Season = DateTime.Now.Year.ToString()
                 });
                 await _context.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation("Added Test League");
             }
+
+            var league = await _context.League
+                .OrderBy(x => x.Id)
+                .FirstOrDefaultAsync(x => x.Name == "St. Pete Pick Em" && string.IsNullOrEmpty(x.Slug),
+                    cancellationToken);
+
+            if (league != null)
+            {
+                league.Slug = "st-pete-pick-em";
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task AddTeams(CancellationToken cancellationToken)
