@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Collapse,
   Container,
@@ -7,10 +7,10 @@ import {
   NavbarToggler,
   NavItem,
   NavLink,
-} from "reactstrap";
-import { Link } from "react-router-dom";
-import LoginMenu from "./Login/LoginMenu";
-import "./NavMenu.css";
+} from 'reactstrap';
+import { Link } from 'react-router-dom';
+import LoginMenu from './Login/LoginMenu';
+import './NavMenu.css';
 
 const NavMenu = () => {
   const [collapsed, setCollapsed] = useState(true);
@@ -36,11 +36,6 @@ const NavMenu = () => {
             navbar
           >
             <ul className="navbar-nav flex-grow">
-              <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/">
-                  Home
-                </NavLink>
-              </NavItem>
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/leaderboard">
                   Leaderboard

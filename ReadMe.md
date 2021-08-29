@@ -1,12 +1,11 @@
-
-
 # TODO
 
-- [ ] add leaderboard
-- [ ] disallow picks when the data passes
+- [x] add leaderboard
+- [ ] disallow picks when the date passes
 - [ ] change look of picks screen
 
+## Refactoring
 
-## Refactorings
 - [ ] use API endpoints
 - [ ] use Migration configs
+- [ ] update react/CRA
