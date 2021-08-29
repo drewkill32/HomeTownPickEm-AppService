@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Queries;
@@ -8,45 +7,45 @@ namespace HomeTownPickEm.Controllers
 {
     public class PicksController : ApiControllerBase
     {
-        [HttpGet("{leagueId}")]
-        public async Task<ActionResult<IEnumerable<PickDto>>> GetPicks(int leagueId)
+        [HttpGet("{leagueSlug}")]
+        public async Task<ActionResult<PicksCollection>> GetPicks(string leagueSlug)
         {
             var picks = await Mediator.Send(new GetPicks.Query
             {
-                LeagueId = leagueId
+                LeagueSlug = leagueSlug
             });
             return Ok(picks);
         }
 
-        [HttpGet("{leagueId}/{userId}")]
-        public async Task<ActionResult<IEnumerable<PickDto>>> GetPicksByUser(int leagueId, string userId)
+        [HttpGet("{leagueSlug}/{userId}")]
+        public async Task<ActionResult<PicksCollection>> GetPicksByUser(string leagueSlug, string userId)
         {
             var picks = await Mediator.Send(new GetPicks.Query
             {
-                LeagueId = leagueId,
+                LeagueSlug = leagueSlug,
                 UserId = userId
             });
             return Ok(picks);
         }
 
-        [HttpGet("{leagueId}/{userId}/week/{week}")]
-        public async Task<ActionResult<IEnumerable<PickDto>>> GetPicksByUserWeek(int leagueId, string userId, int week)
+        [HttpGet("{leagueSlug}/{userId}/week/{week}")]
+        public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek(string leagueSlug, string userId, int week)
         {
             var picks = await Mediator.Send(new GetPicks.Query
             {
-                LeagueId = leagueId,
+                LeagueSlug = leagueSlug,
                 UserId = userId,
                 Week = week
             });
             return Ok(picks);
         }
 
-        [HttpGet("{leagueId}/week/{week}")]
-        public async Task<ActionResult<IEnumerable<PickDto>>> GetPicksByWeek(int leagueId, int week)
+        [HttpGet("{leagueSlug}/week/{week}")]
+        public async Task<ActionResult<PicksCollection>> GetPicksByWeek(string leagueSlug, int week)
         {
             var picks = await Mediator.Send(new GetPicks.Query
             {
-                LeagueId = leagueId,
+                LeagueSlug = leagueSlug,
                 Week = week
             });
             return Ok(picks);
