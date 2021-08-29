@@ -1,6 +1,14 @@
-import React, {useState} from "react";
-import {Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from "reactstrap";
-import {Link} from "react-router-dom";
+import React, { useState } from "react";
+import {
+  Collapse,
+  Container,
+  Navbar,
+  NavbarBrand,
+  NavbarToggler,
+  NavItem,
+  NavLink,
+} from "reactstrap";
+import { Link } from "react-router-dom";
 import LoginMenu from "./Login/LoginMenu";
 import "./NavMenu.css";
 
@@ -21,7 +29,7 @@ const NavMenu = () => {
           <NavbarBrand tag={Link} to="/">
             St. Pete Pick-Em
           </NavbarBrand>
-          <NavbarToggler onClick={toggleNavbar} className="mr-2"/>
+          <NavbarToggler onClick={toggleNavbar} className="mr-2" />
           <Collapse
             className="d-sm-inline-flex flex-sm-row-reverse"
             isOpen={!collapsed}
@@ -34,8 +42,8 @@ const NavMenu = () => {
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/teams">
-                  Teams
+                <NavLink tag={Link} className="text-dark" to="/leaderboard">
+                  Leaderboard
                 </NavLink>
               </NavItem>
               <NavItem>
