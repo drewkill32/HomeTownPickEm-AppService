@@ -36,6 +36,8 @@ namespace HomeTownPickEm.Models
 
         public string Name { get; set; }
 
+        public string Slug { get; set; }
+
         public string Season { get; set; }
 
         public ICollection<Team> Teams { get; set; }

@@ -116,9 +116,9 @@ namespace HomeTownPickEm.Services
             if (league != null)
             {
                 league.Slug = "st-pete-pick-em";
+                _context.Update(league);
+                await _context.SaveChangesAsync(cancellationToken);
             }
-
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task AddTeams(CancellationToken cancellationToken)

@@ -1,6 +1,5 @@
-using System;
-using System.Linq;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Utils;
 
 namespace HomeTownPickEm.Application.Teams
 {
@@ -16,15 +15,14 @@ namespace HomeTownPickEm.Application.Teams
                 Division = team.Division,
                 Mascot = team.Mascot,
                 Id = team.Id,
-                Logo = (team.Logos.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()
-                        ?? "https://placehold.jp/50x50.png").Replace("http://", "https://"),
+                Logo = LogoHelper.GetSingleLogo(team.Logos),
                 School = team.School,
                 AltColor = team.AltColor
             };
             return teamDto;
         }
     }
-    
+
     public class TeamDto
     {
         public int Id { get; set; }

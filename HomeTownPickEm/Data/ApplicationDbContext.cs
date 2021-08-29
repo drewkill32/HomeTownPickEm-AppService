@@ -16,6 +16,9 @@ namespace HomeTownPickEm.Data
         public DbSet<Calendar> Calendar { get; set; }
 
         public DbSet<League> League { get; set; }
+
+        public DbSet<Leaderboard> Leaderboard { get; set; }
+
         public DbSet<Pick> Pick { get; set; }
 
         public DbSet<Game> Games { get; set; }
@@ -60,13 +63,10 @@ namespace HomeTownPickEm.Data
                 .HasForeignKey(x => x.HomeId);
 
             //League
-
-
             builder.Entity<League>()
                 .HasIndex(x => new { x.Name, Year = x.Season })
                 .IsUnique();
 
-            //League
             builder.Entity<League>()
                 .HasMany(x => x.Members)
                 .WithMany(y => y.Leagues);
@@ -95,6 +95,10 @@ namespace HomeTownPickEm.Data
                 .HasOne(x => x.SelectedTeam)
                 .WithMany()
                 .HasForeignKey(x => x.SelectedTeamId);
+
+            //Leaderboard
+            builder.Entity<Leaderboard>().HasNoKey();
+            builder.Entity<Leaderboard>().ToView("Leaderboard");
         }
     }
 }
