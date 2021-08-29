@@ -28,6 +28,9 @@ namespace HomeTownPickEm.Application.Leaderboard.Queries
             {
                 var leaderboard = await _context.Leaderboard
                     .Where(x => x.LeagueSlug == request.Slug)
+                    .OrderByDescending(x => x.TotalPoints)
+                    .ThenBy(x => x.UserFirstName)
+                    .ThenBy(x => x.UserLastName)
                     .ToArrayAsync(cancellationToken);
 
                 return leaderboard.Select(x => x.ToLeaderBoardDto());
