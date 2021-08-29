@@ -2,17 +2,18 @@
 
 - [x] add leaderboard
 - [x] disallow picks when the date passes
-- [ ] change look of picks screen
-- [ ] add SSL to site
-- [ ] add swagger
 - [ ] add azure function to update scores
+- [ ] use Material UI
+- [ ] change look of picks screen
+- [ ] use user principal
+- [ ] add swagger
+- [ ] add SSL to site
 
 ## Refactoring
 
-- [ ] swap out leagueId to use slug
-- [ ] update queries to use dapper or views
-- [ ] use API endpoints
-- [ ] use Migration configs
 - [ ] update react/CRA
-- [ ] use user principal
+- [ ] swap out leagueId to use slug (in progress)
+- [ ] update queries to use dapper or views (too many includes statements)
+- [ ] use API endpoints
+- [ ] use Migration configs for DbConte
 - [ ] use identity server
