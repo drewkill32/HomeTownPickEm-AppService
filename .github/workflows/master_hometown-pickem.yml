@@ -10,6 +10,7 @@ on:
     paths-ignore: 
       - './src/HometownPickEmFunc'
       - './.github/workflows/master_hometown-func.yml'
+      - './ReadMe.md'
 
 jobs:
   build-and-deploy:
