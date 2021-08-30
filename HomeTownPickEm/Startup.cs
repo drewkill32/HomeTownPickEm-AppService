@@ -126,10 +126,10 @@ namespace HomeTownPickEm
                     };
                 });
 
-            services.Configure<CFBDSettings>(Configuration.GetSection(CFBDSettings.SettingsKey));
             services.Configure<SendGridSettings>(Configuration.GetSection(SendGridSettings.SettingsKey));
             services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
+            services.Configure<CFBDSettings>(Configuration.GetSection(CFBDSettings.SettingsKey));
             services.AddHttpClient(CFBDSettings.SettingsKey, (provider, client) =>
             {
                 var settings = provider.GetService<IOptions<CFBDSettings>>().Value;

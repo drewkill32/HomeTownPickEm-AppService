@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <AzureFunctionsVersion>V3</AzureFunctionsVersion>
+        <UserSecretsId>e6bf3dfe-1c92-4d4b-8fa2-79f2847fd6bb</UserSecretsId>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.18"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.18"/>
+        <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="host.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="local.settings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+</Project>
