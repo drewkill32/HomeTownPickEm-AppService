@@ -9,6 +9,7 @@ on:
       - master
     paths-ignore: 
       - './src/HometownPickEmFunc'
+      - './.github/workflows/master_hometown-func.yml'
 
 jobs:
   build-and-deploy:
