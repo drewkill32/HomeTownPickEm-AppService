@@ -7,8 +7,6 @@ on:
   push:
     branches:
       - master
-    paths-ignore: 
-      - './ReadMe.md'
     paths: 
       - './src/HometownPickEmFunc'
   workflow_dispatch:
