@@ -1,15 +1,20 @@
 ﻿using HomeTownPickEm.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace HomeTownPickEm.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(
+        private readonly IWebHostEnvironment _env;
+
+        public ApplicationDbContext(IWebHostEnvironment env,
             DbContextOptions<ApplicationDbContext> options
         ) : base(options)
         {
+            _env = env;
         }
 
         public DbSet<Team> Teams { get; set; }
@@ -26,6 +31,11 @@ namespace HomeTownPickEm.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            if (_env.IsDevelopment())
+            {
+                optionsBuilder.EnableSensitiveDataLogging();
+            }
+
             base.OnConfiguring(optionsBuilder);
         }
 

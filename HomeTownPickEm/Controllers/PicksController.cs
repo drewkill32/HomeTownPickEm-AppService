@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Queries;
+using HomeTownPickEm.Application.Picks.Queries.WeeklyPicks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeTownPickEm.Controllers
@@ -48,6 +49,13 @@ namespace HomeTownPickEm.Controllers
                 LeagueSlug = leagueSlug,
                 Week = week
             });
+            return Ok(picks);
+        }
+
+        [HttpGet("{leagueSlug}/weeklypicks")]
+        public async Task<ActionResult<WeeklyPicksDto>> GetWeeklyPicks(string leagueSlug)
+        {
+            var picks = await Mediator.Send(new GetWeeklyPicks.Query());
             return Ok(picks);
         }
     }
