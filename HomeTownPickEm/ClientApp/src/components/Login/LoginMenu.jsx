@@ -7,6 +7,16 @@ const AuthenticatedView = ({ user }) => {
   return (
     <Fragment>
       <NavItem>
+        <NavLink tag={Link} className="text-dark" to="/leaderboard">
+          Leaderboard
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink tag={Link} className="text-dark" to="/picks">
+          Picks
+        </NavLink>
+      </NavItem>
+      <NavItem>
         <NavLink tag={Link} className="text-dark" to="/">
           <span>
             <img
@@ -31,18 +41,11 @@ const AuthenticatedView = ({ user }) => {
 
 const AnonymousView = () => {
   return (
-    <Fragment>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to="/register">
-          Register
-        </NavLink>
-      </NavItem>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to="/login">
-          Login
-        </NavLink>
-      </NavItem>
-    </Fragment>
+    <NavItem>
+      <NavLink tag={Link} className="text-dark" to="/login">
+        Login
+      </NavLink>
+    </NavItem>
   );
 };
 

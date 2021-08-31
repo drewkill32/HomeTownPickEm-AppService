@@ -36,16 +36,6 @@ const NavMenu = () => {
             navbar
           >
             <ul className="navbar-nav flex-grow">
-              <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/leaderboard">
-                  Leaderboard
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/picks">
-                  Picks
-                </NavLink>
-              </NavItem>
               <LoginMenu></LoginMenu>
             </ul>
           </Collapse>
