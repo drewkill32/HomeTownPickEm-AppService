@@ -5,8 +5,6 @@ import {
   Navbar,
   NavbarBrand,
   NavbarToggler,
-  NavItem,
-  NavLink,
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import LoginMenu from './Login/LoginMenu';
