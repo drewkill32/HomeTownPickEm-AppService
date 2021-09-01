@@ -7,7 +7,7 @@ import {
   NavbarToggler,
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import LoginMenu from './Login/LoginMenu';
+import LoginMenu from './auth/LoginMenu';
 import './NavMenu.css';
 
 const NavMenu = () => {

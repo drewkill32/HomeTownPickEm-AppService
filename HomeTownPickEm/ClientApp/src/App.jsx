@@ -11,9 +11,9 @@ import AuthorizeRoute from './components/AuthorizeRoute';
 
 import Picks from './components/Picks';
 import NotFound from './components/NotFound';
-import Register from './components/Login/Register';
-import Login from './components/Login/Login';
-import Logout from './components/Login/Logout';
+import Register from './components/auth/Register';
+import Login from './components/auth/Login';
+import Logout from './components/auth/Logout';
 import Leaderboard from './pages/Leaderboard';
 
 const queryClient = new QueryClient();
