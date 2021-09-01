@@ -42,5 +42,12 @@ namespace HomeTownPickEm.Controllers
             var picks = await Mediator.Send(query);
             return Ok(picks);
         }
+
+        [HttpGet("{leagueSlug}/weeklypicks/week/{week}")]
+        public async Task<ActionResult<WeeklyPicksDto>> GetWeeklyPicksByWeek([FromRoute] GetWeeklyPicks.Query query)
+        {
+            var picks = await Mediator.Send(query);
+            return Ok(picks);
+        }
     }
 }

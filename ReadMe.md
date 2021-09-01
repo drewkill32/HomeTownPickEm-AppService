@@ -6,6 +6,7 @@
 - [ ] add azure function to update scores
 - [ ] use Material UI
 - [ ] change look of picks screen
+- [ ] enlarge font size
 - [ ] use user principal
 - [ ] add swagger
 - [ ] add SSL to site
