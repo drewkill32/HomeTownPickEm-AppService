@@ -46,7 +46,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
                 var orderedPicks = picks
                     .OrderBy(x => x.Game.Week)
                     .ThenBy(x => x.Game.StartDate)
-                    .ThenBy(x => x.User.LastName)
+                    .ThenBy(x => x.Game.Home.School)
+                    .ThenBy(x => x.Game.Home.Mascot)
                     .ToArray();
                 return orderedPicks.ToPicksDto();
             }
