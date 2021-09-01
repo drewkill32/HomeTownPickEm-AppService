@@ -1,13 +1,14 @@
+import axios from 'axios';
 import React from 'react';
 import {useQuery} from 'react-query';
 import {useHistory} from 'react-router';
+import {useLocation} from 'react-router-dom';
 import {Button} from 'reactstrap';
-import {useAuth} from '../hooks/useAuth';
 import {useWeek} from '../hooks/useWeek';
 
 const Schedule = () => {
-  const {getToken} = useAuth();
   const history = useHistory();
+  const {pathname} = useLocation();
   const week = useWeek();
 
   const {
@@ -15,20 +16,18 @@ const Schedule = () => {
     status,
     error,
   } = useQuery('schedule', () =>
-      fetch('api/calendar', {
-        headers: {Authorization: `Bearer ${getToken()}`},
-      }).then((res) => res.json())
+      axios.get('api/calendar/st-pete-pick-em').then((res) => res.data)
   );
 
   const handleClick = (direction) => {
     if (direction === 'next') {
       history.push({
-        pathname: '/picks',
+        pathname: pathname,
         search: `?week=${parseInt(week, 10) + 1}`,
       });
     } else {
       history.push({
-        pathname: '/picks',
+        pathname: pathname,
         search: `?week=${parseInt(week, 10) - 1}`,
       });
     }
@@ -39,7 +38,7 @@ const Schedule = () => {
   }
   if (status === 'success') {
     const maxWeek = Math.max(...schedule.map((s) => s.week));
-    const currentWeek = schedule.find((s) => s.week === parseInt(week, 0)) || {
+    const currentWeek = schedule.find((s) => s.week === parseInt(week, 10)) || {
       week: week,
     };
     return (

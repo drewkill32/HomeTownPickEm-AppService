@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +16,10 @@ namespace HomeTownPickEm.Application.Calendar.Queries
         {
             public string Season { get; set; } = DateTime.Now.Year.ToString();
             public string SeasonType { get; set; } = "regular";
+            public string LeagueSlug { get; set; }
         }
-        
-        public class QueryHandler: IRequestHandler<Query,IEnumerable<CalendarDto>>
+
+        public class QueryHandler : IRequestHandler<Query, IEnumerable<CalendarDto>>
         {
             private readonly ApplicationDbContext _context;
 
@@ -25,14 +27,38 @@ namespace HomeTownPickEm.Application.Calendar.Queries
             {
                 _context = context;
             }
-            
+
             public async Task<IEnumerable<CalendarDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var calendars = await _context.Calendar.Where(x => 
-                        x.Season == request.Season && x.SeasonType == request.SeasonType)
+                // cannot group by date directly in the query due to sqlite limitations
+                // see https://docs.microsoft.com/en-us/ef/core/providers/sqlite/limitations#query-limitations
+                var games = await _context.Games
+                    .Where(x => x.Season == request.Season && x.SeasonType == request.SeasonType)
+                    .Where(x => x.Picks.Any(p => p.League.Slug == request.LeagueSlug))
+                    .Select(x => new
+                    {
+                        x.Week,
+                        x.Season,
+                        x.SeasonType,
+                        x.StartDate
+                    })
                     .ToArrayAsync(cancellationToken);
 
-                return calendars.Select(x => x.ToCalendarDto());
+                var calendars =
+                    games.GroupBy(x => new { x.Week, x.Season, x.SeasonType })
+                        .Select(x => new CalendarDto
+                        {
+                            Week = x.Key.Week,
+                            Season = x.Key.Season,
+                            SeasonType = x.Key.SeasonType,
+                            CutoffDate = x.Min(g => g.StartDate).GetLastThusMidnight(),
+                            FirstGameStart = x.Min(g => g.StartDate),
+                            LastGameStart = x.Max(g => g.StartDate)
+                        })
+                        .OrderBy(x => x.Season)
+                        .ThenBy(x => x.Week)
+                        .ToArray();
+                return calendars;
             }
         }
     }

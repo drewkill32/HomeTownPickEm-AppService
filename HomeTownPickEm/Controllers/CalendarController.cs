@@ -9,16 +9,18 @@ namespace HomeTownPickEm.Controllers
     //[Authorize]
     public class CalendarController : ApiControllerBase
     {
+        [HttpGet("{leagueSlug}")]
+        public async Task<ActionResult<CalendarDto>> GetCalendar(string leagueSlug, [FromQuery] GetCalendar.Query query)
+        {
+            query.LeagueSlug = leagueSlug;
+            var calendars = await Mediator.Send(query);
+            return Ok(calendars);
+        }
+
         [HttpPost("load")]
         public async Task<ActionResult<CalendarDto>> LoadCalendar(LoadCalendar.Command command)
         {
             var calendars = await Mediator.Send(command);
-            return Ok(calendars);
-        }
-        [HttpGet]
-        public async Task<ActionResult<CalendarDto>> GetCalendar([FromQuery]GetCalendar.Query query)
-        {
-            var calendars = await Mediator.Send(query);
             return Ok(calendars);
         }
     }
