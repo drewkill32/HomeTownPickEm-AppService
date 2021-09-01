@@ -10,6 +10,7 @@ using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,7 @@ namespace HomeTownPickEm.Services
             await AddGames(cancellationToken);
             await AddUsers(cancellationToken);
             await AddAdminUserClaim(cancellationToken);
+            await AddUserPics(cancellationToken);
         }
 
         private async Task AddAdminUserClaim(CancellationToken cancellationToken)
@@ -136,6 +138,23 @@ namespace HomeTownPickEm.Services
                     _logger.LogError(e, "Error Adding Teams. {ErrorMessage}", e.Message);
                 }
             }
+        }
+
+        private async Task AddUserPics(CancellationToken cancellationToken)
+        {
+            var usersWithoutPics = await _context.Users
+                .Where(x => x.TeamId != null && string.IsNullOrEmpty(x.ProfileImg))
+                .Include(x => x.Team)
+                .Select(x => new { User = x, x.Team.Logos })
+                .ToArrayAsync(cancellationToken);
+
+            foreach (var userKey in usersWithoutPics)
+            {
+                userKey.User.ProfileImg = LogoHelper.GetSingleLogo(userKey.Logos);
+                _context.Update(userKey.User);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task AddUsers(CancellationToken cancellationToken)
