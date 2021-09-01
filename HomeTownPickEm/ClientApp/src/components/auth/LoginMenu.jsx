@@ -12,6 +12,11 @@ const AuthenticatedView = ({ user }) => {
         </NavLink>
       </NavItem>
       <NavItem>
+        <NavLink tag={Link} className="text-dark" to="/stats">
+          Weekly Stats
+        </NavLink>
+      </NavItem>
+      <NavItem>
         <NavLink tag={Link} className="text-dark" to="/picks">
           Picks
         </NavLink>

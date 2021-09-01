@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace HomeTownPickEm.Application.Calendar.Queries
             public string Season { get; set; } = DateTime.Now.Year.ToString();
             public string SeasonType { get; set; } = "regular";
             public string LeagueSlug { get; set; }
+            public int? Week { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<CalendarDto>>
@@ -35,6 +37,7 @@ namespace HomeTownPickEm.Application.Calendar.Queries
                 var games = await _context.Games
                     .Where(x => x.Season == request.Season && x.SeasonType == request.SeasonType)
                     .Where(x => x.Picks.Any(p => p.League.Slug == request.LeagueSlug))
+                    .WhereWeekIs(request.Week)
                     .Select(x => new
                     {
                         x.Week,
