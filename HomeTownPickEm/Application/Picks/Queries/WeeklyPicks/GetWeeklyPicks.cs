@@ -45,7 +45,8 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
                         UnselectedPicks = g.Count(x => x.SelectedTeamId == null)
                     }).ToArrayAsync(cancellationToken);
 
-                return picks.OrderByDescending(x => x.UnselectedPicks)
+                return picks.OrderBy(x => x.Week)
+                    .ThenByDescending(x => x.UnselectedPicks)
                     .ThenBy(x => x.UserFirstName)
                     .ThenBy(x => x.UserLastName)
                     .ToArray();
