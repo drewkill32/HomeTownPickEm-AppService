@@ -8,7 +8,7 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
 
         public string UserLastName { get; set; }
 
-        public string Logos { get; set; }
+        public string ProfileImg { get; set; }
 
         public int UnselectedPicks { get; set; }
 
