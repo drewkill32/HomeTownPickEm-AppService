@@ -9,53 +9,37 @@ namespace HomeTownPickEm.Controllers
     public class PicksController : ApiControllerBase
     {
         [HttpGet("{leagueSlug}")]
-        public async Task<ActionResult<PicksCollection>> GetPicks(string leagueSlug)
+        public async Task<ActionResult<PicksCollection>> GetPicks([FromRoute] GetPicks.Query query)
         {
-            var picks = await Mediator.Send(new GetPicks.Query
-            {
-                LeagueSlug = leagueSlug
-            });
+            var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/{userId}")]
-        public async Task<ActionResult<PicksCollection>> GetPicksByUser(string leagueSlug, string userId)
+        public async Task<ActionResult<PicksCollection>> GetPicksByUser([FromRoute] GetPicks.Query query)
         {
-            var picks = await Mediator.Send(new GetPicks.Query
-            {
-                LeagueSlug = leagueSlug,
-                UserId = userId
-            });
+            var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/{userId}/week/{week}")]
-        public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek(string leagueSlug, string userId, int week)
+        public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek([FromRoute] GetPicks.Query query)
         {
-            var picks = await Mediator.Send(new GetPicks.Query
-            {
-                LeagueSlug = leagueSlug,
-                UserId = userId,
-                Week = week
-            });
+            var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/week/{week}")]
-        public async Task<ActionResult<PicksCollection>> GetPicksByWeek(string leagueSlug, int week)
+        public async Task<ActionResult<PicksCollection>> GetPicksByWeek([FromRoute] GetPicks.Query query)
         {
-            var picks = await Mediator.Send(new GetPicks.Query
-            {
-                LeagueSlug = leagueSlug,
-                Week = week
-            });
+            var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/weeklypicks")]
-        public async Task<ActionResult<WeeklyPicksDto>> GetWeeklyPicks(string leagueSlug)
+        public async Task<ActionResult<WeeklyPicksDto>> GetWeeklyPicks([FromRoute] GetWeeklyPicks.Query query)
         {
-            var picks = await Mediator.Send(new GetWeeklyPicks.Query());
+            var picks = await Mediator.Send(query);
             return Ok(picks);
         }
     }

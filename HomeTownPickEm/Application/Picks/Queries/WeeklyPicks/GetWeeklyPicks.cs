@@ -12,6 +12,7 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
     {
         public class Query : IRequest<IEnumerable<WeeklyPicksDto>>
         {
+            public string LeagueSlug { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<WeeklyPicksDto>>
@@ -29,6 +30,7 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
                     join u in _context.Users on p.UserId equals u.Id
                     join g in _context.Games on p.GameId equals g.Id
                     join t in _context.Teams on u.TeamId equals t.Id
+                    where p.League.Slug == request.LeagueSlug
                     group p by new { g.Week, t.Logos, u.FirstName, u.LastName }
                     into g
                     select new WeeklyPicksDto
