@@ -1,14 +1,12 @@
 using System;
-using System.Diagnostics;
 
 namespace HomeTownPickEm.Models
 {
-    [DebuggerDisplay("{Season}-{Week}")]
-    public class Calendar
+    public class CalendarMigrate
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
 
-        public int? LeagueId { get; set; }
+        public int LeagueId { get; set; }
 
         public League League { get; set; }
 
@@ -22,6 +20,6 @@ namespace HomeTownPickEm.Models
 
         public DateTimeOffset LastGameStart { get; set; }
 
-        public DateTimeOffset? CutoffDate { get; set; }
+        public DateTimeOffset CutoffDate { get; set; }
     }
 }
