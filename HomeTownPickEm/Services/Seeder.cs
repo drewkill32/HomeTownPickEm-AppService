@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Calendar.Commands;
+using HomeTownPickEm.Application.Calendar.Queries;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Application.Games.Commands;
 using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
@@ -55,7 +56,9 @@ namespace HomeTownPickEm.Services
             await AddUsers(cancellationToken);
             await AddAdminUserClaim(cancellationToken);
             await AddUserPics(cancellationToken);
+            await UpdateCalendar(cancellationToken);
         }
+
 
         private async Task AddAdminUserClaim(CancellationToken cancellationToken)
         {
@@ -184,6 +187,25 @@ namespace HomeTownPickEm.Services
                 }
 
                 await _mediator.Send(registerUserCommand, cancellationToken);
+            }
+        }
+
+
+        private async Task UpdateCalendar(CancellationToken cancellationToken)
+        {
+            var request = new GetCalendar.Query
+            {
+                LeagueSlug = "st-pete-pick-em"
+            };
+            var cals = await _mediator.Send(request, cancellationToken);
+
+            // var calendars = await _context.Calendar
+            //     .Where(x => x.Season == request.Season && x.SeasonType == request.SeasonType)
+            //     .AsTracking()
+            //     .ToArrayAsync(cancellationToken);
+
+            foreach (var cal in cals)
+            {
             }
         }
     }

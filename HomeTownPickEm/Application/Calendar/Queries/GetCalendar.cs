@@ -47,6 +47,7 @@ namespace HomeTownPickEm.Application.Calendar.Queries
                     })
                     .ToArrayAsync(cancellationToken);
 
+
                 var calendars =
                     games.GroupBy(x => new { x.Week, x.Season, x.SeasonType })
                         .Select(x => new CalendarDto
@@ -61,6 +62,7 @@ namespace HomeTownPickEm.Application.Calendar.Queries
                         .OrderBy(x => x.Season)
                         .ThenBy(x => x.Week)
                         .ToArray();
+
                 return calendars;
             }
         }

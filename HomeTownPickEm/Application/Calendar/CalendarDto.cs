@@ -6,7 +6,7 @@ namespace HomeTownPickEm.Application.Calendar
     {
         public static CalendarDto ToCalendarDto(this Models.Calendar calendar)
         {
-            return new CalendarDto
+            var cal = new CalendarDto
             {
                 Season = calendar.Season,
                 SeasonType = calendar.SeasonType,
@@ -14,6 +14,12 @@ namespace HomeTownPickEm.Application.Calendar
                 FirstGameStart = calendar.FirstGameStart,
                 LastGameStart = calendar.LastGameStart
             };
+            if (calendar.CutoffDate.HasValue)
+            {
+                cal.CutoffDate = calendar.CutoffDate.Value;
+            }
+
+            return cal;
         }
     }
 
