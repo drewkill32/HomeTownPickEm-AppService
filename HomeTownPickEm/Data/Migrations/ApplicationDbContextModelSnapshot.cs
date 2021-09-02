@@ -111,44 +111,11 @@ namespace HomeTownPickEm.Data.Migrations
 
             modelBuilder.Entity("HomeTownPickEm.Models.Calendar", b =>
                 {
-                    b.Property<string>("Season")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Week")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset?>("CutoffDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("FirstGameStart")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("Id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset>("LastGameStart")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("LeagueId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("SeasonType")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Season", "Week");
-
-                    b.HasIndex("LeagueId");
-
-                    b.ToTable("Calendar");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.CalendarMigrate", b =>
-                {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("CutoffDate")
+                    b.Property<DateTimeOffset?>("CutoffDate")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("FirstGameStart")
@@ -173,7 +140,7 @@ namespace HomeTownPickEm.Data.Migrations
 
                     b.HasIndex("LeagueId");
 
-                    b.ToTable("CalendarMigration");
+                    b.ToTable("Calendar");
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Game", b =>
@@ -505,15 +472,6 @@ namespace HomeTownPickEm.Data.Migrations
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Calendar", b =>
-                {
-                    b.HasOne("HomeTownPickEm.Models.League", "League")
-                        .WithMany()
-                        .HasForeignKey("LeagueId");
-
-                    b.Navigation("League");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.CalendarMigrate", b =>
                 {
                     b.HasOne("HomeTownPickEm.Models.League", "League")
                         .WithMany()

@@ -6,9 +6,9 @@ namespace HomeTownPickEm.Models
     [DebuggerDisplay("{Season}-{Week}")]
     public class Calendar
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
 
-        public int? LeagueId { get; set; }
+        public int LeagueId { get; set; }
 
         public League League { get; set; }
 
