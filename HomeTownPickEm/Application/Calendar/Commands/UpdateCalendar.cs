@@ -40,7 +40,7 @@ namespace HomeTownPickEm.Application.Calendar.Commands
 
                 calendar.FirstGameStart = request.FirstGameStart ?? calendar.FirstGameStart;
                 calendar.LastGameStart = request.LastGameStart ?? calendar.LastGameStart;
-                calendar.CutoffDate = request.CutoffDate;
+                //calendar.CutoffDate = request.CutoffDate;
 
                 return calendar.ToCalendarDto();
             }
