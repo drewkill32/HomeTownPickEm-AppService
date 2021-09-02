@@ -12,7 +12,7 @@ namespace HomeTownPickEm.Extensions
                 lastThurs = lastThurs.AddDays(-1);
             }
 
-            return new DateTimeOffset(lastThurs.Date);
+            return new DateTimeOffset(lastThurs.Date.AddHours(4));
         }
     }
 }
