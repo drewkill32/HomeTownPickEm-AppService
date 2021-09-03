@@ -8,6 +8,7 @@ namespace HomeTownPickEm.Application.Calendar
         {
             var cal = new CalendarDto
             {
+                Id = calendar.Id,
                 Season = calendar.Season,
                 SeasonType = calendar.SeasonType,
                 Week = calendar.Week,
@@ -25,6 +26,8 @@ namespace HomeTownPickEm.Application.Calendar
 
     public class CalendarDto
     {
+        public int Id { get; set; }
+
         public string Season { get; set; }
 
         public int Week { get; set; }

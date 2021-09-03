@@ -3,13 +3,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using HomeTownPickEm.Application.Calendar.Commands;
-using HomeTownPickEm.Application.Calendar.Queries;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Application.Games.Commands;
 using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Utils;
 using MediatR;
@@ -51,12 +50,11 @@ namespace HomeTownPickEm.Services
         {
             await AddLeagues(cancellationToken);
             await AddTeams(cancellationToken);
-            await AddCalendar(cancellationToken);
             await AddGames(cancellationToken);
             await AddUsers(cancellationToken);
             await AddAdminUserClaim(cancellationToken);
             await AddUserPics(cancellationToken);
-            await UpdateCalendar(cancellationToken);
+            await AddCalendar(cancellationToken);
         }
 
 
@@ -83,9 +81,42 @@ namespace HomeTownPickEm.Services
         {
             if (!_context.Calendar.Any())
             {
-                await _mediator.Send(new LoadCalendar.Command(), cancellationToken);
-                var calendars = await _context.Calendar.CountAsync(cancellationToken);
-                _logger.LogInformation("Added {Count} Calendar weeks", calendars);
+                var leagueId = await _context.League.OrderBy(x => x.Id)
+                    .Select(x => x.Id).FirstAsync(cancellationToken);
+
+                // cannot group by date directly in the query due to sqlite limitations
+                // see https://docs.microsoft.com/en-us/ef/core/providers/sqlite/limitations#query-limitations
+                var games = await _context.Games
+                    .Where(x => x.Picks.Any(p => p.LeagueId == leagueId))
+                    .Select(x => new
+                    {
+                        x.Week,
+                        x.Season,
+                        x.SeasonType,
+                        x.StartDate
+                    })
+                    .ToArrayAsync(cancellationToken);
+
+                var calendars =
+                    games.GroupBy(x => new { x.Week, x.Season, x.SeasonType })
+                        .Select(x => new Calendar
+                        {
+                            Week = x.Key.Week,
+                            Season = x.Key.Season,
+                            SeasonType = x.Key.SeasonType,
+                            CutoffDate = x.Min(g => g.StartDate).GetLastThusMidnight(),
+                            FirstGameStart = x.Min(g => g.StartDate),
+                            LastGameStart = x.Max(g => g.StartDate),
+                            LeagueId = leagueId
+                        })
+                        .OrderBy(x => x.Season)
+                        .ThenBy(x => x.Week)
+                        .ToArray();
+
+
+                _context.Calendar.AddRange(calendars);
+                await _context.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Added {Count} Calendar weeks", calendars.Length);
             }
         }
 
@@ -187,25 +218,6 @@ namespace HomeTownPickEm.Services
                 }
 
                 await _mediator.Send(registerUserCommand, cancellationToken);
-            }
-        }
-
-
-        private async Task UpdateCalendar(CancellationToken cancellationToken)
-        {
-            var request = new GetCalendar.Query
-            {
-                LeagueSlug = "st-pete-pick-em"
-            };
-            var cals = await _mediator.Send(request, cancellationToken);
-
-            // var calendars = await _context.Calendar
-            //     .Where(x => x.Season == request.Season && x.SeasonType == request.SeasonType)
-            //     .AsTracking()
-            //     .ToArrayAsync(cancellationToken);
-
-            foreach (var cal in cals)
-            {
             }
         }
     }

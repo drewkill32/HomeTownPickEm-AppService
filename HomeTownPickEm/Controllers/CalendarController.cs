@@ -23,5 +23,12 @@ namespace HomeTownPickEm.Controllers
             var calendars = await Mediator.Send(command);
             return Ok(calendars);
         }
+
+        [HttpPut("{calendarId}")]
+        public async Task<ActionResult<CalendarDto>> UpdateCalendar([FromRouteAttribute] UpdateCutoff.Command command)
+        {
+            var calendars = await Mediator.Send(command);
+            return Ok(calendars);
+        }
     }
 }
