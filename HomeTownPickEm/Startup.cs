@@ -8,6 +8,7 @@ using HomeTownPickEm.Filters;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
 using HomeTownPickEm.Services;
+using HomeTownPickEm.Services.DataSeed;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -109,7 +110,7 @@ namespace HomeTownPickEm
             identityBuilder.AddDefaultTokenProviders();
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
-            services.AddScoped<Seeder>();
+            services.AddSeeders();
             services.AddHostedService<SeederWorkerService>();
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
 
