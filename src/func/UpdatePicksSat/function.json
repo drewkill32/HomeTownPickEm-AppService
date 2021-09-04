@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "updatePicksSat",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 0 12-23 * * 6",
+      "runOnStartup": true
+    }
+  ],
+  "scriptFile": "../dist/UpdatePicksSat/index.js"
+}
