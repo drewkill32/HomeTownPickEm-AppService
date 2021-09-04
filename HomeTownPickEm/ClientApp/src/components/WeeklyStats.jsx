@@ -13,7 +13,7 @@ const WeeklyStats = () => {
     if (!data || data.length === 0) {
       return false;
     }
-    return isAfter(new Date(), data[0].cutoffDate);
+    return isAfter(new Date(), new Date(data[0].cutoffDate));
   };
 
   if (isLoading) {
