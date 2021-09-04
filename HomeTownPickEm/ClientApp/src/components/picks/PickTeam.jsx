@@ -45,17 +45,31 @@ const PickTeam = ({
         ></input>
       )}
       <span
-        style={{ color: isAfter && isSelected ? 'cornflowerblue' : 'black' }}
+        style={{
+          color: isAfter && isSelected ? 'cornflowerblue' : 'black',
+          maxWidth: '100px',
+
+          overflow: 'hidden',
+        }}
       >
-        <label htmlFor={`${team.id}-${pickId}`}>
-          <img
-            onError={(e) => (e.target.src = 'https://placehold.jp/50x50.png')}
-            src={team.logo}
-            alt={team.name}
-            width="25"
-            height="25"
-            style={{ marginInline: '5px' }}
-          />
+        <img
+          onError={(e) => (e.target.src = 'https://placehold.jp/50x50.png')}
+          src={team.logo}
+          alt={team.name}
+          width="25"
+          height="25"
+          style={{ marginInline: '5px' }}
+        />
+        <label
+          style={{
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            maxWidth: '110px',
+            margin: 'auto',
+          }}
+          htmlFor={`${team.id}-${pickId}`}
+        >
           {team.name}
         </label>
       </span>
