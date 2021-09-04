@@ -2,7 +2,15 @@ import React from 'react';
 import {useMutation} from 'react-query';
 import axios from 'axios';
 
-const PickTeam = ({pickId, points, team, isAfter, isSelected, onChange}) => {
+const PickTeam = ({
+                    pickId,
+                    points,
+                    team,
+                    isAfter,
+                    isSelected,
+                    isWinner,
+                    onChange,
+                  }) => {
   const mutation = useMutation((selectedTeam) =>
       axios.put(`/api/pick/${pickId}`, {selectedTeam}).then((res) => res.data)
   );
@@ -13,7 +21,7 @@ const PickTeam = ({pickId, points, team, isAfter, isSelected, onChange}) => {
   return (
       <span>
       {isAfter ? (
-          <span>
+          <span style={{color: isWinner ? 'green' : 'red'}}>
           <strong>{points || 0}</strong>
         </span>
       ) : (
