@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http.Headers;
 using System.Text;
+using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common.Behaviors;
 using HomeTownPickEm.Config;
 using HomeTownPickEm.Data;
@@ -8,6 +9,8 @@ using HomeTownPickEm.Filters;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
 using HomeTownPickEm.Services;
+using HomeTownPickEm.Services.Cfbd;
+using HomeTownPickEm.Services.CFBD;
 using HomeTownPickEm.Services.DataSeed;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -130,10 +133,18 @@ namespace HomeTownPickEm
             services.Configure<SendGridSettings>(Configuration.GetSection(SendGridSettings.SettingsKey));
             services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
-            services.Configure<CFBDSettings>(Configuration.GetSection(CFBDSettings.SettingsKey));
-            services.AddHttpClient(CFBDSettings.SettingsKey, (provider, client) =>
+            services.Configure<CfbdSettings>(Configuration.GetSection(CfbdSettings.SettingsKey));
+            services.AddHttpClient(CfbdSettings.SettingsKey, (provider, client) =>
             {
-                var settings = provider.GetService<IOptions<CFBDSettings>>().Value;
+                var settings = provider.GetRequiredService<IOptions<CfbdSettings>>().Value;
+                client.BaseAddress = new Uri(settings.BaseUrl);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Key);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            services.AddHttpClient<ICfbdHttpClient, CfbdHttpClient>((provider, client) =>
+            {
+                var settings = provider.GetRequiredService<IOptions<CfbdSettings>>().Value;
                 client.BaseAddress = new Uri(settings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Key);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");

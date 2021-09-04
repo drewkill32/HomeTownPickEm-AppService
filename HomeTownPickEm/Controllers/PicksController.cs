@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
+using HomeTownPickEm.Application.Picks.Commands;
 using HomeTownPickEm.Application.Picks.Queries;
 using HomeTownPickEm.Application.Picks.Queries.WeeklyPicks;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +49,14 @@ namespace HomeTownPickEm.Controllers
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
+        }
+
+        [HttpPost("{leagueSlug}/updatepickscores")]
+        public async Task<ActionResult> UpdatePickScores(string leagueSlug, UpdatePickScores.Command command)
+        {
+            command.LeagueSlug = leagueSlug;
+            await Mediator.Send(command);
+            return NoContent();
         }
     }
 }

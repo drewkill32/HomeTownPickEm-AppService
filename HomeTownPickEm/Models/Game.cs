@@ -29,5 +29,34 @@ namespace HomeTownPickEm.Models
 
         public int? AwayPoints { get; set; }
         public ICollection<Pick> Picks { get; set; }
+
+        public bool GameFinal => HomePoints.HasValue && AwayPoints.HasValue;
+
+
+        public Team Winner
+        {
+            get
+            {
+                if (!GameFinal)
+                {
+                    return null;
+                }
+
+                return HomePoints > AwayPoints ? Home : Away;
+            }
+        }
+
+        public int? WinnerId
+        {
+            get
+            {
+                if (!GameFinal)
+                {
+                    return null;
+                }
+
+                return HomePoints > AwayPoints ? HomeId : AwayId;
+            }
+        }
     }
 }

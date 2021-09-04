@@ -7,10 +7,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using HomeTownPickEm.Config;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Json;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Services.CFBD;
 using MediatR;
 
 namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
@@ -29,7 +29,7 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
             public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
             {
                 _context = context;
-                _httpClient = httpClientFactory.CreateClient(CFBDSettings.SettingsKey);
+                _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
             }
 
             public async Task<IEnumerable<TeamDto>> Handle(Command request, CancellationToken cancellationToken)
