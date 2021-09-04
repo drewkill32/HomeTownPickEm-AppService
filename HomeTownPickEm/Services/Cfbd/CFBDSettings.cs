@@ -1,6 +1,6 @@
-namespace HomeTownPickEm.Config
+namespace HomeTownPickEm.Services.CFBD
 {
-    public class CFBDSettings
+    public class CfbdSettings
     {
         public const string SettingsKey = "CFBD";
         public string BaseUrl { get; set; }

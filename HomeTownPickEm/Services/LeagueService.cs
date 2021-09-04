@@ -59,6 +59,12 @@ namespace HomeTownPickEm.Services
                     .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken))
                 .GuardAgainstNotFound(userId);
             var league = await GetLeague(cancellationToken);
+
+            if (league.Members.Any(x => x.Id == userId))
+            {
+                return user;
+            }
+
             league.Members.Add(user);
             await _context.SaveChangesAsync(cancellationToken);
             await AddPicks(user, cancellationToken);
@@ -87,6 +93,12 @@ namespace HomeTownPickEm.Services
                     .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
                 .GuardAgainstNotFound(teamId);
             var league = await GetLeague(cancellationToken);
+
+            if (league.Teams.Any(x => x.Id == teamId))
+            {
+                return team;
+            }
+
             league.Teams.Add(team);
             await _context.SaveChangesAsync(cancellationToken);
             await AddPicks(team, cancellationToken);

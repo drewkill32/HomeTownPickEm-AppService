@@ -9,15 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Calendar.Commands
 {
-    public class UpdateCalendar
+    public class UpdateCutoff
     {
         public class Command : IRequest<CalendarDto>
         {
-            public int Week { get; set; }
-            public string Season { get; set; }
-            public string SeasonType { get; set; }
-            public DateTimeOffset? FirstGameStart { get; set; }
-            public DateTimeOffset? LastGameStart { get; set; }
+            public int CalendarId { get; set; }
             public DateTimeOffset? CutoffDate { get; set; }
         }
 
@@ -32,15 +28,13 @@ namespace HomeTownPickEm.Application.Calendar.Commands
 
             public async Task<CalendarDto> Handle(Command request, CancellationToken cancellationToken)
             {
-                var calendar = (await _context.Calendar.Where(x =>
-                            x.Season == request.Season && x.SeasonType == request.SeasonType
-                                                       && x.Week == request.Week)
+                var calendar = (await _context.Calendar.Where(x => x.Id == request.CalendarId)
                         .SingleOrDefaultAsync(cancellationToken))
                     .GuardAgainstNotFound();
 
-                calendar.FirstGameStart = request.FirstGameStart ?? calendar.FirstGameStart;
-                calendar.LastGameStart = request.LastGameStart ?? calendar.LastGameStart;
-                //calendar.CutoffDate = request.CutoffDate;
+                calendar.CutoffDate = request.CutoffDate;
+                _context.Update(calendar);
+                await _context.SaveChangesAsync(cancellationToken);
 
                 return calendar.ToCalendarDto();
             }

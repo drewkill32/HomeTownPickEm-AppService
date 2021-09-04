@@ -1,22 +1,21 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using HomeTownPickEm.Abstract.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace HomeTownPickEm.Services
+namespace HomeTownPickEm.Services.DataSeed
 {
     public class SeederWorkerService : BackgroundService
     {
         private readonly ILogger<SeederWorkerService> _logger;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ISeeder _seeder;
 
 
-        public SeederWorkerService(
-            IServiceScopeFactory scopeFactory, ILogger<SeederWorkerService> logger)
+        public SeederWorkerService(ISeeder seeder, ILogger<SeederWorkerService> logger)
         {
-            _scopeFactory = scopeFactory;
+            _seeder = seeder;
             _logger = logger;
         }
 
@@ -25,11 +24,9 @@ namespace HomeTownPickEm.Services
         {
             return Task.Run(async () =>
             {
-                using var scope = _scopeFactory.CreateScope();
-                var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
                 try
                 {
-                    await seeder.SeedAsync(stoppingToken);
+                    await _seeder.Seed(stoppingToken);
                     _logger.LogInformation("Successfully seeded database");
                 }
                 catch (Exception ex)

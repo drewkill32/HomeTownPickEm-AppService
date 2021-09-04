@@ -6,19 +6,28 @@ namespace HomeTownPickEm.Application.Calendar
     {
         public static CalendarDto ToCalendarDto(this Models.Calendar calendar)
         {
-            return new CalendarDto
+            var cal = new CalendarDto
             {
+                Id = calendar.Id,
                 Season = calendar.Season,
                 SeasonType = calendar.SeasonType,
                 Week = calendar.Week,
                 FirstGameStart = calendar.FirstGameStart,
                 LastGameStart = calendar.LastGameStart
             };
+            if (calendar.CutoffDate.HasValue)
+            {
+                cal.CutoffDate = calendar.CutoffDate.Value;
+            }
+
+            return cal;
         }
     }
 
     public class CalendarDto
     {
+        public int Id { get; set; }
+
         public string Season { get; set; }
 
         public int Week { get; set; }

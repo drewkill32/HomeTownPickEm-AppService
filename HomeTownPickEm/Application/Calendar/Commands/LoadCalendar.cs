@@ -5,8 +5,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using HomeTownPickEm.Config;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Services.CFBD;
 using MediatR;
 
 namespace HomeTownPickEm.Application.Calendar.Commands
@@ -25,7 +25,7 @@ namespace HomeTownPickEm.Application.Calendar.Commands
 
             public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
             {
-                _httpClient = httpClientFactory.CreateClient(CFBDSettings.SettingsKey);
+                _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
                 _context = context;
             }
 
