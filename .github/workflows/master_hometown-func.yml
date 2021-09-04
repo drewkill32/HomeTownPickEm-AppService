@@ -10,7 +10,6 @@ on:
     paths: 
       - './src/func'
       - './.github/workflows/master_hometown-func.yml'
-  workflow_dispatch:
 
 
 env:
