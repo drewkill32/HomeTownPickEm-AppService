@@ -2,6 +2,7 @@ import React, { Fragment, useMemo } from 'react';
 import { Alert, Progress } from 'reactstrap';
 import useGetPicks from '../../hooks/useGetPicks';
 import isAfter from 'date-fns/isAfter';
+import isBefore from 'date-fns/isBefore';
 import isThisWeek from 'date-fns/isThisWeek';
 import PickRow from './PickRow';
 
@@ -16,10 +17,9 @@ const PicksTable = () => {
     return <Progress animated color="primary" value="100" />;
   }
   if (status === 'success') {
-    console.log({ data, status, error });
     return (
       <Fragment>
-        {isThisWeek(cutoffDate) && (
+        {isThisWeek(cutoffDate) && isBefore(new Date(), cutoffDate) && (
           <Alert className="mt-2" color="warning">
             The picks will be locked on {cutoffDate.toLocaleDateString()} at
             midnight. Get your picks in before then!
