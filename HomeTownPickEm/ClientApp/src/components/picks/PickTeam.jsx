@@ -44,7 +44,9 @@ const PickTeam = ({
           onChange={() => handleChange(team.id)}
         ></input>
       )}
-      <span>
+      <span
+        style={{ color: isAfter && isSelected ? 'cornflowerblue' : 'black' }}
+      >
         <label htmlFor={`${team.id}-${pickId}`}>
           <img
             onError={(e) => (e.target.src = 'https://placehold.jp/50x50.png')}
