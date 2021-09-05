@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Commands;
@@ -9,6 +10,14 @@ namespace HomeTownPickEm.Controllers
 {
     public class PicksController : ApiControllerBase
     {
+        [HttpGet("{leagueSlug}/alluserpicks/{week}")]
+        public async Task<ActionResult<IEnumerable<UserPicksDto>>> GetCurrentWeekUserPicks(
+            [FromRoute] GetCurrentWeekUserPicks.Query query)
+        {
+            var userPicks = await Mediator.Send(query);
+            return Ok(userPicks);
+        }
+
         [HttpGet("{leagueSlug}")]
         public async Task<ActionResult<PicksCollection>> GetPicks([FromRoute] GetPicks.Query query)
         {

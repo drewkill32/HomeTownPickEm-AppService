@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common.Behaviors;
@@ -150,6 +151,7 @@ namespace HomeTownPickEm
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddMediatR(typeof(Startup));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
             services.AddScoped<GameTeamRepository>();
