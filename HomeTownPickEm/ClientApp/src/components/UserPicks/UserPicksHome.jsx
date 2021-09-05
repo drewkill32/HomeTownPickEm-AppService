@@ -1,7 +1,7 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import {useQuery} from 'react-query';
-import {useWeek} from '../../hooks/useWeek';
+import { makeStyles } from '@material-ui/core/styles';
+import { useQuery } from 'react-query';
+import { useWeek } from '../../hooks/useWeek';
 import axios from 'axios';
 import UserPick from './UserPick';
 
@@ -17,23 +17,23 @@ const useStyles = makeStyles((theme) => ({
 export default function UserPicksHome() {
   const classes = useStyles();
   const week = useWeek();
-  const {isLoading, data} = useQuery(['userpick', week], () =>
-      axios
-          .get(`/api/picks/st-pete-pick-em/alluserpicks/${week}`)
-          .then((res) => res.data)
+  const { isLoading, data } = useQuery(['userpick', week], () =>
+    axios
+      .get(`/api/picks/st-pete-pick-em/alluserpicks/${week}`)
+      .then((res) => res.data)
   );
   if (isLoading) {
-    return <UserPickSkeleton/>;
+    return <UserPickSkeleton />;
   }
-  return (
+
+  if (data) {
+    return (
       <div className={classes.root}>
-        {data.map((pick, index) => (
-            <UserPick
-                key={pick.id || index}
-                expanded={index === 0}
-                pickCollection={pick}
-            />
+        {data.map((pick) => (
+          <UserPick key={pick.user.id} pickCollection={pick} />
         ))}
       </div>
-  );
+    );
+  }
+  return null;
 }
