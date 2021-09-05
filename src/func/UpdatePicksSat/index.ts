@@ -5,7 +5,7 @@ const timerTrigger: AzureFunction = async function (
   context: Context,
   myTimer: any
 ): Promise<void> {
-  const token = await updatePicks();
+  await updatePicks();
   console.log('updated Picks!');
 };
 

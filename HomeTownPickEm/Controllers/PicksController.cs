@@ -11,7 +11,7 @@ namespace HomeTownPickEm.Controllers
     public class PicksController : ApiControllerBase
     {
         [HttpGet("{leagueSlug}/alluserpicks/{week}")]
-        public async Task<ActionResult<IEnumerable<UserPicksDto>>> GetCurrentWeekUserPicks(
+        public async Task<ActionResult<IEnumerable<UserPickCollection>>> GetCurrentWeekUserPicks(
             [FromRoute] GetCurrentWeekUserPicks.Query query)
         {
             var userPicks = await Mediator.Send(query);

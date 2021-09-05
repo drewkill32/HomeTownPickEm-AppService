@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React from 'react';
-import { useQuery } from 'react-query';
-import { useHistory } from 'react-router';
-import { useLocation } from 'react-router-dom';
-import { Button } from 'reactstrap';
-import { useWeek } from '../hooks/useWeek';
+import {useQuery} from 'react-query';
+import {useHistory} from 'react-router';
+import {useLocation} from 'react-router-dom';
+import {Button} from 'reactstrap';
+import {useWeek} from '../hooks/useWeek';
 
 const Schedule = () => {
   const history = useHistory();
-  const { pathname } = useLocation();
+  const {pathname} = useLocation();
   const week = useWeek();
 
   const {
@@ -42,23 +42,23 @@ const Schedule = () => {
       week: week,
     };
     return (
-      <div className="d-flex flex-row justify-content-between">
-        <Button
-          disabled={status === 'loading' || week <= 1}
-          onClick={() => handleClick('prev')}
-          color="primary"
-        >
-          {'<'}
-        </Button>
-        <h1>{currentWeek.week}</h1>
-        <Button
-          disabled={status === 'loading' || week >= maxWeek}
-          onClick={() => handleClick('next')}
-          color="primary"
-        >
-          {'>'}
-        </Button>
-      </div>
+        <div className="d-flex flex-row justify-content-between mb-4">
+          <Button
+              disabled={status === 'loading' || week <= 1}
+              onClick={() => handleClick('prev')}
+              color="primary"
+          >
+            {'<'}
+          </Button>
+          <h1>{currentWeek.week}</h1>
+          <Button
+              disabled={status === 'loading' || week >= maxWeek}
+              onClick={() => handleClick('next')}
+              color="primary"
+          >
+            {'>'}
+          </Button>
+        </div>
     );
   }
   console.error(error);

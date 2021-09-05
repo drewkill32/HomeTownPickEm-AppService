@@ -17,7 +17,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
 {
     public class GetCurrentWeekUserPicks
     {
-        public class Query : IRequest<IEnumerable<UserPicksDto>>
+        public class Query : IRequest<IEnumerable<UserPickCollection>>
         {
             public string LeagueSlug { get; set; }
             public int Week { get; set; }
@@ -25,7 +25,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
             public string Season { get; set; } = DateTime.Now.Year.ToString();
         }
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<UserPicksDto>>
+        public class QueryHandler : IRequestHandler<Query, IEnumerable<UserPickCollection>>
         {
             private readonly ApplicationDbContext _context;
             private readonly IMapper _mapper;
@@ -36,7 +36,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
                 _mapper = mapper;
             }
 
-            public async Task<IEnumerable<UserPicksDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<UserPickCollection>> Handle(Query request,
+                CancellationToken cancellationToken)
             {
                 var date = DateTimeOffset.UtcNow;
 
@@ -54,17 +55,46 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         $"You can not view picks before the cutoff date. {cal.CutoffDate:yyyy-M-d hh:mm}");
                 }
 
-
-                var userPicks = await _context.Pick
-                    .Where(x => x.LeagueId == cal.LeagueId
-                                && x.Game.Week == request.Week)
-                    .ProjectTo<UserPicksDto>(_mapper.ConfigurationProvider,
-                        new { cal.LeagueId })
+                var users = await _context.Users
+                    .Where(x => x.Leagues.Any(l => l.Id == cal.LeagueId))
+                    .ProjectTo<UserPicksDto.UserDto>(_mapper.ConfigurationProvider)
                     .ToArrayAsync(cancellationToken);
 
-                return userPicks;
+
+                var userPicks = (await _context.Pick
+                        .Where(x => x.LeagueId == cal.LeagueId
+                                    && x.Game.Week == request.Week)
+                        .ProjectTo<UserPicksDto>(_mapper.ConfigurationProvider,
+                            new { cal.LeagueId })
+                        .ToArrayAsync(cancellationToken))
+                    .OrderBy(x => x.Game.StartDate)
+                    .ThenBy(x => x.Game.Home.Name)
+                    .ToArray();
+
+                var collection = users.Select(x => new UserPickCollection
+                    {
+                        User = x,
+                        Picks = userPicks.Where(p => p.UserId == x.Id).ToArray()
+                    })
+                    .OrderByDescending(x => x.User.TotalPoints)
+                    .ThenBy(x => x.User.FullName)
+                    .ToArray();
+
+                return collection;
             }
         }
+    }
+
+    public class UserPickCollection
+    {
+        public UserPickCollection()
+        {
+            Picks = new HashSet<UserPicksDto>();
+        }
+
+        public UserPicksDto.UserDto User { get; set; }
+
+        public ICollection<UserPicksDto> Picks { get; set; }
     }
 
     public class UserPicksDto : IMapFrom<Pick>
@@ -72,8 +102,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
         public int Id { get; set; }
 
         public int Points { get; set; }
-
-        public UserDto User { get; set; }
+        public string UserId { get; set; }
         public GameDto Game { get; set; }
         public string SelectedTeam { get; set; }
         public int SelectedTeamId { get; set; }
@@ -109,6 +138,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
 
             public TeamDto Away { get; set; }
+
+            public DateTimeOffset StartDate { get; set; }
 
             public int? AwayPoints { get; set; }
 
@@ -163,13 +194,16 @@ namespace HomeTownPickEm.Application.Picks.Queries
             {
                 profile
                     .CreateMap<Team, TeamDto>()
-                    .ForMember(dest => dest.Logo, opt => opt.MapFrom(src => src.Logos));
+                    .ForMember(dest => dest.Logo, opt =>
+                        opt.MapFrom(src => src.Logos));
             }
         }
 
         public class UserDto : IMapFrom<ApplicationUser>
         {
             public string Id { get; set; }
+
+            public string ProfileImg { get; set; }
             public string FirstName { get; set; }
 
             public string LastName { get; set; }
@@ -181,13 +215,12 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
             public void Mapping(Profile profile)
             {
-                var LeagueId = -1;
                 profile
                     .CreateMap<ApplicationUser, UserDto>()
                     .ForMember(dest => dest.TotalPoints,
                         opt =>
                             opt.MapFrom(src =>
-                                src.Leagues.Where(l => l.Id == LeagueId)
+                                src.Leagues
                                     .SelectMany(l => l.Picks)
                                     .Where(p => p.UserId == src.Id)
                                     .Sum(p => p.Points)));
