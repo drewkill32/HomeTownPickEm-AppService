@@ -44,29 +44,11 @@ namespace HomeTownPickEm.Controllers
             return Ok(teams);
         }
 
-
-        [HttpPut("{name}/{season}/user/{userId}")]
-        public async Task<ActionResult> UpdateLeague(string name, string season, string userId,
-            UpdateLeague.Command command)
+        [HttpPost("{leagueId}/updateleaguepicks")]
+        public async Task<ActionResult> UpdateLeague([FromRoute] UpdateLeague.Command command)
         {
-            command.Name = name;
-            command.Season = season;
-            command.MemberIds = new[] { userId };
-            command.KeepExisting = true;
-            var league = await Mediator.Send(command);
-            return CreatedAtAction("GetLeague", league);
-        }
-
-        [HttpPut("{name}/{season}/team/{teamId}")]
-        public async Task<ActionResult> UpdateLeague(string name, string season, int teamId,
-            UpdateLeague.Command command)
-        {
-            command.Name = name;
-            command.Season = season;
-            command.TeamIds = new[] { teamId };
-            command.KeepExisting = true;
-            var league = await Mediator.Send(command);
-            return CreatedAtAction("GetLeague", league);
+            await Mediator.Send(command);
+            return NoContent();
         }
     }
 }

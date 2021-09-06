@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,8 +35,7 @@ namespace HomeTownPickEm.Services
     {
         Task<Team> AddTeamAsync(int teamId, CancellationToken cancellationToken);
         Task<ApplicationUser> AddUserAsync(string userId, CancellationToken cancellationToken);
-        Task RemoveTeam(int teamId, CancellationToken cancellationToken);
-        Task RemoveUser(string userId, CancellationToken cancellationToken);
+        Task Update(CancellationToken cancellationToken);
     }
 
     public class LeagueService : ILeagueService
@@ -66,24 +66,25 @@ namespace HomeTownPickEm.Services
             }
 
             league.Members.Add(user);
-            await _context.SaveChangesAsync(cancellationToken);
-            await AddPicks(user, cancellationToken);
-            return user;
-        }
-
-        public async Task RemoveUser(string userId, CancellationToken cancellationToken)
-        {
-            var user = (await _context.Users.SingleOrDefaultAsync(x => x.Id == userId, cancellationToken))
-                .GuardAgainstNotFound(userId);
-            var league = await GetLeague(cancellationToken);
-            var member = league.Members.SingleOrDefault(x => x.Id == userId);
-            if (member != null)
+            if (user.TeamId.HasValue)
             {
-                league.Members.Remove(member);
+                if (league.Teams.All(x => x.Id != user.TeamId))
+                {
+                    var team = await _context.Teams
+                        .AsTracking().SingleAsync(x => x.Id == user.TeamId, cancellationToken);
+                    league.Teams.Add(team);
+                }
             }
 
             await _context.SaveChangesAsync(cancellationToken);
-            await RemovePicks(user, cancellationToken);
+            await UpdatePicks(cancellationToken);
+            return user;
+        }
+
+
+        public async Task Update(CancellationToken cancellationToken)
+        {
+            await UpdatePicks(cancellationToken);
         }
 
         public async Task<Team> AddTeamAsync(int teamId, CancellationToken cancellationToken)
@@ -100,72 +101,22 @@ namespace HomeTownPickEm.Services
             }
 
             league.Teams.Add(team);
+
             await _context.SaveChangesAsync(cancellationToken);
-            await AddPicks(team, cancellationToken);
+            await UpdatePicks(cancellationToken);
             return team;
         }
 
-
-        public async Task RemoveTeam(int teamId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Pick>> GetNewPicks(CancellationToken cancellationToken)
         {
-            var team = (await _context.Teams.SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
-                .GuardAgainstNotFound(teamId);
             var league = await GetLeague(cancellationToken);
+            var teams = league.Teams;
+            var games = await GetGames(cancellationToken);
 
-            var teamToRemove = league.Teams.SingleOrDefault(x => x.Id == teamId);
-            if (teamToRemove != null)
-            {
-                league.Teams.Remove(teamToRemove);
-            }
-
-            await _context.SaveChangesAsync(cancellationToken);
-            await RemovePicks(team, cancellationToken);
-        }
-
-        private async Task AddPicks(Team team, CancellationToken cancellationToken)
-        {
-            var games = await GetGames(team, cancellationToken);
-            var gamesToAdd = games.Where(x => x.ContainsTeam(team.Id)).ToArray();
-            var league = await GetLeague(cancellationToken);
-
-            foreach (var member in league.Members)
-            {
-                foreach (var game in gamesToAdd)
-                {
-                    var pick = new Pick
-                    {
-                        LeagueId = league.Id,
-                        Points = 0,
-                        UserId = member.Id,
-                        GameId = game.Id
-                    };
-                    await _context.Pick.AddAsync(pick, cancellationToken);
-                    league.Picks.Add(pick);
-                }
-            }
-
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-
-        private async Task AddPicks(ApplicationUser user, CancellationToken cancellationToken)
-        {
-            var gamesToAdd = await GetGames(cancellationToken);
-            var league = await GetLeague(cancellationToken);
-
-            foreach (var game in gamesToAdd)
-            {
-                var pick = new Pick
-                {
-                    LeagueId = league.Id,
-                    Points = 0,
-                    UserId = user.Id,
-                    GameId = game.Id
-                };
-                await _context.Pick.AddAsync(pick, cancellationToken);
-                league.Picks.Add(pick);
-            }
-
-            await _context.SaveChangesAsync(cancellationToken);
+            return (from team in teams
+                    from game in games.Where(x => x.ContainsTeam(team.Id))
+                    select new Pick { LeagueId = league.Id, Points = 0, GameId = game.Id })
+                .ToList();
         }
 
         private async ValueTask<GameProjection[]> GetGames(CancellationToken cancellationToken)
@@ -188,18 +139,6 @@ namespace HomeTownPickEm.Services
             return _games;
         }
 
-        private async ValueTask<GameProjection[]> GetGames(Team team, CancellationToken cancellationToken)
-        {
-            var teamIds = new[] { team.Id };
-            return await _context.Games.Where(x => teamIds.Contains(x.HomeId) || teamIds.Contains(x.AwayId))
-                .Select(x => new GameProjection
-                {
-                    Id = x.Id,
-                    HomeId = x.HomeId,
-                    AwayId = x.AwayId
-                })
-                .ToArrayAsync(cancellationToken);
-        }
 
         private async ValueTask<League> GetLeague(CancellationToken cancellationToken)
         {
@@ -216,6 +155,14 @@ namespace HomeTownPickEm.Services
                 .AsSplitQuery()
                 .SingleOrDefaultAsync(cancellationToken);
             return _league;
+        }
+
+        private async Task<bool> IsHead2Head(int gameId, CancellationToken cancellationToken)
+        {
+            var games = await GetGames(cancellationToken);
+            var teamIds = (await GetLeague(cancellationToken)).Teams.Select(x => x.Id).ToArray();
+            var game = games.Single(g => g.Id == gameId);
+            return teamIds.Contains(game.AwayId) && teamIds.Contains(game.HomeId);
         }
 
         private async Task RemovePicks(Team team, CancellationToken cancellationToken)
@@ -239,6 +186,38 @@ namespace HomeTownPickEm.Services
                 .ToArrayAsync(cancellationToken);
 
             _context.Pick.RemoveRange(picksToRemove);
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+
+        private async Task UpdatePicks(CancellationToken cancellationToken)
+        {
+            var league = await GetLeague(cancellationToken);
+
+            foreach (var member in league.Members)
+            {
+                var newPicks = (await GetNewPicks(cancellationToken)).ToArray();
+                foreach (var newPick in newPicks)
+                {
+                    var picks = league.Picks
+                        .Where(x => x.UserId == member.Id && x.GameId == newPick.GameId)
+                        .ToArray();
+
+                    var isHead2Head = await IsHead2Head(newPick.GameId, cancellationToken);
+
+                    if (isHead2Head && picks.Length != 2)
+                    {
+                        newPick.UserId = member.Id;
+                        league.Picks.Add(newPick);
+                    }
+                    else if (picks.Length == 0)
+                    {
+                        newPick.UserId = member.Id;
+                        league.Picks.Add(newPick);
+                    }
+                }
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
         }
