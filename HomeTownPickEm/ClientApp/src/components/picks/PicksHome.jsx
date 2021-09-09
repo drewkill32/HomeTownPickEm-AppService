@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Typography,
   Paper,
   Divider,
   ButtonBase,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
+  DialogContent,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -15,6 +21,7 @@ import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import isBefore from 'date-fns/isBefore';
 import grey from '@material-ui/core/colors/grey';
 import { useGame } from '../../hooks/useGame';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,20 +37,10 @@ const useStyles = makeStyles((theme) => ({
     flex: '1 0 auto',
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: '8vmin',
+    height: '8vmin',
     display: 'block',
     margin: '0 auto',
-  },
-  controls: {
-    display: 'flex',
-    alignItems: 'center',
-    paddingLeft: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-  playIcon: {
-    height: 38,
-    width: 38,
   },
   subtitle: {
     color: grey[500],
@@ -57,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingInline: theme.spacing(4),
+    paddingInline: theme.spacing(2),
     marginBottom: theme.spacing(1),
   },
   teamButton: {
@@ -66,9 +63,16 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '80px',
-    height: '80px',
+    width: '40vmin',
+    height: '20vmin',
     borderRadius: '10px',
+    boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.5)',
+    '& > div': {
+      width: '100%',
+      height: '100%',
+      padding: '1px',
+      margin: 0,
+    },
     overflow: 'hidden',
     '& p': {
       fontSize: '0.6rem',
@@ -78,8 +82,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   teamButtonBg: {
-    width: '80px',
-    height: '80px',
+    width: '100%',
+    height: '60%',
     display: 'flex',
     alignItems: 'center',
     background: (props) =>
@@ -88,13 +92,16 @@ const useStyles = makeStyles((theme) => ({
     borderTopRightRadius: '10px',
   },
   selected: {
+    boxSizing: 'border-box',
     border: `2px solid ${theme.palette.primary.main}`,
-    borderRadius: '10px',
+
+    transition: 'border 0.3s ease-in',
   },
 }));
 
 const PickLayout = ({ game: currentGame }) => {
   const classes = useStyles();
+
   const {
     game,
     homeSelected,
@@ -124,7 +131,18 @@ const PickLayout = ({ game: currentGame }) => {
           selected={awaySelected}
         />
         {game.head2Head && (
-          <SplitButton selected={splitSelected} onClick={selectSplit} />
+          <SplitButton
+            selected={splitSelected}
+            onClick={selectSplit}
+            teams={[
+              {
+                ...game.away,
+              },
+              {
+                ...game.home,
+              },
+            ]}
+          />
         )}
         <PickButton
           team={game.home}
@@ -132,7 +150,63 @@ const PickLayout = ({ game: currentGame }) => {
           selected={homeSelected}
         />
       </div>
+      {game.head2Head && <Head2HeadFooter />}
     </Paper>
+  );
+};
+
+const Head2HeadFooter = () => {
+  const [open, setOpen] = useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      }}
+    >
+      <Typography align="center" color="primary">
+        Head 2 Head
+      </Typography>
+      <IconButton
+        color="primary"
+        aria-label="add to shopping cart"
+        size="small"
+        onClick={handleClickOpen}
+      >
+        <InfoOutlinedIcon />
+      </IconButton>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Head 2 Head Matchup</DialogTitle>
+        <DialogContent dividers>
+          <Typography gutterBottom>
+            Head to head games are worth two points!
+          </Typography>
+          <Typography gutterBottom>
+            Head to head games are when two teams that are both in the league
+            are playing against each other.
+          </Typography>
+          <Typography gutterBottom>
+            You have to option of picking one team to win the game or split the
+            points between the two teams. Splitting the points is a good way to
+            play it safe by making sure you get at least point instead of losing
+            two.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };
 
@@ -143,9 +217,9 @@ const PickButton = ({ team, onClick, selected, ...rest }) => {
     <ButtonBase
       onClick={onClick}
       {...rest}
-      className={clsx({ [classes.selected]: selected })}
+      className={clsx(classes.teamButton, { [classes.selected]: selected })}
     >
-      <Paper className={classes.teamButton}>
+      <Paper elevation={3}>
         <div className={classes.teamButtonBg}>
           <img className={classes.logo} src={team.logo} alt={team.name} />
         </div>
@@ -155,19 +229,32 @@ const PickButton = ({ team, onClick, selected, ...rest }) => {
   );
 };
 
-const SplitButton = ({ onClick, selected, ...rest }) => {
-  const classes = useStyles();
+const SplitButton = ({ onClick, selected, teams, ...rest }) => {
+  const classes = useStyles({
+    color: teams[0].color,
+    altColor: teams[1].color,
+  });
   return (
     <ButtonBase
       onClick={onClick}
-      className={clsx({ [classes.selected]: selected })}
+      className={clsx(classes.teamButton, { [classes.selected]: selected })}
       {...rest}
     >
-      <Paper className={classes.teamButton}>
-        <div>
-          <Typography>Hello</Typography>
+      <Paper>
+        <div className={classes.teamButtonBg}>
+          <img
+            className={classes.logo}
+            src={teams[0].logo}
+            alt={teams[0].name}
+          />
+          <Divider orientation="vertical" variant="fullWidth" flexItem />
+          <img
+            className={classes.logo}
+            src={teams[1].logo}
+            alt={teams[1].name}
+          />
         </div>
-        <Typography>Split the picks</Typography>
+        <Typography noWrap>Split the picks</Typography>
       </Paper>
     </ButtonBase>
   );
@@ -230,10 +317,10 @@ const PicksHome = () => {
       winnerId: null,
       winner: null,
       status: 'Pending',
-      startDate: new Date('2021-09-11T17:00:00+00:00'),
+      startDate: new Date('2021-10-11T17:00:00+00:00'),
       startTimeTbd: false,
       head2Head: true,
-      cutoffDate: new Date('2021-09-09T00:00:00+00:00'),
+      cutoffDate: new Date('2021-10-09T00:00:00+00:00'),
       picks: [
         {
           id: 2,
@@ -252,7 +339,7 @@ const PicksHome = () => {
   ];
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="sm">
       {games.map((game) => (
         <PickLayout key={game.id} game={game} />
       ))}
