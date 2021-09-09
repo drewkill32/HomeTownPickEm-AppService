@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import {
   Container,
   Typography,
@@ -11,6 +11,7 @@ import {
   DialogActions,
   Button,
   DialogContent,
+  LinearProgress,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -22,6 +23,7 @@ import isBefore from 'date-fns/isBefore';
 import grey from '@material-ui/core/colors/grey';
 import { useGame } from '../../hooks/useGame';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { withStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: 'flex',
     justifyContent: 'space-between',
+    gap: theme.spacing(2),
     paddingInline: theme.spacing(2),
     marginBottom: theme.spacing(1),
   },
@@ -165,48 +168,51 @@ const Head2HeadFooter = () => {
     setOpen(false);
   };
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-      }}
-    >
-      <Typography align="center" color="primary">
-        Head 2 Head
-      </Typography>
-      <IconButton
-        color="primary"
-        aria-label="add to shopping cart"
-        size="small"
-        onClick={handleClickOpen}
+    <Fragment>
+      <Divider />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+        }}
       >
-        <InfoOutlinedIcon />
-      </IconButton>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Head 2 Head Matchup</DialogTitle>
-        <DialogContent dividers>
-          <Typography gutterBottom>
-            Head to head games are worth two points!
-          </Typography>
-          <Typography gutterBottom>
-            Head to head games are when two teams that are both in the league
-            are playing against each other.
-          </Typography>
-          <Typography gutterBottom>
-            You have to option of picking one team to win the game or split the
-            points between the two teams. Splitting the points is a good way to
-            play it safe by making sure you get at least point instead of losing
-            two.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+        <Typography align="center" color="primary">
+          Head 2 Head
+        </Typography>
+        <IconButton
+          color="primary"
+          aria-label="add to shopping cart"
+          size="small"
+          onClick={handleClickOpen}
+        >
+          <InfoOutlinedIcon />
+        </IconButton>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Head 2 Head Matchup</DialogTitle>
+          <DialogContent dividers>
+            <Typography gutterBottom>
+              Head to head games are worth two points!
+            </Typography>
+            <Typography gutterBottom>
+              Head to head games are when two teams that are both in the league
+              are playing against each other.
+            </Typography>
+            <Typography gutterBottom>
+              You have to option of picking one team to win the game or split
+              the points between the two teams. Splitting the points is a good
+              way to play it safe by making sure you get at least point instead
+              of losing two.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={handleClose} color="primary">
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    </Fragment>
   );
 };
 
@@ -247,7 +253,6 @@ const SplitButton = ({ onClick, selected, teams, ...rest }) => {
             src={teams[0].logo}
             alt={teams[0].name}
           />
-          <Divider orientation="vertical" variant="fullWidth" flexItem />
           <img
             className={classes.logo}
             src={teams[1].logo}
@@ -260,7 +265,29 @@ const SplitButton = ({ onClick, selected, teams, ...rest }) => {
   );
 };
 
+const usePickStyles = makeStyles((theme) => ({
+  root: {
+    position: 'relative',
+  },
+  footer: {
+    position: 'fixed',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingInline: '2rem',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '60px',
+    background: 'linear-gradient(14deg, #f5f5f5545, #353535444, 100%)',
+    borderTop: '1px solid #353535',
+  },
+  progress: {},
+}));
+
 const PicksHome = () => {
+  const classes = usePickStyles();
+
   const games = [
     {
       id: 1,
@@ -338,13 +365,48 @@ const PicksHome = () => {
     },
   ];
 
+  const gameCount = useMemo(() => games.length, [games]);
+  const selCount = useMemo(
+    () =>
+      games.filter((g) => g.picks.every((p) => p.selectedTeamId !== null))
+        .length,
+    [games]
+  );
+  console.log({ selectedGames: selCount });
+  const normalise = (value) => ((value - 0) * 100) / (gameCount - 0);
   return (
-    <Container maxWidth="sm">
-      {games.map((game) => (
-        <PickLayout key={game.id} game={game} />
-      ))}
-    </Container>
+    <div className={classes.root}>
+      <Container maxWidth="sm">
+        {games.map((game) => (
+          <PickLayout key={game.id} game={game} />
+        ))}
+      </Container>
+      <div className={classes.footer}>
+        <p>All Changes will autosave</p>
+        <div className={classes.progress}>
+          <p>1/1 Picks Made</p>
+          <BorderLinearProgress
+            variant="determinate"
+            value={normalise(selCount)}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
+
+const BorderLinearProgress = withStyles((theme) => ({
+  root: {
+    height: 10,
+    borderRadius: 5,
+  },
+  colorPrimary: {
+    backgroundColor: '#c2c0c0',
+  },
+  bar: {
+    borderRadius: 5,
+    backgroundColor: '#1a90ff',
+  },
+}))(LinearProgress);
 
 export default PicksHome;
