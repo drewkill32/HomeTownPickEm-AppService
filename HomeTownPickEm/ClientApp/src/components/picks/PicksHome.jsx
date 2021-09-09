@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer } from 'react';
+import React from 'react';
 import {
   Container,
   Typography,
@@ -14,6 +14,7 @@ import format from 'date-fns/format';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import isBefore from 'date-fns/isBefore';
 import grey from '@material-ui/core/colors/grey';
+import { useGame } from '../../hooks/useGame';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -92,91 +93,42 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ACTIONS = {
-  SELECT_HOME: 'SELECT_HOME',
-  SELECT_AWAY: 'SELECT_AWAY',
-  SELECT_SPLIT: 'SELECT_SPLIT',
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case ACTIONS.SELECT_HOME:
-      return {
-        ...state,
-        picks: state.picks.map((p) => ({
-          ...p,
-          selectedTeamId: state.home.id,
-        })),
-      };
-    case ACTIONS.SELECT_AWAY:
-      return {
-        ...state,
-        picks: state.picks.map((p) => ({
-          ...p,
-          selectedTeamId: state.away.id,
-        })),
-      };
-    case ACTIONS.SELECT_SPLIT:
-      var pickOne = { ...state.picks[0], selectedTeamId: state.away.id };
-      var pickTwo = { ...state.picks[1], selectedTeamId: state.home.id };
-      return {
-        ...state,
-        picks: [pickOne, pickTwo],
-      };
-    default:
-      return state;
-  }
-};
-
-const PickLayout = ({ game }) => {
+const PickLayout = ({ game: currentGame }) => {
   const classes = useStyles();
-  const [state, dispatch] = useReducer(reducer, game);
-
-  const homeSelected = useMemo(
-    () => state.picks.every((p) => p.selectedTeamId === state.home.id),
-    [state]
-  );
-
-  const awaySelected = useMemo(
-    () => state.picks.every((p) => p.selectedTeamId === state.away.id),
-    [state]
-  );
-
-  const splitSelected = useMemo(
-    () =>
-      state.picks.length === 2 &&
-      state.picks[0].selectedTeamId === state.away.id &&
-      state.picks[1].selectedTeamId === state.home.id,
-    [state]
-  );
+  const {
+    game,
+    homeSelected,
+    awaySelected,
+    splitSelected,
+    selectHome,
+    selectAway,
+    selectSplit,
+  } = useGame(currentGame);
 
   return (
     <Paper className={classes.root}>
-      {isBefore(new Date(), state.cutoffDate) && (
+      {isBefore(new Date(), game.cutoffDate) && (
         <Typography gutterBottom className={classes.subtitle} align="center">
-          Pick will lock in {formatDistanceToNow(state.cutoffDate)}
+          Pick will lock in {formatDistanceToNow(game.cutoffDate)}
           <LockOutlinedIcon className={classes.subtitleLock} />
         </Typography>
       )}
       <Divider />
       <Typography gutterBottom align="center">
-        {format(state.startDate, 'E MMM do h:mm a')}
+        {format(game.startDate, 'E MMM do h:mm a')}
       </Typography>
       <div className={classes.buttonContainer}>
         <PickButton
-          team={state.away}
-          onClick={() => dispatch({ type: ACTIONS.SELECT_AWAY })}
+          team={game.away}
+          onClick={selectAway}
           selected={awaySelected}
         />
-        {state.head2Head && (
-          <SplitButton
-            selected={splitSelected}
-            onClick={() => dispatch({ type: ACTIONS.SELECT_SPLIT })}
-          />
+        {game.head2Head && (
+          <SplitButton selected={splitSelected} onClick={selectSplit} />
         )}
         <PickButton
-          team={state.home}
-          onClick={() => dispatch({ type: ACTIONS.SELECT_HOME })}
+          team={game.home}
+          onClick={selectHome}
           selected={homeSelected}
         />
       </div>
