@@ -17,6 +17,7 @@ import Login from './components/auth/Login';
 import Logout from './components/auth/Logout';
 import Leaderboard from './pages/Leaderboard';
 import WeeklyStats from './components/WeeklyStats';
+import PicksHome from './components/picks/PicksHome';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => {
             <Route path="/stats" component={WeeklyStats} />
             <AuthorizeRoute path="/leaderboard" component={Leaderboard} />
             <AuthorizeRoute path="/picks" component={Picks} />
+            <AuthorizeRoute path="/picks2" component={PicksHome} />
             <Route path="*" component={NotFound} />
           </Switch>
         </Layout>

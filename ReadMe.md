@@ -3,9 +3,9 @@
 - [x] add leaderboard
 - [x] disallow picks when the date passes
 - [x] filter weeks by only weeks with games in them
-- [ ] add support for showing who didn't pick
-- [ ] add azure function to update scores
-- [ ] use Material UI
+- [x] add support for showing who didn't pick
+- [x] add azure function to update scores
+- [x] use Material UI - in progress
 - [ ] change look of picks screen
 - [ ] enlarge font size
 - [ ] use user principal
@@ -21,4 +21,4 @@
 - [ ] use Migration configs for DbContent
 - [ ] Use linq for leaderboard query
 - [ ] use identity server
-- [ ] update picks query to not use a collection
+- [x] update picks query to not use a collection
