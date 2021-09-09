@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,7 +50,12 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .ThenBy(x => x.Game.Home.School)
                     .ThenBy(x => x.Game.Home.Mascot)
                     .ToArray();
-                return orderedPicks.ToPicksDto();
+                var cutOffDate = await _context.Calendar
+                                     .Where(x => x.Week == request.Week && x.League.Slug == request.LeagueSlug)
+                                     .Select(x => x.CutoffDate)
+                                     .SingleOrDefaultAsync(cancellationToken) ??
+                                 throw new NullReferenceException("The cutoff was not found");
+                return orderedPicks.ToPicksDto(cutOffDate);
             }
         }
     }

@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 
 namespace HomeTownPickEm.Application.Picks
 {
     public static class PickDtoExtensions
     {
-        public static PicksCollection ToPicksDto(this Pick[] picks)
+        public static PicksCollection ToPicksDto(this Pick[] picks, DateTimeOffset cutoffDate)
         {
             if (picks.Length == 0)
             {
@@ -17,7 +16,7 @@ namespace HomeTownPickEm.Application.Picks
 
             return new PicksCollection
             {
-                CutoffDate = picks.Min(x => x.Game.StartDate).GetLastThusMidnight(),
+                CutoffDate = cutoffDate,
                 Picks = picks.Select(x => x.ToPickDto())
             };
         }
