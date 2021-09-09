@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Exceptions;
@@ -17,19 +18,19 @@ namespace HomeTownPickEm.Application.Picks.Commands
         public class Command : IRequest<PickDto>
         {
             public int? SelectedTeam { get; set; }
-            
+
             public int Id { get; set; }
         }
 
         public class CommandHandler : IRequestHandler<Command, PickDto>
         {
             private readonly ApplicationDbContext _context;
-            private readonly IUserAccessor _userAccessor;
             private readonly ILogger<CommandHandler> _logger;
+            private readonly IUserAccessor _userAccessor;
 
-            public CommandHandler(ApplicationDbContext context, 
+            public CommandHandler(ApplicationDbContext context,
                 IUserAccessor userAccessor,
-                    ILogger<CommandHandler> logger)
+                ILogger<CommandHandler> logger)
             {
                 _context = context;
                 _userAccessor = userAccessor;
@@ -47,13 +48,14 @@ namespace HomeTownPickEm.Application.Picks.Commands
 
                 if (pick.UserId != user.Id)
                 {
-                    _logger.LogError($"The user {_userAccessor.GetCurrentUsername()} is not valid of the pick Id: {pick.Id}");
+                    _logger.LogError(
+                        $"The user {_userAccessor.GetCurrentUsername()} is not valid of the pick Id: {pick.Id}");
                     throw new ForbiddenAccessException();
                 }
-                
+
                 if (request.SelectedTeam.HasValue)
                 {
-                    var team = await GetTeam(request.SelectedTeam.Value, pick.GameId, cancellationToken);
+                    var team = await GetTeam(request.SelectedTeam.Value, pick.GameId, pick.LeagueId, cancellationToken);
 
                     pick.SelectedTeamId = team.Id;
                 }
@@ -68,13 +70,13 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 return pick.ToPickDto();
             }
 
-            private async Task<Team> GetTeam(int teamId, int gameId, CancellationToken cancellationToken)
+            private async Task<Team> GetTeam(int teamId, int gameId, int leagueId, CancellationToken cancellationToken)
             {
                 var game = (await _context.Games
                         .SingleOrDefaultAsync(x => x.Id == gameId, cancellationToken))
                     .GuardAgainstNotFound(gameId);
 
-                GuardAgainstPickPastCutoff(game);
+                await GuardAgainstPickPastCutoff(game, leagueId);
 
                 var selectedTeam = (await _context.Teams
                         .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
@@ -86,14 +88,17 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 return selectedTeam;
             }
 
-            private static void GuardAgainstPickPastCutoff(Game game)
+            private async Task GuardAgainstPickPastCutoff(Game game, int leagueId)
             {
-                var prevThurs = game.StartDate.GetLastThusMidnight();
+                var cutOffDate = await _context.Calendar
+                    .Where(x => x.Week == game.Week && x.LeagueId == leagueId)
+                    .Select(x => x.CutoffDate)
+                    .SingleOrDefaultAsync();
                 var currDate = DateTimeOffset.UtcNow;
-                if (currDate > prevThurs)
+                if (currDate > cutOffDate)
                 {
                     throw new BadRequestException(
-                        $"The current time {currDate:f} is past the cutoff {prevThurs:f}");
+                        $"The current time {currDate:f} is past the cutoff {cutOffDate:f}");
                 }
             }
 
