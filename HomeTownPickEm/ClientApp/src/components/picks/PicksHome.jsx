@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Container, LinearProgress, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -55,8 +55,10 @@ const PicksHome = () => {
         : 0,
     [games]
   );
-
-  const normalise = (value) => ((value - 0) * 100) / (gameCount - 0);
+  const normalise = useCallback(
+    (value) => ((value - 0) * 100) / (gameCount - 0),
+    [gameCount]
+  );
 
   if (isLoading) {
     return <CircularProgress />;
