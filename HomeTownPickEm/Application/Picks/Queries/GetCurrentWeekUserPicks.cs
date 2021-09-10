@@ -57,7 +57,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
                 var users = await _context.Users
                     .Where(x => x.Leagues.Any(l => l.Id == cal.LeagueId))
-                    .ProjectTo<UserPicksDto.UserDto>(_mapper.ConfigurationProvider)
+                    .ProjectTo<UserPicksDto.UserProjection>(_mapper.ConfigurationProvider)
                     .ToArrayAsync(cancellationToken);
 
 
@@ -92,7 +92,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
             Picks = new HashSet<UserPicksDto>();
         }
 
-        public UserPicksDto.UserDto User { get; set; }
+        public UserPicksDto.UserProjection User { get; set; }
 
         public ICollection<UserPicksDto> Picks { get; set; }
     }
@@ -103,7 +103,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
         public int Points { get; set; }
         public string UserId { get; set; }
-        public GameDto Game { get; set; }
+        public GameProjection Game { get; set; }
         public string SelectedTeam { get; set; }
         public int SelectedTeamId { get; set; }
 
@@ -129,15 +129,15 @@ namespace HomeTownPickEm.Application.Picks.Queries
         }
 
 
-        public class GameDto : IMapFrom<Game>
+        public class GameProjection : IMapFrom<Game>
         {
             public int Id { get; set; }
             public int? HomePoints { get; set; }
 
-            public TeamDto Home { get; set; }
+            public TeamProjection Home { get; set; }
 
 
-            public TeamDto Away { get; set; }
+            public TeamProjection Away { get; set; }
 
             public DateTimeOffset StartDate { get; set; }
 
@@ -173,7 +173,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
             }
         }
 
-        public class TeamDto : IMapFrom<Team>
+        public class TeamProjection : IMapFrom<Team>
         {
             private string _logo;
             public int Id { get; set; }
@@ -193,13 +193,13 @@ namespace HomeTownPickEm.Application.Picks.Queries
             public void Mapping(Profile profile)
             {
                 profile
-                    .CreateMap<Team, TeamDto>()
+                    .CreateMap<Team, TeamProjection>()
                     .ForMember(dest => dest.Logo, opt =>
                         opt.MapFrom(src => src.Logos));
             }
         }
 
-        public class UserDto : IMapFrom<ApplicationUser>
+        public class UserProjection : IMapFrom<ApplicationUser>
         {
             public string Id { get; set; }
 
@@ -216,7 +216,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
             public void Mapping(Profile profile)
             {
                 profile
-                    .CreateMap<ApplicationUser, UserDto>()
+                    .CreateMap<ApplicationUser, UserProjection>()
                     .ForMember(dest => dest.TotalPoints,
                         opt =>
                             opt.MapFrom(src =>

@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Commands;
@@ -9,11 +8,9 @@ namespace HomeTownPickEm.Controllers
 {
     public class PickController : ApiControllerBase
     {
-        [HttpPut("{id}")]
-        public async Task<ActionResult<PickDto>> CreatePick(int id, SelectTeam.Command command)
+        [HttpPut]
+        public async Task<ActionResult<PickDto>> CreatePick(SelectTeam.Command command)
         {
-            command.Id = id;
-            
             var pick = await Mediator.Send(command);
             return Ok(pick);
         }

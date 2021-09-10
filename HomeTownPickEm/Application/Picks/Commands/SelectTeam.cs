@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,14 +16,17 @@ namespace HomeTownPickEm.Application.Picks.Commands
 {
     public class SelectTeam
     {
-        public class Command : IRequest<PickDto>
+        public class Command : List<Command.SelectTeamCommand>, IRequest<IEnumerable<PickDto>>
         {
-            public int? SelectedTeam { get; set; }
+            public class SelectTeamCommand
+            {
+                public int? SelectedTeamId { get; set; }
 
-            public int Id { get; set; }
+                public int PickId { get; set; }
+            }
         }
 
-        public class CommandHandler : IRequestHandler<Command, PickDto>
+        public class CommandHandler : IRequestHandler<Command, IEnumerable<PickDto>>
         {
             private readonly ApplicationDbContext _context;
             private readonly ILogger<CommandHandler> _logger;
@@ -37,37 +41,39 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 _logger = logger;
             }
 
-            public async Task<PickDto> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<PickDto>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var pick = (await _context.Pick
-                        .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken))
-                    .GuardAgainstNotFound(request.Id);
-
                 var user = (await _userAccessor.GetCurrentUserAsync())
                     .GuardAgainstNotFound("No current user found");
 
-                if (pick.UserId != user.Id)
+                var pickIds = request.Select(x => x.PickId).ToArray();
+
+                var picks = await _context.Pick
+                    .Where(x => pickIds.Contains(x.Id))
+                    .ToArrayAsync(cancellationToken);
+
+                GuardAgainstForbiddenAccess(picks, user);
+
+
+                foreach (var pick in picks)
                 {
-                    _logger.LogError(
-                        $"The user {_userAccessor.GetCurrentUsername()} is not valid of the pick Id: {pick.Id}");
-                    throw new ForbiddenAccessException();
+                    var singleRequest = request.Single(x => x.PickId == pick.Id);
+                    if (singleRequest.SelectedTeamId.HasValue)
+                    {
+                        var team = await GetTeam(singleRequest.SelectedTeamId.Value, pick.GameId, pick.LeagueId,
+                            cancellationToken);
+                        pick.SelectedTeamId = team.Id;
+                    }
+                    else
+                    {
+                        pick.SelectedTeamId = null;
+                    }
                 }
 
-                if (request.SelectedTeam.HasValue)
-                {
-                    var team = await GetTeam(request.SelectedTeam.Value, pick.GameId, pick.LeagueId, cancellationToken);
 
-                    pick.SelectedTeamId = team.Id;
-                }
-                else
-                {
-                    pick.SelectedTeamId = null;
-                }
-
-
-                _context.Update(pick);
+                _context.Pick.UpdateRange(picks);
                 await _context.SaveChangesAsync(cancellationToken);
-                return pick.ToPickDto();
+                return picks.Select(x => x.ToPickDto());
             }
 
             private async Task<Team> GetTeam(int teamId, int gameId, int leagueId, CancellationToken cancellationToken)
@@ -86,6 +92,19 @@ namespace HomeTownPickEm.Application.Picks.Commands
 
 
                 return selectedTeam;
+            }
+
+            private void GuardAgainstForbiddenAccess(Pick[] picks, ApplicationUser user)
+            {
+                foreach (var pick in picks)
+                {
+                    if (pick.UserId != user.Id)
+                    {
+                        _logger.LogError(
+                            $"The user {_userAccessor.GetCurrentUsername()} is not valid of the pick Id: {pick.Id}");
+                        throw new ForbiddenAccessException();
+                    }
+                }
             }
 
             private async Task GuardAgainstPickPastCutoff(Game game, int leagueId)

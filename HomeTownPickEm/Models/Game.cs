@@ -33,16 +33,16 @@ namespace HomeTownPickEm.Models
         public bool GameFinal => HomePoints.HasValue && AwayPoints.HasValue;
 
 
-        public Team Winner
+        public string Winner
         {
             get
             {
                 if (!GameFinal)
                 {
-                    return null;
+                    return "Pending";
                 }
 
-                return HomePoints > AwayPoints ? Home : Away;
+                return HomePoints > AwayPoints ? nameof(Home) : nameof(Away);
             }
         }
 

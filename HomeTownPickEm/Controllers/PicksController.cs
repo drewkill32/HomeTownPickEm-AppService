@@ -19,28 +19,28 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpGet("{leagueSlug}")]
-        public async Task<ActionResult<PicksCollection>> GetPicks([FromRoute] GetPicks.Query query)
+        public async Task<ActionResult<PicksCollection>> GetPicks([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/{userId}")]
-        public async Task<ActionResult<PicksCollection>> GetPicksByUser([FromRoute] GetPicks.Query query)
+        public async Task<ActionResult<PicksCollection>> GetPicksByUser([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/{userId}/week/{week}")]
-        public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek([FromRoute] GetPicks.Query query)
+        public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
         [HttpGet("{leagueSlug}/week/{week}")]
-        public async Task<ActionResult<PicksCollection>> GetPicksByWeek([FromRoute] GetPicks.Query query)
+        public async Task<ActionResult<PicksCollection>> GetPicksByWeek([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
