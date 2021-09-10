@@ -4,13 +4,20 @@ import { useAuth } from './useAuth';
 import { useWeek } from './useWeek';
 
 export default function useGetPicks() {
-  const { user } = useAuth();
+  const {
+    user: { id },
+  } = useAuth();
   const week = useWeek();
-  const id = user.id;
 
-  return useQuery(['picks', user.id, week], () =>
+  return useQuery(['picks', id, week], () =>
     axios
       .get(`api/picks/st-pete-pick-em/${id}/week/${week}`)
-      .then((res) => res.data)
+      .then((res) =>
+        res.data.map((g) => ({
+          ...g,
+          cutoffDate: new Date(g.cutoffDate),
+          startDate: new Date(g.startDate),
+        }))
+      )
   );
 }
