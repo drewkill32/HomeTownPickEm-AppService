@@ -40,8 +40,8 @@ const useStyles = makeStyles((theme) => ({
         paddingBlock: '2px',
       },
       [theme.breakpoints.down('sm')]: {
-        fontSize: '0.5rem',
-        paddingTop: '1px',
+        fontSize: '0.64rem',
+        paddingBlock: '1px',
       },
       fontAlign: 'center',
       fontWeight: 500,

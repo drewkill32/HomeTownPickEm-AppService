@@ -10,7 +10,6 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 
 import AuthorizeRoute from './components/AuthorizeRoute';
 
-import Picks from './components/Picks';
 import NotFound from './components/NotFound';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
@@ -33,8 +32,7 @@ const App = () => {
             <Route path="/logout" component={Logout} />
             <Route path="/stats" component={WeeklyStats} />
             <AuthorizeRoute path="/leaderboard" component={Leaderboard} />
-            <AuthorizeRoute path="/picks" component={Picks} />
-            <AuthorizeRoute path="/picks2" component={PicksHome} />
+            <AuthorizeRoute path="/picks" component={PicksHome} />
             <Route path="*" component={NotFound} />
           </Switch>
         </Layout>

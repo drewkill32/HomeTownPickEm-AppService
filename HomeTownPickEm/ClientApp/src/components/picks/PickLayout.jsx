@@ -11,7 +11,7 @@ import { useGame } from '../../hooks/useGame';
 
 import { useMakePick } from '../../hooks/useMakePick';
 import isAfter from 'date-fns/isAfter';
-import { SplitButton, PickButton } from './SplitButton';
+import { SplitButton, PickButton } from './PickButtons';
 import Head2HeadFooter from './Head2HeadFooter';
 
 const useStyles = makeStyles((theme) => ({
