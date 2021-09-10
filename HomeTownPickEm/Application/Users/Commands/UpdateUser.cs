@@ -50,8 +50,8 @@ namespace HomeTownPickEm.Application.Users.Commands
 
             private void UpdateApplicationUser(Command command, ApplicationUser user)
             {
-                user.FirstName = command.FirstName ?? user.FirstName;
-                user.LastName = command.LastName ?? user.LastName;
+                user.Name.First = command.FirstName ?? user.Name.First;
+                user.Name.Last = command.LastName ?? user.Name.Last;
                 user.TeamId = command.TeamId ?? user.TeamId;
                 user.Email = command.Email ?? user.Email;
             }

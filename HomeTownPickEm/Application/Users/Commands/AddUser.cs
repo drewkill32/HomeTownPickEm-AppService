@@ -22,8 +22,11 @@ namespace HomeTownPickEm.Application.Users.Commands
                 {
                     Email = Email,
                     TeamId = TeamId,
-                    FirstName = FirstName,
-                    LastName = LastName,
+                    Name = new UserName
+                    {
+                        First = FirstName,
+                        Last = LastName
+                    },
                     UserName = Email
                 };
             }

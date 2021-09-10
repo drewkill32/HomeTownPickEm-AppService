@@ -33,7 +33,7 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
                     join g in _context.Games on p.GameId equals g.Id
                     join t in _context.Teams on u.TeamId equals t.Id
                     where p.League.Slug == request.LeagueSlug && (!request.Week.HasValue || g.Week == request.Week)
-                    group p by new { g.Week, u.ProfileImg, u.FirstName, u.LastName }
+                    group p by new { g.Week, u.ProfileImg, FirstName = u.Name.First, LastName = u.Name.Last }
                     into g
                     select new WeeklyPicksDto
                     {

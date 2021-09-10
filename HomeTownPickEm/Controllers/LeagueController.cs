@@ -32,6 +32,14 @@ namespace HomeTownPickEm.Controllers
             return Ok(league);
         }
 
+        [HttpGet("{leagueSlug}/game/{gameId}")]
+        public async Task<ActionResult<IEnumerable<UserPickResponse>>> GetMemberGamePicks(
+            [FromRoute] GetMemberPicksByGame.Query query)
+        {
+            var result = await Mediator.Send(query);
+            return Ok(result);
+        }
+
         [HttpGet("{id}/availableteams")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetNotInLeague(int id)

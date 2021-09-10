@@ -12,8 +12,9 @@ namespace HomeTownPickEm.Models
 
         public ICollection<League> Leagues { get; set; }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+
+        public UserName Name { get; set; }
+
         public Team Team { get; set; }
 
         public int? TeamId { get; set; }

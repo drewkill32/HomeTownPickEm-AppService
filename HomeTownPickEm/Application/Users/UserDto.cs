@@ -13,8 +13,8 @@ namespace HomeTownPickEm.Application.Users
             {
                 Id = user.Id,
                 Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = user.Name.First,
+                LastName = user.Name.Last,
                 Team = user.Team?.ToTeamDto() ?? new TeamDto(),
                 Leagues = user.Leagues.Select(x => $"{x.Name} - ({x.Season})"),
                 Token = token

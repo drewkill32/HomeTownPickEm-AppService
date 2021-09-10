@@ -43,6 +43,19 @@ namespace HomeTownPickEm.Data
         {
             base.OnModelCreating(builder);
 
+
+            var userNameBuilder = builder.Entity<ApplicationUser>()
+                .OwnsOne(x => x.Name)
+                .ToTable("AspNetUsers");
+
+            userNameBuilder
+                .Property(x => x.First)
+                .HasColumnName("FirstName");
+
+            userNameBuilder
+                .Property(x => x.Last)
+                .HasColumnName("LastName");
+
             //Team
             builder.Entity<Team>()
                 .HasKey(x => x.Id);

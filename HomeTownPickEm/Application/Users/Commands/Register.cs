@@ -72,8 +72,11 @@ namespace HomeTownPickEm.Application.Users.Commands
                 {
                     Email = request.Email,
                     UserName = request.Email,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
+                    Name = new UserName
+                    {
+                        First = request.FirstName,
+                        Last = request.LastName
+                    },
                     Leagues = leagues
                 };
                 if (request.TeamId != 0)
