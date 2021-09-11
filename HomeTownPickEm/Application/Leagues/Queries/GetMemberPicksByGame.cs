@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -38,27 +39,32 @@ namespace HomeTownPickEm.Application.Leagues.Queries
                             u.Id,
                             u.Name,
                             t.Color,
+                            t.AltColor,
                             l.LeagueId,
                             l.TotalPoints,
                             p.SelectedTeamId
                         })
                     .OrderByDescending(x => x.TotalPoints)
+                    .ThenBy(x=> x.Name.First)
                     .ToArrayAsync(cancellationToken);
 
                 var maxPoints = users.Max(x => x.TotalPoints);
-
+                var ranks = users
+                    .Select(x => x.TotalPoints)
+                    .Distinct().OrderByDescending(x => x).ToList();
 
                 var response =
                     users
-                        .Select((u, i) =>
+                        .Select((u) =>
                             new UserPickResponse
                             {
                                 UserId = u.Id,
                                 Name = u.Name.Full,
                                 Initials = u.Name.Initials,
                                 TeamColor = u.Color,
+                                TeamAltColor = u.AltColor,
                                 SelectedTeamId = u.SelectedTeamId,
-                                Rank = i + 1,
+                                Rank = ranks.IndexOf(u.TotalPoints) + 1,
                                 PointOffset = maxPoints - u.TotalPoints
                             })
                         .ToArray();
@@ -80,6 +86,8 @@ namespace HomeTownPickEm.Application.Leagues.Queries
         public string UserId { get; set; }
 
         public string TeamColor { get; set; }
+        
+        public string TeamAltColor { get; set; }
 
         public int? SelectedTeamId { get; set; }
     }
