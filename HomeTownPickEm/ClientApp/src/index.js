@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import { CssBaseline } from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import App from './App';
 
 import { setupAxios } from './utils/agent';
@@ -14,8 +14,10 @@ const rootElement = document.getElementById('root');
 
 ReactDOM.render(
   <BrowserRouter basename={baseUrl}>
-    <CssBaseline />
-    <App />
+    <ThemeProvider>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </BrowserRouter>,
   rootElement
 );
