@@ -1,3 +1,4 @@
+import { isAfter } from 'date-fns';
 import { useMemo, useReducer } from 'react';
 
 const ACTIONS = {
@@ -49,6 +50,11 @@ export const useGame = (game) => {
     [state]
   );
 
+  const pastCutoff = useMemo(
+    () => isAfter(new Date().getUTCDate(), game.cutoffDate),
+    [state]
+  );
+
   const splitSelected = useMemo(
     () =>
       state.picks.length === 2 &&
@@ -66,6 +72,7 @@ export const useGame = (game) => {
     homeSelected,
     awaySelected,
     splitSelected,
+    pastCutoff,
     selectHome,
     selectAway,
     selectSplit,
