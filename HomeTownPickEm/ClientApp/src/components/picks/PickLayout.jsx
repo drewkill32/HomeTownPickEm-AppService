@@ -1,18 +1,18 @@
 import React from 'react';
-import { Typography, Paper, Divider } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import {Divider, Paper, Typography} from '@material-ui/core';
+import {makeStyles} from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import format from 'date-fns/format';
 
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import isBefore from 'date-fns/isBefore';
 import grey from '@material-ui/core/colors/grey';
-import { useGame } from '../../hooks/useGame';
+import {useGame} from '../../hooks/useGame';
 
-import { useMakePick } from '../../hooks/useMakePick';
-import isAfter from 'date-fns/isAfter';
-import { SplitButton, PickButton } from './PickButtons';
+import {useMakePick} from '../../hooks/useMakePick';
+import {PickButton, SplitButton} from './PickButtons';
 import Head2HeadFooter from './Head2HeadFooter';
+import UserPicks from './UserPicks';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,30 +53,27 @@ const PickLayout = ({ game: currentGame }) => {
     homeSelected,
     awaySelected,
     splitSelected,
+    pastCutoff,
     selectHome,
     selectAway,
     selectSplit,
   } = useGame(currentGame);
-
   const { mutateAsync } = useMakePick();
-
   const handleClick = async (picks, type) => {
     switch (type) {
       case 'home':
         selectHome();
-        await mutateAsync(picks);
         break;
       case 'split':
         selectSplit();
-        await mutateAsync(picks);
         break;
       case 'away':
         selectAway();
-        await mutateAsync(picks);
         break;
       default:
         break;
     }
+    await mutateAsync(picks);
   };
 
   return (
@@ -93,62 +90,70 @@ const PickLayout = ({ game: currentGame }) => {
       </Typography>
       <div className={classes.buttonContainer}>
         <PickButton
-          team={game.away}
-          disabled={isAfter(new Date(), game.cutoffDate)}
-          onClick={() =>
-            handleClick(
-              game.picks.map((p) => ({
-                pickId: p.id,
-                selectedTeamId: game.away.id,
-              })),
-              'away'
-            )
-          }
-          selected={awaySelected}
+            team={game.away}
+            disabled={pastCutoff}
+            onClick={() =>
+                handleClick(
+                    game.picks.map((p) => ({
+                      pickId: p.id,
+                      selectedTeamId: game.away.id,
+                    })),
+                    'away'
+                )
+            }
+            selected={awaySelected}
         >
           <Typography>{game.away.points}</Typography>
         </PickButton>
         {game.head2Head && (
-          <SplitButton
-            disabled={isAfter(new Date(), game.cutoffDate)}
-            selected={splitSelected}
-            onClick={() =>
-              handleClick(
-                [
-                  { pickId: game.picks[0].id, selectedTeamId: game.away.id },
-                  { pickId: game.picks[1].id, selectedTeamId: game.home.id },
-                ],
-                'split'
-              )
-            }
-            teams={[
-              {
-                ...game.away,
-              },
-              {
-                ...game.home,
-              },
-            ]}
+            <SplitButton
+                disabled={pastCutoff}
+                selected={splitSelected}
+                onClick={() =>
+                    handleClick(
+                        [
+                          {pickId: game.picks[0].id, selectedTeamId: game.away.id},
+                          {pickId: game.picks[1].id, selectedTeamId: game.home.id},
+                        ],
+                        'split'
+                    )
+                }
+                teams={[
+                  {
+                    ...game.away,
+                  },
+                  {
+                    ...game.home,
+                  },
+                ]}
           />
         )}
         <PickButton
-          team={game.home}
-          disabled={isAfter(new Date(), game.cutoffDate)}
-          onClick={() =>
-            handleClick(
-              game.picks.map((p) => ({
-                pickId: p.id,
-                selectedTeamId: game.home.id,
-              })),
-              'home'
-            )
-          }
-          selected={homeSelected}
+            team={game.home}
+            disabled={pastCutoff}
+            onClick={() =>
+                handleClick(
+                    game.picks.map((p) => ({
+                      pickId: p.id,
+                      selectedTeamId: game.home.id,
+                    })),
+                    'home'
+                )
+            }
+            selected={homeSelected}
         >
           <Typography>{game.home.points}</Typography>
         </PickButton>
       </div>
-      {game.winner !== 'pending' && game.head2Head && <Head2HeadFooter />}
+      {game.winner === 'Pending' && game.head2Head && <Head2HeadFooter/>}
+      {}
+      {pastCutoff && (
+          <UserPicks
+              homeId={game.home.id}
+              awayId={game.away.id}
+              gameId={game.id}
+          />
+      )}
     </Paper>
   );
 };

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -44,8 +43,9 @@ namespace HomeTownPickEm.Application.Leagues.Queries
                             l.TotalPoints,
                             p.SelectedTeamId
                         })
+                    .Distinct()
                     .OrderByDescending(x => x.TotalPoints)
-                    .ThenBy(x=> x.Name.First)
+                    .ThenBy(x => x.Name.First)
                     .ToArrayAsync(cancellationToken);
 
                 var maxPoints = users.Max(x => x.TotalPoints);
@@ -86,7 +86,7 @@ namespace HomeTownPickEm.Application.Leagues.Queries
         public string UserId { get; set; }
 
         public string TeamColor { get; set; }
-        
+
         public string TeamAltColor { get; set; }
 
         public int? SelectedTeamId { get; set; }

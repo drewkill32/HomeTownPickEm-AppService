@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
-import { Container, LinearProgress, CircularProgress } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import React, {useCallback, useMemo} from 'react';
+import {CircularProgress, Container, LinearProgress} from '@material-ui/core';
+import {makeStyles} from '@material-ui/core/styles';
 
-import { withStyles } from '@material-ui/styles';
+import {withStyles} from '@material-ui/styles';
 import useGetPicks from '../../hooks/useGetPicks';
 import PickLayout from './PickLayout';
+import Schedule from '../Schedule';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,13 +16,14 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: '70%',
   },
   footer: {
+    zIndex: '999',
     position: 'fixed',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingInline: '2rem',
     background:
-      'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(235,235,235,1) 85%, #a1a1a1 100%)',
+        'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(235,235,235,1) 85%, #a1a1a1 100%)',
     bottom: 0,
     left: 0,
     right: 0,
@@ -65,9 +67,10 @@ const PicksHome = () => {
   }
   return (
     <div className={classes.root}>
+      <Schedule/>
       <Container maxWidth="sm" className={classes.container}>
         {games.map((game) => (
-          <PickLayout key={game.id} game={game} />
+            <PickLayout key={game.id} game={game}/>
         ))}
       </Container>
       <div className={classes.footer}>

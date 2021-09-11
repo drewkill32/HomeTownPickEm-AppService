@@ -1,7 +1,7 @@
 import React from 'react';
-import { Typography, Paper, ButtonBase } from '@material-ui/core';
+import {ButtonBase, Paper, Typography} from '@material-ui/core';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   logo: {
@@ -121,9 +121,9 @@ export const PickButton = ({
     >
       <Paper elevation={3}>
         <div className={classes.teamButtonBg}>
-          <img className={classes.logo} src={team.logo} alt={team.name} />
+          <img className={classes.logo} src={team.logo} alt={team.name}/>
         </div>
-        <Typography class={classes.buttonText} noWrap>
+        <Typography className={classes.buttonText} noWrap>
           {team.name}
         </Typography>
         {children}
