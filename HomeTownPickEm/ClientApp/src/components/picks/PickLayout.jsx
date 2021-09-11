@@ -1,17 +1,18 @@
 import React from 'react';
-import {Divider, Paper, Typography} from '@material-ui/core';
-import {makeStyles} from '@material-ui/core/styles';
+import { Divider, Paper, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import format from 'date-fns/format';
 
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import isBefore from 'date-fns/isBefore';
 import grey from '@material-ui/core/colors/grey';
-import {useGame} from '../../hooks/useGame';
+import { useGame } from '../../hooks/useGame';
 
-import {useMakePick} from '../../hooks/useMakePick';
-import {PickButton, SplitButton} from './PickButtons';
+import { useMakePick } from '../../hooks/useMakePick';
+import { PickButton, SplitButton } from './PickButtons';
 import Head2HeadFooter from './Head2HeadFooter';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import UserPicks from './UserPicks';
 
 const useStyles = makeStyles((theme) => ({
@@ -90,69 +91,71 @@ const PickLayout = ({ game: currentGame }) => {
       </Typography>
       <div className={classes.buttonContainer}>
         <PickButton
-            team={game.away}
-            disabled={pastCutoff}
-            onClick={() =>
-                handleClick(
-                    game.picks.map((p) => ({
-                      pickId: p.id,
-                      selectedTeamId: game.away.id,
-                    })),
-                    'away'
-                )
-            }
-            selected={awaySelected}
+          team={game.away}
+          disabled={pastCutoff}
+          onClick={() =>
+            handleClick(
+              game.picks.map((p) => ({
+                pickId: p.id,
+                selectedTeamId: game.away.id,
+              })),
+              'away'
+            )
+          }
+          selected={awaySelected}
         >
-          <Typography>{game.away.points}</Typography>
+          <Typography variant="h6">{game.away.points}</Typography>
+          {game.winner === 'Away' && <ArrowDropUpIcon />}
         </PickButton>
         {game.head2Head && (
-            <SplitButton
-                disabled={pastCutoff}
-                selected={splitSelected}
-                onClick={() =>
-                    handleClick(
-                        [
-                          {pickId: game.picks[0].id, selectedTeamId: game.away.id},
-                          {pickId: game.picks[1].id, selectedTeamId: game.home.id},
-                        ],
-                        'split'
-                    )
-                }
-                teams={[
-                  {
-                    ...game.away,
-                  },
-                  {
-                    ...game.home,
-                  },
-                ]}
+          <SplitButton
+            disabled={pastCutoff}
+            selected={splitSelected}
+            onClick={() =>
+              handleClick(
+                [
+                  { pickId: game.picks[0].id, selectedTeamId: game.away.id },
+                  { pickId: game.picks[1].id, selectedTeamId: game.home.id },
+                ],
+                'split'
+              )
+            }
+            teams={[
+              {
+                ...game.away,
+              },
+              {
+                ...game.home,
+              },
+            ]}
           />
         )}
         <PickButton
-            team={game.home}
-            disabled={pastCutoff}
-            onClick={() =>
-                handleClick(
-                    game.picks.map((p) => ({
-                      pickId: p.id,
-                      selectedTeamId: game.home.id,
-                    })),
-                    'home'
-                )
-            }
-            selected={homeSelected}
+          team={game.home}
+          disabled={pastCutoff}
+          onClick={() =>
+            handleClick(
+              game.picks.map((p) => ({
+                pickId: p.id,
+                selectedTeamId: game.home.id,
+              })),
+              'home'
+            )
+          }
+          selected={homeSelected}
         >
-          <Typography>{game.home.points}</Typography>
+          <Typography variant="h6">{game.home.points}</Typography>
+          {game.winner === 'Home' && <ArrowDropUpIcon />}
         </PickButton>
       </div>
-      {game.winner === 'Pending' && game.head2Head && <Head2HeadFooter/>}
+      {game.winner === 'Pending' && game.head2Head && <Head2HeadFooter />}
       {}
       {pastCutoff && (
-          <UserPicks
-              homeId={game.home.id}
-              awayId={game.away.id}
-              gameId={game.id}
-          />
+        <UserPicks
+          homeId={game.home.id}
+          awayId={game.away.id}
+          gameId={game.id}
+        />
       )}
     </Paper>
   );

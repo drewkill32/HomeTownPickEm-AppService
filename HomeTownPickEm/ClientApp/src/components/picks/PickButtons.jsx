@@ -1,7 +1,7 @@
 import React from 'react';
-import {ButtonBase, Paper, Typography} from '@material-ui/core';
+import { ButtonBase, Paper, Typography } from '@material-ui/core';
 import clsx from 'clsx';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   logo: {
@@ -23,8 +23,12 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      width: '40vmin',
+      height: '125px',
+    },
     width: '40vmin',
-    height: '20vmin',
+    height: '180px',
     borderRadius: '10px',
     boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.5)',
     '& > div': {
@@ -40,9 +44,10 @@ const useStyles = makeStyles((theme) => ({
         paddingBlock: '2px',
       },
       [theme.breakpoints.down('sm')]: {
-        fontSize: '0.64rem',
+        fontSize: '0.75rem',
         paddingBlock: '1px',
       },
+      paddingInline: '0.5rem',
       fontAlign: 'center',
       fontWeight: 500,
     },
@@ -50,6 +55,9 @@ const useStyles = makeStyles((theme) => ({
   teamButtonBg: {
     width: '100%',
     height: '60%',
+    [theme.breakpoints.down('sm')]: {
+      maxHeight: '62px',
+    },
     display: 'flex',
     alignItems: 'center',
     background: (props) =>
@@ -121,7 +129,7 @@ export const PickButton = ({
     >
       <Paper elevation={3}>
         <div className={classes.teamButtonBg}>
-          <img className={classes.logo} src={team.logo} alt={team.name}/>
+          <img className={classes.logo} src={team.logo} alt={team.name} />
         </div>
         <Typography className={classes.buttonText} noWrap>
           {team.name}
