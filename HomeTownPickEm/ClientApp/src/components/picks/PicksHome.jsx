@@ -1,11 +1,13 @@
-import React, {useCallback, useMemo} from 'react';
-import {CircularProgress, Container, LinearProgress} from '@material-ui/core';
-import {makeStyles} from '@material-ui/core/styles';
+import React, { useCallback, useMemo } from 'react';
+import { CircularProgress, Container, LinearProgress } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
-import {withStyles} from '@material-ui/styles';
+import { withStyles } from '@material-ui/styles';
 import useGetPicks from '../../hooks/useGetPicks';
 import PickLayout from './PickLayout';
 import Schedule from '../Schedule';
+import { getUTCDate } from '../../utils/dates';
+import isAfter from 'date-fns/isAfter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     paddingInline: '2rem',
     background:
-        'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(235,235,235,1) 85%, #a1a1a1 100%)',
+      'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(235,235,235,1) 85%, #a1a1a1 100%)',
     bottom: 0,
     left: 0,
     right: 0,
@@ -49,6 +51,7 @@ const PicksHome = () => {
   const { isLoading, data: games } = useGetPicks();
 
   const gameCount = useMemo(() => (games ? games.length : 0), [games]);
+
   const selCount = useMemo(
     () =>
       games
@@ -62,19 +65,30 @@ const PicksHome = () => {
     [gameCount]
   );
 
+  const isPastCutoff = useMemo(() => {
+    if (!games) return false;
+
+    const minCutoff = games.reduce((a, b) =>
+      a.cutoffDate < b.cutoffDate ? a : b
+    ).cutoffDate;
+
+    return isAfter(getUTCDate(), minCutoff);
+  }, [games]);
   if (isLoading) {
     return <CircularProgress />;
   }
   return (
     <div className={classes.root}>
-      <Schedule/>
+      <Schedule />
       <Container maxWidth="sm" className={classes.container}>
         {games.map((game) => (
-            <PickLayout key={game.id} game={game}/>
+          <PickLayout key={game.id} game={game} />
         ))}
       </Container>
       <div className={classes.footer}>
-        <p>All Changes will autosave</p>
+        <p>
+          {isPastCutoff ? 'All picks are locked' : 'All Changes will autosave'}
+        </p>
         <div className={classes.progress}>
           <p>
             {selCount}/{gameCount} Picks Made
