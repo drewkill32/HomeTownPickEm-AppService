@@ -1,14 +1,57 @@
-import axios from 'axios';
 import React from 'react';
-import {useQuery} from 'react-query';
-import {useHistory} from 'react-router';
-import {useLocation} from 'react-router-dom';
-import {Button} from 'reactstrap';
-import {useWeek} from '../hooks/useWeek';
+import axios from 'axios';
+import { useQuery } from 'react-query';
+import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { useWeek } from '../hooks/useWeek';
+import { makeStyles } from '@material-ui/core/styles';
+import {
+  Card,
+  Divider,
+  Hidden,
+  IconButton,
+  Typography,
+} from '@material-ui/core';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import format from 'date-fns/format';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing(1),
+    backgroundColor: '#fafafa',
+    position: 'sticky',
+    top: 0,
+    zIndex: 50,
+    paddingBottom: theme.spacing(1),
+    paddingTop: theme.spacing(2),
+  },
+  card: {
+    minWidth: 'clamp( 150px, 450px, 70vw)',
+    minHeight: 'max( 50px, 7vmin)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    '& > h6': {
+      fontSize: 'clamp(0.7rem, 1rem + 6vmin,1rem)',
+    },
+  },
+
+  weekRange: {
+    paddingInline: theme.spacing(2),
+    marginBottom: theme.spacing(0.7),
+  },
+}));
 
 const Schedule = () => {
+  const classes = useStyles();
   const history = useHistory();
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   const week = useWeek();
 
   const {
@@ -16,7 +59,14 @@ const Schedule = () => {
     status,
     error,
   } = useQuery('schedule', () =>
-    axios.get('api/calendar/st-pete-pick-em').then((res) => res.data)
+    axios.get('api/calendar/st-pete-pick-em').then((res) =>
+      res.data.map((d) => ({
+        ...d,
+        firstGameStart: new Date(d.firstGameStart),
+        lastGameStart: new Date(d.lastGameStart),
+        cutoffDate: new Date(d.cutoffDate),
+      }))
+    )
   );
 
   const handleClick = (direction) => {
@@ -32,7 +82,6 @@ const Schedule = () => {
       });
     }
   };
-
   if (status === 'loading') {
     return null;
   }
@@ -42,23 +91,32 @@ const Schedule = () => {
       week: week,
     };
     return (
-        <div className="d-flex flex-row justify-content-between mb-4">
-          <Button
-              disabled={status === 'loading' || week <= 1}
-              onClick={() => handleClick('prev')}
-              color="primary"
-          >
-            {'<'}
-          </Button>
-          <h1>{currentWeek.week}</h1>
-          <Button
-              disabled={status === 'loading' || week >= maxWeek}
-              onClick={() => handleClick('next')}
-              color="primary"
-          >
-            {'>'}
-          </Button>
-        </div>
+      <div className={classes.root}>
+        <IconButton
+          disabled={status === 'loading' || week <= 1}
+          onClick={() => handleClick('prev')}
+          color="primary"
+        >
+          <ArrowBackIosIcon />
+        </IconButton>
+        <Card className={classes.card}>
+          <Typography variant="h6">Week {currentWeek.week}</Typography>
+          <Divider flexItem variant="fullWidth" />
+          <Typography variant="subtitle1" className={classes.weekRange}>
+            {`${format(currentWeek.firstGameStart, 'MMM do')} - ${format(
+              currentWeek.lastGameStart,
+              'MMM do'
+            )}`}
+          </Typography>
+        </Card>
+        <IconButton
+          disabled={status === 'loading' || week >= maxWeek}
+          onClick={() => handleClick('next')}
+          color="primary"
+        >
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </div>
     );
   }
   console.error(error);

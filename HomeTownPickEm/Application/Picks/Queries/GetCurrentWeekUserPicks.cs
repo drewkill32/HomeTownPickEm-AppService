@@ -204,11 +204,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
             public string Id { get; set; }
 
             public string ProfileImg { get; set; }
-            public string FirstName { get; set; }
-
-            public string LastName { get; set; }
-
-            public string FullName => $"{FirstName} {LastName}".Trim();
+            
+            public string FullName { get; set; }
 
 
             public int TotalPoints { get; set; }
@@ -217,6 +214,9 @@ namespace HomeTownPickEm.Application.Picks.Queries
             {
                 profile
                     .CreateMap<ApplicationUser, UserProjection>()
+                    .ForMember(dest=> dest.FullName,
+                        cfg=> 
+                            cfg.MapFrom(src=> src.Name.Full))
                     .ForMember(dest => dest.TotalPoints,
                         opt =>
                             opt.MapFrom(src =>
@@ -225,11 +225,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                                     .Where(p => p.UserId == src.Id)
                                     .Sum(p => p.Points)));
             }
-
-            public override string ToString()
-            {
-                return FullName;
-            }
+            
         }
     }
 

@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     paddingBottom: '70px',
     maxHeight: '70%',
+    backgroundColor: '#fafafa',
   },
   footer: {
     zIndex: '999',

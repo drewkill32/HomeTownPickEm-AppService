@@ -6,6 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles((theme) => ({
   logo: {
     width: '7.4vmin',
+    minWidth: '40px',
+    minHeight: '40px',
     height: '7.4vmin',
     display: 'block',
     margin: '0 auto',

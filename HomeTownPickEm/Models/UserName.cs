@@ -8,8 +8,10 @@ namespace HomeTownPickEm.Models
 
         public string Last { get; set; }
 
-        public string Full => $"{First} {Last}";
+        public string Full => $"{First} {Last}".Trim();
 
         public string Initials => $"{First.FirstOrDefault()}{Last.FirstOrDefault()}";
+
+        public override string ToString() => Full;
     }
 }
