@@ -1,7 +1,11 @@
+#region
+
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Services.DataSeed.User;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
+#endregion
 
 namespace HomeTownPickEm.Services.DataSeed
 {
@@ -24,6 +28,7 @@ namespace HomeTownPickEm.Services.DataSeed
             services.AddSeeder<UserClaimSeeder>();
             services.AddSeeder<UserProfilePicSeeder>();
             services.AddSeeder<CalendarSeeder>();
+            services.AddSeeder<CalendarTimeZoneSeeder>();
             return services;
         }
     }
