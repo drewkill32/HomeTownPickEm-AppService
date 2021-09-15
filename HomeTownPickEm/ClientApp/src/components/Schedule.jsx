@@ -5,13 +5,7 @@ import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { useWeek } from '../hooks/useWeek';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Card,
-  Divider,
-  Hidden,
-  IconButton,
-  Typography,
-} from '@material-ui/core';
+import { Card, Divider, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import format from 'date-fns/format';
