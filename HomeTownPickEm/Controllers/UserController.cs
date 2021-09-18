@@ -1,3 +1,5 @@
+#region
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,6 +9,8 @@ using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Application.Users.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+#endregion
 
 namespace HomeTownPickEm.Controllers
 {
@@ -65,10 +69,18 @@ namespace HomeTownPickEm.Controllers
             };
         }
 
+        [HttpPost("resetpassword")]
+        [AllowAnonymous]
+        public async Task<ActionResult> ResetPassword(ResetPassword.Command command)
+        {
+            await Mediator.Send(command);
+            return Ok();
+        }
+
 
         [HttpPost("unsafelyresetpassword")]
         [AllowAnonymous]
-        public async Task<ActionResult> Register(UnSafelyResetPassword.Command command)
+        public async Task<ActionResult> UnsafelyResetPassword(UnSafelyResetPassword.Command command)
         {
             await Mediator.Send(command);
             return Ok();
