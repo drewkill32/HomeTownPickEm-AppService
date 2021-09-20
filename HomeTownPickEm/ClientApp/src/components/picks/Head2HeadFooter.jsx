@@ -1,13 +1,13 @@
-import React, { Fragment, useState } from 'react';
+import React, {Fragment, useState} from 'react';
 import {
-  Typography,
-  Divider,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Button,
-  DialogContent,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    IconButton,
+    Typography,
 } from '@material-ui/core';
 
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
@@ -49,15 +49,15 @@ const Head2HeadFooter = () => {
               Head to head games are worth two points!
             </Typography>
             <Typography gutterBottom>
-              Head to head games are when two teams that are both in the league
-              are playing against each other.
+                Head to head games are when two teams that are both in the league
+                are playing against each other.
             </Typography>
-            <Typography gutterBottom>
-              You have to option of picking one team to win the game or split
-              the points between the two teams. Splitting the points is a good
-              way to play it safe by making sure you get at least point instead
-              of losing two.
-            </Typography>
+              <Typography gutterBottom>
+                  You have to option of picking one team to win the game or split
+                  the points between the two teams. Splitting the points is a good
+                  way to play it safe by making sure you get at least one point
+                  instead of losing two.
+              </Typography>
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleClose} color="primary">

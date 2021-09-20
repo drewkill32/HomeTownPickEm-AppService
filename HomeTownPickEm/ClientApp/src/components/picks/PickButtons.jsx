@@ -1,27 +1,31 @@
 import React from 'react';
-import { ButtonBase, Paper, Typography } from '@material-ui/core';
+import {ButtonBase, Paper, Typography} from '@material-ui/core';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
-  logo: {
-    width: '7.4vmin',
-    minWidth: '40px',
-    minHeight: '40px',
-    height: '7.4vmin',
-    display: 'block',
-    margin: '0 auto',
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: theme.spacing(2),
-    paddingInline: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-  },
-  teamButton: {
-    display: 'flex',
-    margin: theme.spacing(0.25),
+    logo: {
+        width: '7.4vmin',
+        minWidth: '40px',
+        minHeight: '40px',
+        height: '7.4vmin',
+        display: 'block',
+        margin: '0 auto',
+    },
+    splitLogo: {
+        minWidth: '25px',
+        minHeight: '25px',
+    },
+    buttonContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: theme.spacing(2),
+        paddingInline: theme.spacing(2),
+        marginBottom: theme.spacing(1),
+    },
+    teamButton: {
+        display: 'flex',
+        margin: theme.spacing(0.25),
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
@@ -46,8 +50,8 @@ const useStyles = makeStyles((theme) => ({
         paddingBlock: '2px',
       },
       [theme.breakpoints.down('sm')]: {
-        fontSize: '0.75rem',
-        paddingBlock: '1px',
+          fontSize: ({noWrap}) => (noWrap ? '0.75rem' : '0.85rem'),
+          paddingBlock: '1px',
       },
       paddingInline: '0.5rem',
       fontAlign: 'center',
@@ -96,46 +100,51 @@ export const SplitButton = ({
       <Paper>
         <div className={classes.teamButtonBg}>
           <img
-            className={classes.logo}
-            src={teams[0].logo}
-            alt={teams[0].name}
+              className={clsx(classes.logo, classes.splitLogo)}
+              src={teams[0].logo}
+              alt={teams[0].name}
           />
-          <img
-            className={classes.logo}
-            src={teams[1].logo}
-            alt={teams[1].name}
-          />
+            <img
+                className={clsx(classes.logo, classes.splitLogo)}
+                src={teams[1].logo}
+                alt={teams[1].name}
+            />
         </div>
-        <Typography noWrap>Split the points</Typography>
+          <Typography>Split points</Typography>
       </Paper>
     </ButtonBase>
   );
 };
 
 export const PickButton = ({
-  team,
-  onClick,
-  selected,
-  disabled,
-  children,
-  ...rest
-}) => {
-  const classes = useStyles({ color: team.color, altColor: team.altColor });
+                               team,
+                               onClick,
+                               selected,
+                               disabled,
+                               children,
+                               noWrap,
+                               ...rest
+                           }) => {
+    const classes = useStyles({
+        color: team.color,
+        altColor: team.altColor,
+        noWrap,
+    });
 
-  return (
-    <ButtonBase
-      onClick={onClick}
-      disabled={disabled}
-      {...rest}
-      className={clsx(classes.teamButton, { [classes.selected]: selected })}
-    >
-      <Paper elevation={3}>
-        <div className={classes.teamButtonBg}>
-          <img className={classes.logo} src={team.logo} alt={team.name} />
-        </div>
-        <Typography className={classes.buttonText} noWrap>
-          {team.name}
-        </Typography>
+    return (
+        <ButtonBase
+            onClick={onClick}
+            disabled={disabled}
+            {...rest}
+            className={clsx(classes.teamButton, {[classes.selected]: selected})}
+        >
+            <Paper elevation={3}>
+                <div className={classes.teamButtonBg}>
+                    <img className={classes.logo} src={team.logo} alt={team.name}/>
+                </div>
+                <Typography className={classes.buttonText} noWrap={noWrap}>
+                    {team.name}
+                </Typography>
         {children}
       </Paper>
     </ButtonBase>

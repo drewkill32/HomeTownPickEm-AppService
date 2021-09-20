@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,8 @@ using HomeTownPickEm.Security;
 using HomeTownPickEm.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+
+#endregion
 
 namespace HomeTownPickEm.Application.Picks.Queries
 {
@@ -85,12 +89,17 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         .Where(x => x.Picks.Any())
                         .ToArrayAsync(cancellationToken);
 
-                var (leagueTeamIds, cutoffDate) = await dataTask;
+                var (leagueTeamIds, cutoffDate, pickTotals) = await dataTask;
 
                 foreach (var game in games)
                 {
                     game.CutoffDate = cutoffDate;
                     game.Head2Head = leagueTeamIds.Contains(game.Home.Id) && leagueTeamIds.Contains(game.Away.Id);
+                    if (pickTotals.TryGetValue(game.Id, out var totals))
+                    {
+                        game.Home.PercentPicked = totals.HomePercent;
+                        game.Away.PercentPicked = totals.AwayPercent;
+                    }
                 }
 
 
@@ -102,8 +111,9 @@ namespace HomeTownPickEm.Application.Picks.Queries
                 return orderedGames;
             }
 
-            private async Task<(int[] TeamIds, DateTimeOffset? CutoffDate)> GetReleatedData(Query request,
-                CancellationToken cancellationToken)
+            private async Task<(int[] TeamIds, DateTimeOffset? CutoffDate, Dictionary<int, PickTotalDto> PickTotals)>
+                GetReleatedData(Query request,
+                    CancellationToken cancellationToken)
             {
                 var leagueTeamIds = await _context.Teams.Where(x => x.Leagues.Any(l => l.Slug == request.LeagueSlug))
                     .Select(x => x.Id)
@@ -115,9 +125,45 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         .SingleAsync(cancellationToken);
 
 
-                return (leagueTeamIds, cutoffDate);
+                var pickTotals = DateTimeOffset.UtcNow >= cutoffDate.Value
+                    ? await _context.Pick.Where(x =>
+                            x.Game.Week == request.Week && x.League.Slug == request.LeagueSlug &&
+                            x.SelectedTeamId != null)
+                        .Select(x => new
+                        {
+                            x.GameId, x.SelectedTeamId, x.Game.AwayId, x.Game.HomeId,
+                            HomeSelected = x.SelectedTeamId == x.Game.HomeId,
+                            AwaySelected = x.SelectedTeamId == x.Game.AwayId
+                        })
+                        .GroupBy(x => x.GameId)
+                        .Select(x => new PickTotalDto
+                        {
+                            GameId = x.Key,
+                            HomePicked = x.Count(y => y.HomeSelected),
+                            AwayPicked = x.Count(y => y.AwaySelected),
+                            Total = x.Count()
+                        })
+                        .ToDictionaryAsync(dto => dto.GameId, dto => dto, cancellationToken)
+                    : new Dictionary<int, PickTotalDto>();
+
+                return (leagueTeamIds, cutoffDate, pickTotals);
             }
         }
+    }
+
+
+    public class PickTotalDto
+    {
+        public int HomePicked { get; set; }
+
+        public int AwayPicked { get; set; }
+
+        public int Total { get; set; }
+
+        public double HomePercent => Math.Round(HomePicked / (double)Total * 100, 0);
+
+        public double AwayPercent => Math.Round(AwayPicked / (double)Total * 100, 0);
+        public int GameId { get; set; }
     }
 
     public class GameProjection : IMapFrom<Game>
@@ -172,6 +218,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
         public string Mascot { get; set; }
         public string School { get; set; }
 
+        public double? PercentPicked { get; set; }
         public string Name => $"{School} {Mascot}";
     }
 }
