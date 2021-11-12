@@ -4,9 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Models;
 using HomeTownPickEm.Services;
 using HomeTownPickEm.Services.Cfbd;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Games.Commands
 {
@@ -37,19 +39,29 @@ namespace HomeTownPickEm.Application.Games.Commands
                 var games = gamesResponse.Select(x => x.ToGame())
                     .ToArray();
 
-                if (_context.Games.Any())
+                var dbGames = await _context.Games.Select(x => x.Id).ToArrayAsync(cancellationToken);
+                var (existingGames, newGames) = GetGameDiffs(games, dbGames);
+                if (existingGames.Any())
                 {
-                    _context.Games.UpdateRange(games);
+                    _context.Games.UpdateRange(existingGames);
                 }
-                else
+
+                if (newGames.Any())
                 {
-                    _context.Games.AddRange(games);
+                    _context.Games.AddRange(newGames);
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
                 await _repository.LoadTeamCollection(games, cancellationToken);
 
                 return games.Select(x => _repository.MapToDto(x)).ToArray();
+            }
+
+            private (Game[] existingGames, Game[] newGames) GetGameDiffs(Game[] games, int[] dbGameIds)
+            {
+                var existingGames = games.Where(x => dbGameIds.Contains(x.Id)).ToArray();
+                var newGames = games.Where(x => !dbGameIds.Contains(x.Id)).ToArray();
+                return (existingGames, newGames);
             }
         }
     }
