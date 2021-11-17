@@ -61,7 +61,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                         .Include(x => x.Team)
                         .Include(x => x.Leagues)
                         .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
-                    var token = _jwtGenerator.CreateToken(user);
+                    var token = _jwtGenerator.CreateToken(user, claims);
                     return fullUser.ToUserDto(token);
                 }
 

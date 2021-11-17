@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using HomeTownPickEm.Models;
@@ -18,12 +19,12 @@ namespace HomeTownPickEm.Security
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         }
 
-        public string CreateToken(ApplicationUser user)
+        public string CreateToken(ApplicationUser user, IList<Claim> claims)
         {
-            var claims = new List<Claim>
+            if (claims.All(x => x.Type != JwtRegisteredClaimNames.NameId))
             {
-                new(JwtRegisteredClaimNames.NameId, user.UserName)
-            };
+                claims.Add(new Claim(JwtRegisteredClaimNames.NameId, user.UserName));
+            }
 
             //generate signing credentials
 
@@ -45,6 +46,6 @@ namespace HomeTownPickEm.Security
 
     public interface IJwtGenerator
     {
-        string CreateToken(ApplicationUser user);
+        string CreateToken(ApplicationUser user, IList<Claim> claims);
     }
 }
