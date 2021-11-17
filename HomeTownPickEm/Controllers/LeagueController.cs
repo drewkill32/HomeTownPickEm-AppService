@@ -12,7 +12,7 @@ namespace HomeTownPickEm.Controllers
     public class LeagueController : ApiControllerBase
     {
         [HttpPost]
-        public async Task<ActionResult> CreateLeague(AddLeague.Command command)
+        public async Task<ActionResult> CreateLeague(AddLeagueCommand command)
         {
             var league = await Mediator.Send(command);
 
@@ -22,7 +22,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{name}/{season}", Name = "GetLeague")]
         public async Task<ActionResult<LeagueDto>> GetLeague(string name, string season, [FromQuery] bool picks)
         {
-            var league = await Mediator.Send(new GetLeague.Query
+            var league = await Mediator.Send(new GetLeagueQuery
             {
                 Name = name,
                 Year = season,
@@ -34,7 +34,7 @@ namespace HomeTownPickEm.Controllers
 
         [HttpGet("{leagueSlug}/game/{gameId}")]
         public async Task<ActionResult<IEnumerable<UserPickResponse>>> GetMemberGamePicks(
-            [FromRoute] GetMemberPicksByGame.Query query)
+            [FromRoute] GetMemberPicksByGameQuery query)
         {
             var result = await Mediator.Send(query);
             return Ok(result);
@@ -44,7 +44,7 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetNotInLeague(int id)
         {
-            var query = new TeamsNotInLeague.Query
+            var query = new TeamsNotInLeagueQuery
             {
                 LeagueId = id
             };
@@ -53,7 +53,7 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpPost("{leagueId}/updateleaguepicks")]
-        public async Task<ActionResult> UpdateLeague([FromRoute] UpdateLeague.Command command)
+        public async Task<ActionResult> UpdateLeague([FromRoute] UpdateLeagueCommand command)
         {
             await Mediator.Send(command);
             return NoContent();

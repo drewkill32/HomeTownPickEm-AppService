@@ -15,7 +15,7 @@ namespace HomeTownPickEm.Controllers
         public async Task<ActionResult<IEnumerable<TeamDto>>> Get([FromQuery] string conference,
             [FromQuery] string name, [FromQuery] int? top)
         {
-            var teams = await Mediator.Send(new GetTeams.Query
+            var teams = await Mediator.Send(new GetTeamsQuery
             {
                 Conference = conference,
                 Name = name,
@@ -29,7 +29,7 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetAll()
         {
-            var teams = await Mediator.Send(new GetTeams.Query
+            var teams = await Mediator.Send(new GetTeamsQuery
             {
                 IncludeNoConference = true
             });
@@ -40,7 +40,7 @@ namespace HomeTownPickEm.Controllers
         [HttpPost("load")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> LoadTeams()
         {
-            var teams = await Mediator.Send(new LoadTeams.Command());
+            var teams = await Mediator.Send(new LoadTeamsCommand());
             return Ok(teams);
         }
     }

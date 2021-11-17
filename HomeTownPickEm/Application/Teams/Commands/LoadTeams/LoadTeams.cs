@@ -15,63 +15,60 @@ using MediatR;
 
 namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
 {
-    public class LoadTeams
+    public class LoadTeamsHandler : IRequestHandler<LoadTeamsCommand, IEnumerable<TeamDto>>
     {
-        public class Command : IRequest<IEnumerable<TeamDto>>
+        private readonly ApplicationDbContext _context;
+        private readonly HttpClient _httpClient;
+
+        public LoadTeamsHandler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
         {
+            _context = context;
+            _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
         }
 
-        public class Handler : IRequestHandler<Command, IEnumerable<TeamDto>>
+        public async Task<IEnumerable<TeamDto>> Handle(LoadTeamsCommand request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly HttpClient _httpClient;
+            var teamsResponse = await _httpClient.GetFromJsonAsync<IEnumerable<TeamResponse>>("/teams",
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = new SnakeCaseNamingPolicy()
+                }, cancellationToken) ?? throw new InvalidOperationException("Thee return value was null");
 
-            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
+            var teams = teamsResponse.Select(MapToTeam).ToArray();
+
+            if (_context.Teams.Any())
             {
-                _context = context;
-                _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
+                _context.Teams.UpdateRange(teams);
+            }
+            else
+            {
+                _context.Teams.AddRange(teams);
             }
 
-            public async Task<IEnumerable<TeamDto>> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var teamsResponse = await _httpClient.GetFromJsonAsync<IEnumerable<TeamResponse>>("/teams",
-                    new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = new SnakeCaseNamingPolicy()
-                    }, cancellationToken) ?? throw new InvalidOperationException("Thee return value was null");
-
-                var teams = teamsResponse.Select(MapToTeam).ToArray();
-
-                if (_context.Teams.Any())
-                {
-                    _context.Teams.UpdateRange(teams);
-                }
-                else
-                {
-                    _context.Teams.AddRange(teams);
-                }
-
-                await _context.SaveChangesAsync(cancellationToken);
-                return teams.Select(x => x.ToTeamDto()).ToArray();
-            }
-
-
-            private Team MapToTeam(TeamResponse teamResponse)
-            {
-                return new()
-                {
-                    Abbreviation = teamResponse.Abbreviation,
-                    Color = teamResponse.Color,
-                    Conference = teamResponse.Conference,
-                    Division = teamResponse.Division,
-                    Mascot = teamResponse.Mascot,
-                    Id = teamResponse.Id,
-                    Logos = teamResponse.Logos == null ? "" : string.Join(";", teamResponse.Logos),
-                    School = teamResponse.School,
-                    AltColor = teamResponse.AltColor
-                };
-            }
+            await _context.SaveChangesAsync(cancellationToken);
+            return teams.Select(x => x.ToTeamDto()).ToArray();
         }
+
+
+        private Team MapToTeam(TeamResponse teamResponse)
+        {
+            return new Team
+            {
+                Abbreviation = teamResponse.Abbreviation,
+                Color = teamResponse.Color,
+                Conference = teamResponse.Conference,
+                Division = teamResponse.Division,
+                Mascot = teamResponse.Mascot,
+                Id = teamResponse.Id,
+                Logos = teamResponse.Logos == null ? "" : string.Join(";", teamResponse.Logos),
+                School = teamResponse.School,
+                AltColor = teamResponse.AltColor
+            };
+        }
+    }
+
+    public class LoadTeamsCommand : IRequest<IEnumerable<TeamDto>>
+    {
     }
 
     [DebuggerDisplay("[{Id}] {School} {Mascot}")]

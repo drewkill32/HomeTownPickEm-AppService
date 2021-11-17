@@ -10,7 +10,7 @@ namespace HomeTownPickEm.Controllers
     public class CalendarController : ApiControllerBase
     {
         [HttpGet("{leagueSlug}")]
-        public async Task<ActionResult<CalendarDto>> GetCalendar(string leagueSlug, [FromQuery] GetCalendar.Query query)
+        public async Task<ActionResult<CalendarDto>> GetCalendar(string leagueSlug, [FromQuery] GetCalendarQuery query)
         {
             query.LeagueSlug = leagueSlug;
             var calendars = await Mediator.Send(query);
@@ -18,14 +18,14 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpPost("load")]
-        public async Task<ActionResult<CalendarDto>> LoadCalendar(LoadCalendar.Command command)
+        public async Task<ActionResult<CalendarDto>> LoadCalendar(LoadCalendarCommand command)
         {
             var calendars = await Mediator.Send(command);
             return Ok(calendars);
         }
 
         [HttpPut("{calendarId}")]
-        public async Task<ActionResult<CalendarDto>> UpdateCalendar(int calendarId, UpdateCutoff.Command command)
+        public async Task<ActionResult<CalendarDto>> UpdateCalendar(int calendarId, UpdateCutoffCommand command)
         {
             command.CalendarId = calendarId;
             var calendars = await Mediator.Send(command);

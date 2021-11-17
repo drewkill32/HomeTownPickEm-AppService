@@ -9,44 +9,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Teams.Queries
 {
-    public class GetTeams
+    public class GetTeamsQueryHandler : IRequestHandler<GetTeamsQuery, IEnumerable<TeamDto>>
     {
-        public class Query : IRequest<IEnumerable<TeamDto>>
+        private readonly ApplicationDbContext _context;
+
+        public GetTeamsQueryHandler(ApplicationDbContext context)
         {
-            public bool IncludeNoConference { get; set; }
-
-            public string Conference { get; set; }
-
-
-            public string Name { get; set; }
-            public int? Top { get; set; }
+            _context = context;
         }
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<TeamDto>>
+        public async Task<IEnumerable<TeamDto>> Handle(GetTeamsQuery request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
+            var query = _context.Teams
+                .IncludeNoConference(request.IncludeNoConference)
+                .WhereConferenceIs(request.Conference)
+                .WhereNameLike(request.Name)
+                .OrderBy(x => x.School)
+                .ThenBy(x => x.Mascot)
+                .Top(request.Top);
 
-            public QueryHandler(ApplicationDbContext context)
-            {
-                _context = context;
-            }
+            var teams = await query.ToArrayAsync(cancellationToken);
 
-            public async Task<IEnumerable<TeamDto>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var query = _context.Teams
-                    .IncludeNoConference(request.IncludeNoConference)
-                    .WhereConferenceIs(request.Conference)
-                    .WhereNameLike(request.Name)
-                    .OrderBy(x => x.School)
-                    .ThenBy(x => x.Mascot)
-                    .Top(request.Top);
-
-                var teams = await query.ToArrayAsync(cancellationToken);
-
-                return teams.Select(x => x.ToTeamDto())
-                    .OrderBy(x => x.Name)
-                    .ToArray();
-            }
+            return teams.Select(x => x.ToTeamDto())
+                .OrderBy(x => x.Name)
+                .ToArray();
         }
+    }
+
+    public class GetTeamsQuery : IRequest<IEnumerable<TeamDto>>
+    {
+        public bool IncludeNoConference { get; set; }
+
+        public string Conference { get; set; }
+
+
+        public string Name { get; set; }
+        public int? Top { get; set; }
     }
 }

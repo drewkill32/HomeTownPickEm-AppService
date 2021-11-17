@@ -7,45 +7,42 @@ using Microsoft.AspNetCore.Identity;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
-    public class AddUser
+    public class AddUserCommand : IRequest<UserDto>
     {
-        public class Command : IRequest<UserDto>
-        {
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string Email { get; set; }
-            public int? TeamId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public int? TeamId { get; set; }
 
-            public ApplicationUser ToAppUser()
+        public ApplicationUser ToAppUser()
+        {
+            return new ApplicationUser
             {
-                return new ApplicationUser
+                Email = Email,
+                TeamId = TeamId,
+                Name = new UserName
                 {
-                    Email = Email,
-                    TeamId = TeamId,
-                    Name = new UserName
-                    {
-                        First = FirstName,
-                        Last = LastName
-                    },
-                    UserName = Email
-                };
-            }
+                    First = FirstName,
+                    Last = LastName
+                },
+                UserName = Email
+            };
+        }
+    }
+
+    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, UserDto>
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+
+
+        public AddUserCommandHandler(UserManager<ApplicationUser> userManager)
+        {
+            _userManager = userManager;
         }
 
-        public class CommandHandler : IRequestHandler<Command, UserDto>
+        public async Task<UserDto> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
-            private readonly UserManager<ApplicationUser> _userManager;
-
-
-            public CommandHandler(UserManager<ApplicationUser> userManager)
-            {
-                _userManager = userManager;
-            }
-
-            public async Task<UserDto> Handle(Command request, CancellationToken cancellationToken)
-            {
-                return await _userManager.CreateUserAsync(request);
-            }
+            return await _userManager.CreateUserAsync(request);
         }
     }
 }

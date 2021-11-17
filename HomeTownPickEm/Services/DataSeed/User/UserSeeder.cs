@@ -27,7 +27,7 @@ namespace HomeTownPickEm.Services.DataSeed.User
         {
             if (!_context.Users.Any())
             {
-                var registerUserCommand = new Register.Command();
+                var registerUserCommand = new RegisterCommand();
 
                 _config.GetSection("User").Bind(registerUserCommand);
 

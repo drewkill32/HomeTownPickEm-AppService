@@ -10,7 +10,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{slug}")]
         public async Task<ActionResult<LeaderBoardDto>> Get(string slug)
         {
-            return Ok(await Mediator.Send(new GetLeaderboard.Query
+            return Ok(await Mediator.Send(new GetLeaderboardQuery
             {
                 Slug = slug
             }));

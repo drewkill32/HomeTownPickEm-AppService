@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Models;
 
@@ -16,7 +15,7 @@ namespace HomeTownPickEm.Application.Users
                 FirstName = user.Name.First,
                 LastName = user.Name.Last,
                 Team = user.Team?.ToTeamDto() ?? new TeamDto(),
-                Leagues = user.Leagues.Select(x => $"{x.Name} - ({x.Season})"),
+                //Leagues = user.Leagues.Select(x => $"{x.Name} - ({x.Season})"),
                 Token = token
             };
         }

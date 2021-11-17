@@ -7,34 +7,31 @@ using MediatR;
 
 namespace HomeTownPickEm.Application.Leagues.Commands
 {
-    public class AddLeague
+    public class AddLeagueCommandHandler : IRequestHandler<AddLeagueCommand, LeagueDto>
     {
-        public class Command : IRequest<LeagueDto>
+        private readonly ApplicationDbContext _context;
+
+        public AddLeagueCommandHandler(ApplicationDbContext context)
         {
-            public string Name { get; set; }
-            public string Season { get; set; } = DateTime.Now.Year.ToString();
+            _context = context;
         }
 
-        public class CommandHandler : IRequestHandler<Command, LeagueDto>
+        public async Task<LeagueDto> Handle(AddLeagueCommand request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-
-            public CommandHandler(ApplicationDbContext context)
+            var league = new League
             {
-                _context = context;
-            }
-
-            public async Task<LeagueDto> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var league = new League
-                {
-                    Name = request.Name,
-                    Season = request.Season
-                };
-                _context.League.Add(league);
-                await _context.SaveChangesAsync(cancellationToken);
-                return league.ToLeagueDto();
-            }
+                Name = request.Name,
+                Season = request.Season
+            };
+            _context.League.Add(league);
+            await _context.SaveChangesAsync(cancellationToken);
+            return league.ToLeagueDto();
         }
+    }
+
+    public class AddLeagueCommand : IRequest<LeagueDto>
+    {
+        public string Name { get; set; }
+        public string Season { get; set; } = DateTime.Now.Year.ToString();
     }
 }

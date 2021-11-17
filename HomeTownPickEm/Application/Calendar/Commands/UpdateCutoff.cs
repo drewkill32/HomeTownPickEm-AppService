@@ -9,35 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Calendar.Commands
 {
-    public class UpdateCutoff
+    public class UpdateCutoffCommandHandler : IRequestHandler<UpdateCutoffCommand, CalendarDto>
     {
-        public class Command : IRequest<CalendarDto>
+        private readonly ApplicationDbContext _context;
+
+        public UpdateCutoffCommandHandler(ApplicationDbContext context)
         {
-            public int CalendarId { get; set; }
-            public DateTimeOffset? CutoffDate { get; set; }
+            _context = context;
         }
 
-        public class CommandHandler : IRequestHandler<Command, CalendarDto>
+        public async Task<CalendarDto> Handle(UpdateCutoffCommand request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
+            var calendar = (await _context.Calendar.Where(x => x.Id == request.CalendarId)
+                    .SingleOrDefaultAsync(cancellationToken))
+                .GuardAgainstNotFound();
 
-            public CommandHandler(ApplicationDbContext context)
-            {
-                _context = context;
-            }
+            calendar.CutoffDate = request.CutoffDate;
+            _context.Update(calendar);
+            await _context.SaveChangesAsync(cancellationToken);
 
-            public async Task<CalendarDto> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var calendar = (await _context.Calendar.Where(x => x.Id == request.CalendarId)
-                        .SingleOrDefaultAsync(cancellationToken))
-                    .GuardAgainstNotFound();
-
-                calendar.CutoffDate = request.CutoffDate;
-                _context.Update(calendar);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return calendar.ToCalendarDto();
-            }
+            return calendar.ToCalendarDto();
         }
+    }
+
+    public class UpdateCutoffCommand : IRequest<CalendarDto>
+    {
+        public int CalendarId { get; set; }
+        public DateTimeOffset? CutoffDate { get; set; }
     }
 }

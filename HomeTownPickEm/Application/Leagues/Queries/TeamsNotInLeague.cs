@@ -10,41 +10,39 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Leagues.Queries
 {
-    public class TeamsNotInLeague
+    public class TeamsNotInLeagueQueryHandler : IRequestHandler<TeamsNotInLeagueQuery, IEnumerable<TeamDto>>
     {
-        public class Query : IRequest<IEnumerable<TeamDto>>
+        private readonly ApplicationDbContext _context;
+        private readonly GameTeamRepository _repository;
+
+        public TeamsNotInLeagueQueryHandler(ApplicationDbContext context, GameTeamRepository repository)
         {
-            public int LeagueId { get; set; }
+            _context = context;
+            _repository = repository;
         }
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<TeamDto>>
+        public async Task<IEnumerable<TeamDto>> Handle(TeamsNotInLeagueQuery request,
+            CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly GameTeamRepository _repository;
+            var teamIds = await _context.League
+                .Include(x => x.Teams)
+                .SelectMany(x => x.Teams, (_, team) => team.Id)
+                .ToArrayAsync(cancellationToken);
 
-            public QueryHandler(ApplicationDbContext context, GameTeamRepository repository)
-            {
-                _context = context;
-                _repository = repository;
-            }
-
-            public async Task<IEnumerable<TeamDto>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var teamIds = await _context.League
-                    .Include(x => x.Teams)
-                    .SelectMany(x => x.Teams, (_, team) => team.Id)
-                    .ToArrayAsync(cancellationToken);
-
-                var teams = await _context.Teams
-                    .Where(x => !teamIds.Contains(x.Id))
-                    .Where(x => !string.IsNullOrEmpty(x.Conference))
-                    .ToArrayAsync(cancellationToken);
+            var teams = await _context.Teams
+                .Where(x => !teamIds.Contains(x.Id))
+                .Where(x => !string.IsNullOrEmpty(x.Conference))
+                .ToArrayAsync(cancellationToken);
 
 
-                return teams.Select(x => x.ToTeamDto())
-                    .OrderBy(x => x.Name)
-                    .ToArray();
-            }
+            return teams.Select(x => x.ToTeamDto())
+                .OrderBy(x => x.Name)
+                .ToArray();
         }
+    }
+
+    public class TeamsNotInLeagueQuery : IRequest<IEnumerable<TeamDto>>
+    {
+        public int LeagueId { get; set; }
     }
 }

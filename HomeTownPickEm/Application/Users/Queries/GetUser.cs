@@ -6,30 +6,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Users.Queries
 {
-    public class GetUser
+    public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto>
     {
-        public class Query : IRequest<UserDto>
+        private readonly ApplicationDbContext _context;
+
+        public GetUserQueryHandler(ApplicationDbContext context)
         {
-            public string Id { get; set; }
+            _context = context;
         }
 
-        public class QueryHandler : IRequestHandler<Query, UserDto>
+        public async Task<UserDto> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
+            var user = await _context.Users
+                .Include(x => x.Team)
+                .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            public QueryHandler(ApplicationDbContext context)
-            {
-                _context = context;
-            }
-
-            public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var user = await _context.Users
-                    .Include(x => x.Team)
-                    .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-                return user.ToUserDto();
-            }
+            return user.ToUserDto();
         }
+    }
+
+    public class GetUserQuery : IRequest<UserDto>
+    {
+        public string Id { get; set; }
     }
 }
