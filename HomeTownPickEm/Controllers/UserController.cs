@@ -54,7 +54,7 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDto>> Login(LoginQuery query)
         {
-            return await Mediator.Send(query);
+            return Ok(await Mediator.Send(query));
         }
 
         [HttpPost("register")]

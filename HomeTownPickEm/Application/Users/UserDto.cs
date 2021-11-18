@@ -8,7 +8,7 @@ namespace HomeTownPickEm.Application.Users
     {
         public static UserDto ToUserDto(this ApplicationUser user, string token = "")
         {
-            return new UserDto
+            var userDto = new UserDto
             {
                 Id = user.Id,
                 Email = user.Email,
@@ -18,6 +18,8 @@ namespace HomeTownPickEm.Application.Users
                 //Leagues = user.Leagues.Select(x => $"{x.Name} - ({x.Season})"),
                 Token = token
             };
+
+            return userDto;
         }
     }
 
