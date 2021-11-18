@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Application.Users.Queries;
+using HomeTownPickEm.Application.Users.Queries.Profile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,6 +56,14 @@ namespace HomeTownPickEm.Controllers
         public async Task<ActionResult<UserDto>> Login(LoginQuery query)
         {
             return Ok(await Mediator.Send(query));
+        }
+
+        [HttpGet("/profile")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> Profile()
+        {
+            var profile = await Mediator.Send(new ProfileQuery());
+
+            return Ok(profile);
         }
 
         [HttpPost("register")]
