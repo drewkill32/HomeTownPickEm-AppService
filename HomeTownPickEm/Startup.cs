@@ -128,29 +128,28 @@ namespace HomeTownPickEm
 
 
             identityBuilder.AddDefaultTokenProviders();
-            services.AddScoped<IJwtGenerator, JwtGenerator>();
+            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddSeeders();
             services.AddHostedService<SeederWorkerService>();
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
 
             services.AddScoped<ILeagueServiceFactory, LeagueServiceFactory>();
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateLifetime = false
+            };
+            services.AddSingleton(tokenValidationParameters);
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(opt =>
-                {
-                    opt.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = key,
-                        ValidateAudience = false,
-                        ValidateIssuer = false,
-                        ValidateLifetime = false
-                    };
-                });
+                .AddJwtBearer(opt => { opt.TokenValidationParameters = tokenValidationParameters; });
             services.Configure<SendGridSettings>(Configuration.GetSection(SendGridSettings.SettingsKey));
             services.AddSingleton<IEmailSender, SendGridEmailSender>();
 

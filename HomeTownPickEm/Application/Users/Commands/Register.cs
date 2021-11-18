@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
-using HomeTownPickEm.Security;
 using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -16,17 +16,17 @@ namespace HomeTownPickEm.Application.Users.Commands
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, UserDto>
     {
         private readonly ApplicationDbContext _context;
-        private readonly IJwtGenerator _jwtGenerator;
+        private readonly IJwtService _jwtService;
         private readonly ILeagueServiceFactory _leagueServiceFactory;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public RegisterCommandHandler(ApplicationDbContext context,
             ILeagueServiceFactory leagueServiceFactory,
             UserManager<ApplicationUser> userManager,
-            IJwtGenerator jwtGenerator)
+            IJwtService jwtService)
         {
             _userManager = userManager;
-            _jwtGenerator = jwtGenerator;
+            _jwtService = jwtService;
             _context = context;
             _leagueServiceFactory = leagueServiceFactory;
         }
@@ -80,13 +80,13 @@ namespace HomeTownPickEm.Application.Users.Commands
                     }
                 }
 
-                    var fullUser = await _context.Users
-                        .Include(x => x.Team)
-                        .Include(x => x.Leagues)
-                        .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
-                    var token = _jwtGenerator.CreateToken(user, await _userManager.GetClaimsAsync(user));
-                    return fullUser.ToUserDto(token);
-                }
+                var fullUser = await _context.Users
+                    .Include(x => x.Team)
+                    .Include(x => x.Leagues)
+                    .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
+                var token = _jwtService.CreateToken(user, await _userManager.GetClaimsAsync(user));
+                return fullUser.ToUserDto(token);
+            }
 
             throw new BadRequestException(string.Join(". ", result.Errors.Select(x => x.Description)));
         }
