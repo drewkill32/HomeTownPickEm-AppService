@@ -9,36 +9,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Leagues.Commands
 {
-    public class AddNewTeam
+    public class AddNewTeamCommandHandler : IRequestHandler<AddNewTeamCommand, LeagueDto>
     {
-        public class Command : IRequest<LeagueDto>
+        private readonly ApplicationDbContext _context;
+        private readonly ILeagueServiceFactory _leagueServiceFactory;
+
+        public AddNewTeamCommandHandler(ApplicationDbContext context, ILeagueServiceFactory leagueServiceFactory)
         {
-            public string Name { get; set; }
-            public string Season { get; set; }
-            public int TeamId { get; set; }
+            _context = context;
+            _leagueServiceFactory = leagueServiceFactory;
         }
 
-        public class CommandHandler : IRequestHandler<Command, LeagueDto>
+        public async Task<LeagueDto> Handle(AddNewTeamCommand request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly ILeagueServiceFactory _leagueServiceFactory;
+            var league = (await _context.League.SingleOrDefaultAsync(x =>
+                    x.Season == request.Season && x.Name == request.Name, cancellationToken))
+                .GuardAgainstNotFound($"No League {request.Name} - ({request.Season}) found");
+            var service = _leagueServiceFactory.Create(league.Id);
+            await service.AddTeamAsync(request.TeamId, cancellationToken);
 
-            public CommandHandler(ApplicationDbContext context, ILeagueServiceFactory leagueServiceFactory)
-            {
-                _context = context;
-                _leagueServiceFactory = leagueServiceFactory;
-            }
-
-            public async Task<LeagueDto> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var league = (await _context.League.SingleOrDefaultAsync(x =>
-                        x.Season == request.Season && x.Name == request.Name, cancellationToken))
-                    .GuardAgainstNotFound($"No League {request.Name} - ({request.Season}) found");
-                var service = _leagueServiceFactory.Create(league.Id);
-                await service.AddTeamAsync(request.TeamId, cancellationToken);
-
-                return league.ToLeagueDto();
-            }
+            return league.ToLeagueDto();
         }
+    }
+
+    public class AddNewTeamCommand : IRequest<LeagueDto>
+    {
+        public string Name { get; set; }
+        public string Season { get; set; }
+        public int TeamId { get; set; }
     }
 }

@@ -7,31 +7,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Games.Queries
 {
-    public class GetGame
+    public class GetGameQueryHandler : IRequestHandler<GetGameQuery, GameDto>
     {
-        public class Query : IRequest<GameDto>
+        private readonly ApplicationDbContext _context;
+
+        public GetGameQueryHandler(ApplicationDbContext context)
         {
-            public int Id { get; set; }
+            _context = context;
         }
 
-        public class QueryHandler : IRequestHandler<Query, GameDto>
+        public async Task<GameDto> Handle(GetGameQuery request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-
-            public QueryHandler(ApplicationDbContext context)
-            {
-                _context = context;
-            }
-
-            public async Task<GameDto> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var game = await _context.Games.Where(x => x.Id == request.Id)
-                    .Include(x => x.Away)
-                    .Include(x => x.Home)
-                    .AsSingleQuery()
-                    .SingleOrDefaultAsync(cancellationToken);
-                return game.ToGameDto();
-            }
+            var game = await _context.Games.Where(x => x.Id == request.Id)
+                .Include(x => x.Away)
+                .Include(x => x.Home)
+                .AsSingleQuery()
+                .SingleOrDefaultAsync(cancellationToken);
+            return game.ToGameDto();
         }
+    }
+
+    public class GetGameQuery : IRequest<GameDto>
+    {
+        public int Id { get; set; }
     }
 }

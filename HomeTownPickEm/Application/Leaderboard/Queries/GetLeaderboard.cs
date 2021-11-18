@@ -8,33 +8,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Leaderboard.Queries
 {
-    public class GetLeaderboard
+    public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, IEnumerable<LeaderBoardDto>>
     {
-        public class Query : IRequest<IEnumerable<LeaderBoardDto>>
+        private readonly ApplicationDbContext _context;
+
+        public GetLeaderboardQueryHandler(ApplicationDbContext context)
         {
-            public string Slug { get; set; }
+            _context = context;
         }
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<LeaderBoardDto>>
+        public async Task<IEnumerable<LeaderBoardDto>> Handle(GetLeaderboardQuery request,
+            CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
+            var leaderboard = await _context.Leaderboard
+                .Where(x => x.LeagueSlug == request.Slug)
+                .OrderByDescending(x => x.TotalPoints)
+                .ThenBy(x => x.UserFirstName)
+                .ThenBy(x => x.UserLastName)
+                .ToArrayAsync(cancellationToken);
 
-            public QueryHandler(ApplicationDbContext context)
-            {
-                _context = context;
-            }
-
-            public async Task<IEnumerable<LeaderBoardDto>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var leaderboard = await _context.Leaderboard
-                    .Where(x => x.LeagueSlug == request.Slug)
-                    .OrderByDescending(x => x.TotalPoints)
-                    .ThenBy(x => x.UserFirstName)
-                    .ThenBy(x => x.UserLastName)
-                    .ToArrayAsync(cancellationToken);
-
-                return leaderboard.Select(x => x.ToLeaderBoardDto());
-            }
+            return leaderboard.Select(x => x.ToLeaderBoardDto());
         }
+    }
+
+    public class GetLeaderboardQuery : IRequest<IEnumerable<LeaderBoardDto>>
+    {
+        public string Slug { get; set; }
     }
 }

@@ -17,138 +17,136 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Picks.Queries
 {
-    public class GetUserPicks
+    public class GetUserPicksQueryHandler : IRequestHandler<GetUserPicksQuery, IEnumerable<GameProjection>>
     {
-        public class Query : IRequest<IEnumerable<GameProjection>>
-        {
-            public int Week { get; set; }
+        private readonly IUserAccessor _accessor;
+        private readonly ApplicationDbContext _context;
 
-            public string LeagueSlug { get; set; }
+        public GetUserPicksQueryHandler(ApplicationDbContext context, IUserAccessor accessor)
+        {
+            _context = context;
+            _accessor = accessor;
         }
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<GameProjection>>
+        public async Task<IEnumerable<GameProjection>> Handle(GetUserPicksQuery request,
+            CancellationToken cancellationToken)
         {
-            private readonly IUserAccessor _accessor;
-            private readonly ApplicationDbContext _context;
+            var userId = (await _accessor.GetCurrentUserAsync()).Id;
 
-            public QueryHandler(ApplicationDbContext context, IUserAccessor accessor)
-            {
-                _context = context;
-                _accessor = accessor;
-            }
+            var dataTask = GetReleatedData(request, cancellationToken);
 
-            public async Task<IEnumerable<GameProjection>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var userId = (await _accessor.GetCurrentUserAsync()).Id;
-
-                var dataTask = GetReleatedData(request, cancellationToken);
-
-                var games =
-                    await _context.Games
-                        .Where(x => x.Week == request.Week)
-                        .Select(x =>
-                            new GameProjection
+            var games =
+                await _context.Games
+                    .Where(x => x.Week == request.Week)
+                    .Select(x =>
+                        new GameProjection
+                        {
+                            Id = x.Id,
+                            StartDate = x.StartDate,
+                            StartTimeTbd = x.StartTimeTbd,
+                            Week = x.Week,
+                            SeasonType = x.SeasonType,
+                            Season = x.Season,
+                            WinnerId = x.WinnerId,
+                            Winner = x.Winner,
+                            Away = new TeamProjection
                             {
-                                Id = x.Id,
-                                StartDate = x.StartDate,
-                                StartTimeTbd = x.StartTimeTbd,
-                                Week = x.Week,
-                                SeasonType = x.SeasonType,
-                                Season = x.Season,
-                                WinnerId = x.WinnerId,
-                                Winner = x.Winner,
-                                Away = new TeamProjection
+                                Id = x.Away.Id,
+                                Points = x.AwayPoints,
+                                School = x.Away.School,
+                                Mascot = x.Away.Mascot,
+                                Logo = x.Away.Logos,
+                                Color = x.Away.Color,
+                                AltColor = x.Away.AltColor
+                            },
+                            Home = new TeamProjection
+                            {
+                                Id = x.Home.Id,
+                                Points = x.HomePoints,
+                                School = x.Home.School,
+                                Mascot = x.Home.Mascot,
+                                Logo = x.Home.Logos,
+                                Color = x.Home.Color,
+                                AltColor = x.Home.AltColor
+                            },
+                            Picks = x.Picks.Where(p => p.UserId == userId && p.League.Slug == request.LeagueSlug)
+                                .Select(p => new PickProjection
                                 {
-                                    Id = x.Away.Id,
-                                    Points = x.AwayPoints,
-                                    School = x.Away.School,
-                                    Mascot = x.Away.Mascot,
-                                    Logo = x.Away.Logos,
-                                    Color = x.Away.Color,
-                                    AltColor = x.Away.AltColor
-                                },
-                                Home = new TeamProjection
-                                {
-                                    Id = x.Home.Id,
-                                    Points = x.HomePoints,
-                                    School = x.Home.School,
-                                    Mascot = x.Home.Mascot,
-                                    Logo = x.Home.Logos,
-                                    Color = x.Home.Color,
-                                    AltColor = x.Home.AltColor
-                                },
-                                Picks = x.Picks.Where(p => p.UserId == userId && p.League.Slug == request.LeagueSlug)
-                                    .Select(p => new PickProjection
-                                    {
-                                        Id = p.Id,
-                                        GameId = p.GameId,
-                                        UserId = p.UserId,
-                                        SelectedTeamId = p.SelectedTeamId
-                                    })
-                            })
-                        .Where(x => x.Picks.Any())
-                        .ToArrayAsync(cancellationToken);
-
-                var (leagueTeamIds, cutoffDate, pickTotals) = await dataTask;
-
-                foreach (var game in games)
-                {
-                    game.CutoffDate = cutoffDate;
-                    game.Head2Head = leagueTeamIds.Contains(game.Home.Id) && leagueTeamIds.Contains(game.Away.Id);
-                    if (pickTotals.TryGetValue(game.Id, out var totals))
-                    {
-                        game.Home.PercentPicked = totals.HomePercent;
-                        game.Away.PercentPicked = totals.AwayPercent;
-                    }
-                }
-
-
-                var orderedGames = games
-                    .OrderBy(x => x.StartDate)
-                    .ThenBy(x => x.Home.School)
-                    .ThenBy(x => x.Home.Mascot)
-                    .ToArray();
-                return orderedGames;
-            }
-
-            private async Task<(int[] TeamIds, DateTimeOffset? CutoffDate, Dictionary<int, PickTotalDto> PickTotals)>
-                GetReleatedData(Query request,
-                    CancellationToken cancellationToken)
-            {
-                var leagueTeamIds = await _context.Teams.Where(x => x.Leagues.Any(l => l.Slug == request.LeagueSlug))
-                    .Select(x => x.Id)
+                                    Id = p.Id,
+                                    GameId = p.GameId,
+                                    UserId = p.UserId,
+                                    SelectedTeamId = p.SelectedTeamId
+                                })
+                        })
+                    .Where(x => x.Picks.Any())
                     .ToArrayAsync(cancellationToken);
 
-                var cutoffDate =
-                    await _context.Calendar.Where(x => x.League.Slug == request.LeagueSlug && x.Week == request.Week)
-                        .Select(x => x.CutoffDate)
-                        .SingleAsync(cancellationToken);
+            var (leagueTeamIds, cutoffDate, pickTotals) = await dataTask;
 
-
-                var pickTotals = DateTimeOffset.UtcNow >= cutoffDate.Value
-                    ? await _context.Pick.Where(x =>
-                            x.Game.Week == request.Week && x.League.Slug == request.LeagueSlug &&
-                            x.SelectedTeamId != null)
-                        .Select(x => new
-                        {
-                            x.GameId, x.SelectedTeamId, x.Game.AwayId, x.Game.HomeId,
-                            HomeSelected = x.SelectedTeamId == x.Game.HomeId,
-                            AwaySelected = x.SelectedTeamId == x.Game.AwayId
-                        })
-                        .GroupBy(x => x.GameId)
-                        .Select(x => new PickTotalDto
-                        {
-                            GameId = x.Key,
-                            HomePicked = x.Count(y => y.HomeSelected),
-                            AwayPicked = x.Count(y => y.AwaySelected),
-                            Total = x.Count()
-                        })
-                        .ToDictionaryAsync(dto => dto.GameId, dto => dto, cancellationToken)
-                    : new Dictionary<int, PickTotalDto>();
-
-                return (leagueTeamIds, cutoffDate, pickTotals);
+            foreach (var game in games)
+            {
+                game.CutoffDate = cutoffDate;
+                game.Head2Head = leagueTeamIds.Contains(game.Home.Id) && leagueTeamIds.Contains(game.Away.Id);
+                if (pickTotals.TryGetValue(game.Id, out var totals))
+                {
+                    game.Home.PercentPicked = totals.HomePercent;
+                    game.Away.PercentPicked = totals.AwayPercent;
+                }
             }
+
+
+            var orderedGames = games
+                .OrderBy(x => x.StartDate)
+                .ThenBy(x => x.Home.School)
+                .ThenBy(x => x.Home.Mascot)
+                .ToArray();
+            return orderedGames;
         }
+
+        private async Task<(int[] TeamIds, DateTimeOffset? CutoffDate, Dictionary<int, PickTotalDto> PickTotals)>
+            GetReleatedData(GetUserPicksQuery request,
+                CancellationToken cancellationToken)
+        {
+            var leagueTeamIds = await _context.Teams.Where(x => x.Leagues.Any(l => l.Slug == request.LeagueSlug))
+                .Select(x => x.Id)
+                .ToArrayAsync(cancellationToken);
+
+            var cutoffDate =
+                await _context.Calendar.Where(x => x.League.Slug == request.LeagueSlug && x.Week == request.Week)
+                    .Select(x => x.CutoffDate)
+                    .SingleAsync(cancellationToken);
+
+
+            var pickTotals = DateTimeOffset.UtcNow >= cutoffDate.Value
+                ? await _context.Pick.Where(x =>
+                        x.Game.Week == request.Week && x.League.Slug == request.LeagueSlug &&
+                        x.SelectedTeamId != null)
+                    .Select(x => new
+                    {
+                        x.GameId, x.SelectedTeamId, x.Game.AwayId, x.Game.HomeId,
+                        HomeSelected = x.SelectedTeamId == x.Game.HomeId,
+                        AwaySelected = x.SelectedTeamId == x.Game.AwayId
+                    })
+                    .GroupBy(x => x.GameId)
+                    .Select(x => new PickTotalDto
+                    {
+                        GameId = x.Key,
+                        HomePicked = x.Count(y => y.HomeSelected),
+                        AwayPicked = x.Count(y => y.AwaySelected),
+                        Total = x.Count()
+                    })
+                    .ToDictionaryAsync(dto => dto.GameId, dto => dto, cancellationToken)
+                : new Dictionary<int, PickTotalDto>();
+
+            return (leagueTeamIds, cutoffDate, pickTotals);
+        }
+    }
+
+    public class GetUserPicksQuery : IRequest<IEnumerable<GameProjection>>
+    {
+        public int Week { get; set; }
+
+        public string LeagueSlug { get; set; }
     }
 
 

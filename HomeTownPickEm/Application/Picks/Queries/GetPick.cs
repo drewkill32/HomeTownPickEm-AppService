@@ -8,42 +8,39 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Picks.Queries
 {
-    public class GetPick
+    public class GetPickQueryHandler : IRequestHandler<GetPickQuery, PickDto>
     {
-        public class Query : IRequest<PickDto>
+        private readonly ApplicationDbContext _context;
+
+        public GetPickQueryHandler(ApplicationDbContext context)
         {
-            public int Id { get; set; }
+            _context = context;
         }
 
-        public class QueryHandler : IRequestHandler<Query, PickDto>
+        public async Task<PickDto> Handle(GetPickQuery request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
+            var picks = await _context.Pick
+                .Where(x => x.Id == request.Id)
+                .Include(x => x.Game)
+                .Include(x => x.Game.Away)
+                .Include(x => x.Game.Home)
+                .Include(x => x.User)
+                .Include(x => x.SelectedTeam)
+                .Include(x => x.League.Teams)
+                .AsSplitQuery()
+                .SingleOrDefaultAsync(cancellationToken);
 
-            public QueryHandler(ApplicationDbContext context)
+            if (picks == null)
             {
-                _context = context;
+                throw new NotFoundException("Pick", request.Id);
             }
 
-            public async Task<PickDto> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var picks = await _context.Pick
-                    .Where(x => x.Id == request.Id)
-                    .Include(x => x.Game)
-                    .Include(x => x.Game.Away)
-                    .Include(x => x.Game.Home)
-                    .Include(x => x.User)
-                    .Include(x => x.SelectedTeam)
-                    .Include(x => x.League.Teams)
-                    .AsSplitQuery()
-                    .SingleOrDefaultAsync(cancellationToken);
-
-                if (picks == null)
-                {
-                    throw new NotFoundException("Pick", request.Id);
-                }
-
-                return picks.ToPickDto();
-            }
+            return picks.ToPickDto();
         }
+    }
+
+    public class GetPickQuery : IRequest<PickDto>
+    {
+        public int Id { get; set; }
     }
 }

@@ -8,69 +8,68 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Leagues.Queries
 {
-    public class GetMemberPicksByGame
+    public class
+        GetMemberPicksByGameQueryCommand : IRequestHandler<GetMemberPicksByGameQuery, IEnumerable<UserPickResponse>>
     {
-        public class Query : IRequest<IEnumerable<UserPickResponse>>
-        {
-            public int GameId { get; set; }
+        private readonly ApplicationDbContext _context;
 
-            public string LeagueSlug { get; set; }
+        public GetMemberPicksByGameQueryCommand(ApplicationDbContext context)
+        {
+            _context = context;
         }
 
-        public class QueryCommand : IRequestHandler<Query, IEnumerable<UserPickResponse>>
+        public async Task<IEnumerable<UserPickResponse>> Handle(GetMemberPicksByGameQuery request,
+            CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
+            var users = await (from l in _context.Leaderboard
+                    join t in _context.Teams on l.TeamId equals t.Id
+                    join u in _context.Users on l.UserId equals u.Id
+                    join p in _context.Pick on l.UserId equals p.UserId
+                    where l.LeagueSlug == request.LeagueSlug && p.GameId == request.GameId
+                    select new
+                    {
+                        u.Id,
+                        u.Name,
+                        t.Color,
+                        t.AltColor,
+                        l.LeagueId,
+                        l.TotalPoints,
+                        p.SelectedTeamId
+                    })
+                .Distinct()
+                .OrderByDescending(x => x.TotalPoints)
+                .ThenBy(x => x.Name.First)
+                .ToArrayAsync(cancellationToken);
 
-            public QueryCommand(ApplicationDbContext context)
-            {
-                _context = context;
-            }
+            var maxPoints = users.Max(x => x.TotalPoints);
+            var ranks = users
+                .Select(x => x.TotalPoints)
+                .Distinct().OrderByDescending(x => x).ToList();
 
-            public async Task<IEnumerable<UserPickResponse>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var users = await (from l in _context.Leaderboard
-                        join t in _context.Teams on l.TeamId equals t.Id
-                        join u in _context.Users on l.UserId equals u.Id
-                        join p in _context.Pick on l.UserId equals p.UserId
-                        where l.LeagueSlug == request.LeagueSlug && p.GameId == request.GameId
-                        select new
+            var response =
+                users
+                    .Select(u =>
+                        new UserPickResponse
                         {
-                            u.Id,
-                            u.Name,
-                            t.Color,
-                            t.AltColor,
-                            l.LeagueId,
-                            l.TotalPoints,
-                            p.SelectedTeamId
+                            UserId = u.Id,
+                            Name = u.Name.Full,
+                            Initials = u.Name.Initials,
+                            TeamColor = u.Color,
+                            TeamAltColor = u.AltColor,
+                            SelectedTeamId = u.SelectedTeamId,
+                            Rank = ranks.IndexOf(u.TotalPoints) + 1,
+                            PointOffset = maxPoints - u.TotalPoints
                         })
-                    .Distinct()
-                    .OrderByDescending(x => x.TotalPoints)
-                    .ThenBy(x => x.Name.First)
-                    .ToArrayAsync(cancellationToken);
-
-                var maxPoints = users.Max(x => x.TotalPoints);
-                var ranks = users
-                    .Select(x => x.TotalPoints)
-                    .Distinct().OrderByDescending(x => x).ToList();
-
-                var response =
-                    users
-                        .Select((u) =>
-                            new UserPickResponse
-                            {
-                                UserId = u.Id,
-                                Name = u.Name.Full,
-                                Initials = u.Name.Initials,
-                                TeamColor = u.Color,
-                                TeamAltColor = u.AltColor,
-                                SelectedTeamId = u.SelectedTeamId,
-                                Rank = ranks.IndexOf(u.TotalPoints) + 1,
-                                PointOffset = maxPoints - u.TotalPoints
-                            })
-                        .ToArray();
-                return response;
-            }
+                    .ToArray();
+            return response;
         }
+    }
+
+    public class GetMemberPicksByGameQuery : IRequest<IEnumerable<UserPickResponse>>
+    {
+        public int GameId { get; set; }
+
+        public string LeagueSlug { get; set; }
     }
 
     public class UserPickResponse

@@ -6,31 +6,28 @@ using MediatR;
 
 namespace HomeTownPickEm.Application.Leagues.Commands
 {
-    public class UpdateLeague
+    public class UpdateLeagueCommandHandler : IRequestHandler<UpdateLeagueCommand>
     {
-        public class Command : IRequest
+        private readonly ApplicationDbContext _context;
+        private readonly ILeagueServiceFactory _leagueServiceFactory;
+
+        public UpdateLeagueCommandHandler(ApplicationDbContext context, ILeagueServiceFactory leagueServiceFactory)
         {
-            public int LeagueId { get; set; }
+            _context = context;
+            _leagueServiceFactory = leagueServiceFactory;
         }
 
-        public class CommandHandler : IRequestHandler<Command>
+        public async Task<Unit> Handle(UpdateLeagueCommand request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly ILeagueServiceFactory _leagueServiceFactory;
+            var leagueService = _leagueServiceFactory.Create(request.LeagueId);
 
-            public CommandHandler(ApplicationDbContext context, ILeagueServiceFactory leagueServiceFactory)
-            {
-                _context = context;
-                _leagueServiceFactory = leagueServiceFactory;
-            }
-
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var leagueService = _leagueServiceFactory.Create(request.LeagueId);
-
-                await leagueService.Update(cancellationToken);
-                return Unit.Value;
-            }
+            await leagueService.Update(cancellationToken);
+            return Unit.Value;
         }
+    }
+
+    public class UpdateLeagueCommand : IRequest
+    {
+        public int LeagueId { get; set; }
     }
 }

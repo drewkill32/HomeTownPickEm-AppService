@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Application.Users.Queries;
+using HomeTownPickEm.Application.Users.Queries.Profile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,14 +18,14 @@ namespace HomeTownPickEm.Controllers
     public class UserController : ApiControllerBase
     {
         [HttpPost]
-        public async Task<ActionResult<UserDto>> AddUser(AddUser.Command command)
+        public async Task<ActionResult<UserDto>> AddUser(AddUserCommand command)
         {
             var user = await Mediator.Send(command);
             return Ok(user);
         }
 
         [HttpPost("/api/users")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> AddUsers(AddUsers.Command command)
+        public async Task<ActionResult<IEnumerable<UserDto>>> AddUsers(AddUsersCommand command)
         {
             var users = (await Mediator.Send(command)).ToArray();
 
@@ -34,7 +35,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{id}", Name = "GetUser")]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get(string id)
         {
-            var users = await Mediator.Send(new GetUser.Query
+            var users = await Mediator.Send(new GetUserQuery
             {
                 Id = id
             });
@@ -45,21 +46,29 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("/api/users")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            var users = await Mediator.Send(new GetAllUsers.Query());
+            var users = await Mediator.Send(new GetAllUsersQuery());
 
             return Ok(users);
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserDto>> Login(Login.Query query)
+        public async Task<ActionResult<UserDto>> Login(LoginQuery query)
         {
-            return await Mediator.Send(query);
+            return Ok(await Mediator.Send(query));
+        }
+
+        [HttpGet("/profile")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> Profile()
+        {
+            var profile = await Mediator.Send(new ProfileQuery());
+
+            return Ok(profile);
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserDto>> Register(Register.Command command)
+        public async Task<ActionResult<UserDto>> Register(RegisterCommand command)
         {
             command.LeagueIds = new[] { 1 };
             var user = await Mediator.Send(command);
@@ -71,23 +80,15 @@ namespace HomeTownPickEm.Controllers
 
         [HttpPost("resetpassword")]
         [AllowAnonymous]
-        public async Task<ActionResult> ResetPassword(ResetPassword.Command command)
+        public async Task<ActionResult> ResetPassword(ResetPasswordCommand command)
         {
             await Mediator.Send(command);
             return Ok();
         }
 
-
-        [HttpPost("unsafelyresetpassword")]
-        [AllowAnonymous]
-        public async Task<ActionResult> UnsafelyResetPassword(UnSafelyResetPassword.Command command)
-        {
-            await Mediator.Send(command);
-            return Ok();
-        }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUser.Command command)
+        public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUserCommand command)
         {
             command.Id = id;
             var users = await Mediator.Send(command);

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Models;
 
@@ -9,16 +8,18 @@ namespace HomeTownPickEm.Application.Users
     {
         public static UserDto ToUserDto(this ApplicationUser user, string token = "")
         {
-            return new UserDto
+            var userDto = new UserDto
             {
                 Id = user.Id,
                 Email = user.Email,
                 FirstName = user.Name.First,
                 LastName = user.Name.Last,
                 Team = user.Team?.ToTeamDto() ?? new TeamDto(),
-                Leagues = user.Leagues.Select(x => $"{x.Name} - ({x.Season})"),
+                //Leagues = user.Leagues.Select(x => $"{x.Name} - ({x.Season})"),
                 Token = token
             };
+
+            return userDto;
         }
     }
 

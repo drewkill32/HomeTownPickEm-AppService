@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
@@ -13,6 +14,7 @@ using HomeTownPickEm.Services;
 using HomeTownPickEm.Services.Cfbd;
 using HomeTownPickEm.Services.CFBD;
 using HomeTownPickEm.Services.DataSeed;
+using HomeTownPickEm.Swagger;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +22,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +31,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace HomeTownPickEm
 {
@@ -56,6 +60,17 @@ namespace HomeTownPickEm
                 app.UseHttpsRedirection();
             }
 
+            app.UseMiddleware<SwaggerAuthMiddleware>();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hometown Pickem v1");
+                c.EnableTryItOutByDefault();
+                c.InjectJavascript("js/swaggerInterceptor.js");
+                c.UseRequestInterceptor("(req) => {  return addAuthTokenToHeader(req); }");
+                c.EnableDeepLinking();
+                c.DisplayOperationId();
+            });
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
@@ -66,8 +81,8 @@ namespace HomeTownPickEm
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                    "default",
+                    "{controller}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
 
@@ -77,7 +92,7 @@ namespace HomeTownPickEm
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
+                    spa.UseReactDevelopmentServer("start");
                 }
             });
         }
@@ -98,6 +113,7 @@ namespace HomeTownPickEm
                 options.Filters.Add<ApiExceptionFilterAttribute>();
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
+                options.Filters.Add(new ProducesAttribute("application/json"));
             });
             services.AddRazorPages();
 
@@ -119,7 +135,11 @@ namespace HomeTownPickEm
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
 
             services.AddScoped<ILeagueServiceFactory, LeagueServiceFactory>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(opt =>
                 {
                     opt.TokenValidationParameters = new TokenValidationParameters
@@ -127,10 +147,10 @@ namespace HomeTownPickEm
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = key,
                         ValidateAudience = false,
-                        ValidateIssuer = false
+                        ValidateIssuer = false,
+                        ValidateLifetime = false
                     };
                 });
-
             services.Configure<SendGridSettings>(Configuration.GetSection(SendGridSettings.SettingsKey));
             services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
@@ -157,6 +177,15 @@ namespace HomeTownPickEm
             services.AddScoped<GameTeamRepository>();
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoApp", Version = "v1" });
+                c.OperationFilter<AuthResponsesOperationFilter>();
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
         }
     }
 }

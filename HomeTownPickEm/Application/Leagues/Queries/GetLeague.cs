@@ -9,46 +9,43 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Leagues.Queries
 {
-    public class GetLeague
+    public class GetLeagueQueryHandler : IRequestHandler<GetLeagueQuery, LeagueDto>
     {
-        public class Query : IRequest<LeagueDto>
-        {
-            public string Name { get; set; }
-            public string Year { get; set; }
+        private readonly ApplicationDbContext _context;
 
-            public bool IncludePicks { get; set; }
+        public GetLeagueQueryHandler(ApplicationDbContext context)
+        {
+            _context = context;
         }
 
-        public class QueryHandler : IRequestHandler<Query, LeagueDto>
+        public async Task<LeagueDto> Handle(GetLeagueQuery request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-
-            public QueryHandler(ApplicationDbContext context)
+            IQueryable<League> query = _context.League.Where(x => x.Name == request.Name)
+                .Include(x => x.Teams)
+                .Include(x => x.Members);
+            if (request.IncludePicks)
             {
-                _context = context;
+                query = query.Include(x => x.Picks);
             }
 
-            public async Task<LeagueDto> Handle(Query request, CancellationToken cancellationToken)
+            var league = await query.AsSplitQuery()
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (league == null)
             {
-                IQueryable<League> query = _context.League.Where(x => x.Name == request.Name)
-                    .Include(x => x.Teams)
-                    .Include(x => x.Members);
-                if (request.IncludePicks)
-                {
-                    query = query.Include(x => x.Picks);
-                }
-
-                var league = await query.AsSplitQuery()
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (league == null)
-                {
-                    throw new NotFoundException($"No League found with name: {request.Name} and year {request.Year}");
-                }
-
-                var dto = league.ToLeagueDto();
-                return dto;
+                throw new NotFoundException($"No League found with name: {request.Name} and year {request.Year}");
             }
+
+            var dto = league.ToLeagueDto();
+            return dto;
         }
+    }
+
+    public class GetLeagueQuery : IRequest<LeagueDto>
+    {
+        public string Name { get; set; }
+        public string Year { get; set; }
+
+        public bool IncludePicks { get; set; }
     }
 }

@@ -8,25 +8,22 @@ using Microsoft.AspNetCore.Identity;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
-    public class AddUsers
+    public class AddUsersCommandHandler : IRequestHandler<AddUsersCommand, IEnumerable<UserDto>>
     {
-        public class Command : List<AddUser.Command>, IRequest<IEnumerable<UserDto>>
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public AddUsersCommandHandler(UserManager<ApplicationUser> userManager)
         {
+            _userManager = userManager;
         }
 
-        public class CommandHandler : IRequestHandler<Command, IEnumerable<UserDto>>
+        public async Task<IEnumerable<UserDto>> Handle(AddUsersCommand request, CancellationToken cancellationToken)
         {
-            private readonly UserManager<ApplicationUser> _userManager;
-
-            public CommandHandler(UserManager<ApplicationUser> userManager)
-            {
-                _userManager = userManager;
-            }
-
-            public async Task<IEnumerable<UserDto>> Handle(Command request, CancellationToken cancellationToken)
-            {
-                return await _userManager.CreateUsersAsync(request);
-            }
+            return await _userManager.CreateUsersAsync(request);
         }
+    }
+
+    public class AddUsersCommand : List<AddUserCommand>, IRequest<IEnumerable<UserDto>>
+    {
     }
 }

@@ -1,8 +1,8 @@
 import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { Alert, Button, Input } from 'reactstrap';
-import { ErrorMessage, Formik } from 'formik';
-import { useHistory } from 'react-router-dom';
+import {useAuth} from '../../hooks/useAuth';
+import {Alert, Button, Input} from 'reactstrap';
+import {ErrorMessage, Formik} from 'formik';
+import {useHistory} from 'react-router-dom';
 import useGetTeams from '../../hooks/useGetTeams';
 
 const Register = () => {
@@ -58,15 +58,13 @@ const Register = () => {
           try {
             const teamId = parseInt(values.teamId, 10);
             await auth.register({
-              email: values.email,
-              password: values.password,
-              firstName: values.firstName,
-              lastName: values.lastName,
-              teamId: teamId,
+                email: values.email,
+                password: values.password,
+                firstName: values.firstName,
+                lastName: values.lastName,
+                teamId: teamId,
             });
-            history.push('/login', {
-              email: values.email,
-            });
+              history.push(`/login?email=${encodeURIComponent(values.email)}`);
           } catch (error) {
             console.log(error);
           }

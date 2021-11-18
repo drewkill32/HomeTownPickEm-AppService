@@ -32,7 +32,7 @@ namespace HomeTownPickEm.Services.DataSeed
             {
                 try
                 {
-                    await _mediator.Send(new LoadTeams.Command(), cancellationToken);
+                    await _mediator.Send(new LoadTeamsCommand(), cancellationToken);
                     var teams = await _context.Teams.CountAsync(cancellationToken);
                     _logger.LogInformation("Added {Count} Teams", teams);
                 }

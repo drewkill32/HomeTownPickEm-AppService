@@ -11,49 +11,39 @@ using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
-    public class Login
+    public class LoginHandler : IRequestHandler<LoginQuery, UserDto>
     {
-        public class Query : IRequest<UserDto>
-        {
-            public string Email { get; set; }
+        private readonly ApplicationDbContext _context;
+        private readonly IJwtGenerator _jwtGenerator;
+        private readonly ILogger<LoginHandler> _logger;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-            public string Password { get; set; }
+        public LoginHandler(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginHandler> logger,
+            IJwtGenerator jwtGenerator)
+        {
+            _context = context;
+            _jwtGenerator = jwtGenerator;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
         }
 
-
-        public class Handler : IRequestHandler<Query, UserDto>
+        public async Task<UserDto> Handle(LoginQuery request, CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly IJwtGenerator _jwtGenerator;
-            private readonly ILogger<Handler> _logger;
-            private readonly SignInManager<ApplicationUser> _signInManager;
-            private readonly UserManager<ApplicationUser> _userManager;
+            var user = await _userManager.FindByEmailAsync(request.Email);
 
-            public Handler(ApplicationDbContext context,
-                UserManager<ApplicationUser> userManager,
-                SignInManager<ApplicationUser> signInManager,
-                ILogger<Handler> logger,
-                IJwtGenerator jwtGenerator)
+            if (user == null)
             {
-                _context = context;
-                _jwtGenerator = jwtGenerator;
-                _userManager = userManager;
-                _signInManager = signInManager;
-                _logger = logger;
+                _logger.LogCritical("No user found with email <{email}>", request.Email);
+                throw new ForbiddenAccessException();
             }
 
-            public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var user = await _userManager.FindByEmailAsync(request.Email);
-
-                if (user == null)
-                {
-                    _logger.LogCritical("No user found with email <{email}>", request.Email);
-                    throw new ForbiddenAccessException();
-                }
-
-                var claims = await _userManager.GetClaimsAsync(user);
-                var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            var claims = await _userManager.GetClaimsAsync(user);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
                 if (result.Succeeded)
                 {
@@ -65,9 +55,15 @@ namespace HomeTownPickEm.Application.Users.Commands
                     return fullUser.ToUserDto(token);
                 }
 
-                _logger.LogWarning("User {Email} attempted to log in with an incorrect password.", request.Email);
-                throw new ForbiddenAccessException();
-            }
+            _logger.LogWarning("User {Email} attempted to log in with an incorrect password.", request.Email);
+            throw new ForbiddenAccessException();
         }
+    }
+
+    public class LoginQuery : IRequest<UserDto>
+    {
+        public string Email { get; set; }
+
+        public string Password { get; set; }
     }
 }

@@ -12,13 +12,13 @@ namespace HomeTownPickEm.Extensions
     public static class UserManagerExtensions
     {
         public static async Task<UserDto> CreateUserAsync(this UserManager<ApplicationUser> userManager,
-            AddUser.Command user)
+            AddUserCommand user)
         {
             return (await CreateUsersAsync(userManager, new[] { user })).SingleOrDefault();
         }
 
         public static async Task<IEnumerable<UserDto>> CreateUsersAsync(this UserManager<ApplicationUser> userManager,
-            IEnumerable<AddUser.Command> request)
+            IEnumerable<AddUserCommand> request)
         {
             var users = request.Select(x => x.ToAppUser()).ToArray();
             var results = await Task.WhenAll(users.Select(userManager.CreateAsync));

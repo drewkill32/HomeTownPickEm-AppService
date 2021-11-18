@@ -11,56 +11,54 @@ using MediatR;
 
 namespace HomeTownPickEm.Application.Calendar.Commands
 {
-    public class LoadCalendar
+    public class LoadCalendarHandler : IRequestHandler<LoadCalendarCommand, IEnumerable<CalendarDto>>
     {
-        public class Command : IRequest<IEnumerable<CalendarDto>>
+        private readonly ApplicationDbContext _context;
+        private readonly HttpClient _httpClient;
+
+        public LoadCalendarHandler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
         {
-            public string Year { get; set; } = DateTime.Now.Year.ToString();
+            _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
+            _context = context;
         }
 
-        public class Handler : IRequestHandler<Command, IEnumerable<CalendarDto>>
+        public async Task<IEnumerable<CalendarDto>> Handle(LoadCalendarCommand request,
+            CancellationToken cancellationToken)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly HttpClient _httpClient;
+            var calendarResponse = await _httpClient.GetFromJsonAsync<IEnumerable<CalendarDto>>(
+                $"/calendar?year={request.Year}"
+                , cancellationToken);
 
-            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
+            var calendars = calendarResponse.Select(MapToCalendar);
+
+            if (_context.Calendar.Any())
             {
-                _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
-                _context = context;
+                _context.Calendar.UpdateRange(calendars);
+            }
+            else
+            {
+                _context.Calendar.AddRange(calendars);
             }
 
-            public async Task<IEnumerable<CalendarDto>> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var calendarResponse = await _httpClient.GetFromJsonAsync<IEnumerable<CalendarDto>>(
-                    $"/calendar?year={request.Year}"
-                    , cancellationToken);
-
-                var calendars = calendarResponse.Select(MapToCalendar);
-
-                if (_context.Calendar.Any())
-                {
-                    _context.Calendar.UpdateRange(calendars);
-                }
-                else
-                {
-                    _context.Calendar.AddRange(calendars);
-                }
-
-                await _context.SaveChangesAsync(cancellationToken);
-                return calendarResponse.ToArray();
-            }
-
-            private Models.Calendar MapToCalendar(CalendarDto dto)
-            {
-                return new Models.Calendar
-                {
-                    Season = dto.Season,
-                    Week = dto.Week,
-                    SeasonType = dto.SeasonType,
-                    FirstGameStart = dto.FirstGameStart,
-                    LastGameStart = dto.LastGameStart
-                };
-            }
+            await _context.SaveChangesAsync(cancellationToken);
+            return calendarResponse.ToArray();
         }
+
+        private Models.Calendar MapToCalendar(CalendarDto dto)
+        {
+            return new Models.Calendar
+            {
+                Season = dto.Season,
+                Week = dto.Week,
+                SeasonType = dto.SeasonType,
+                FirstGameStart = dto.FirstGameStart,
+                LastGameStart = dto.LastGameStart
+            };
+        }
+    }
+
+    public class LoadCalendarCommand : IRequest<IEnumerable<CalendarDto>>
+    {
+        public string Year { get; set; } = DateTime.Now.Year.ToString();
     }
 }

@@ -12,7 +12,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/all")]
         public async Task<ActionResult<GameDto>> GetAllGames(string season)
         {
-            var games = await Mediator.Send(new GetGames.Query
+            var games = await Mediator.Send(new GetGamesQuery
             {
                 Season = season
             });
@@ -22,7 +22,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/week/{week}")]
         public async Task<ActionResult<GameDto>> GetByWeek(string season, int week)
         {
-            var games = await Mediator.Send(new GetGames.Query
+            var games = await Mediator.Send(new GetGamesQuery
             {
                 Season = season,
                 Week = week
@@ -34,7 +34,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GameDto>> GetGame([FromRoute] int id)
         {
-            var games = await Mediator.Send(new GetGame.Query
+            var games = await Mediator.Send(new GetGameQuery
             {
                 Id = id
             });
@@ -44,7 +44,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/team/{teamId}/")]
         public async Task<ActionResult<GameDto>> GetGameByTeam(string season, int teamId)
         {
-            var games = await Mediator.Send(new GetGames.Query
+            var games = await Mediator.Send(new GetGamesQuery
             {
                 Season = season,
                 TeamId = teamId
@@ -55,7 +55,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{season}/team/{teamId}/week/{week}")]
         public async Task<ActionResult<GameDto>> GetGameByTeamWeek(string season, int teamId, int week)
         {
-            var games = await Mediator.Send(new GetGames.Query
+            var games = await Mediator.Send(new GetGamesQuery
             {
                 Season = season,
                 TeamId = teamId,
@@ -65,7 +65,7 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpPost("load")]
-        public async Task<ActionResult<GameDto>> LoadGames(LoadGames.Command command)
+        public async Task<ActionResult<GameDto>> LoadGames(LoadGamesCommand command)
         {
             var games = await Mediator.Send(command);
             return Ok(games);

@@ -10,6 +10,12 @@
         <UserSecretsId>11fb2402-95ee-4e40-8685-85eafe1b5d09</UserSecretsId>
     </PropertyGroup>
 
+
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1"/>
         <PackageReference Include="MediatR" Version="9.0.0"/>
@@ -25,6 +31,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.9"/>
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.7.1"/>
         <PackageReference Include="SendGrid" Version="9.24.2"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
     </ItemGroup>
     <ItemGroup>
         <!-- Don't publish the SPA source files, but do show them in the project files list -->
@@ -36,6 +43,9 @@
     <ItemGroup>
         <Compile Remove="Data\Migrations\QueryContext\QueryDbContextModelSnapshot.cs"/>
         <Compile Remove="Data\Migrations\QueryContext\20210831195140_AddWeeklyPicks.Designer.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Remove="Swagger\index.html"/>
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

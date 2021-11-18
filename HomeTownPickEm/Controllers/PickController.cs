@@ -9,7 +9,7 @@ namespace HomeTownPickEm.Controllers
     public class PickController : ApiControllerBase
     {
         [HttpPut]
-        public async Task<ActionResult<PickDto>> CreatePick(SelectTeam.Command command)
+        public async Task<ActionResult<PickDto>> CreatePick(SelectTeamCommand command)
         {
             var pick = await Mediator.Send(command);
             return Ok(pick);
@@ -18,7 +18,7 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PickDto>> GetPick(int id)
         {
-            var pick = await Mediator.Send(new GetPick.Query
+            var pick = await Mediator.Send(new GetPickQuery
             {
                 Id = id
             });

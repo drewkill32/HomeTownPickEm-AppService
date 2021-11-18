@@ -27,7 +27,7 @@ namespace HomeTownPickEm.Services.DataSeed
         {
             if (!_context.Games.Any())
             {
-                await _mediator.Send(new LoadGames.Command(), cancellationToken);
+                await _mediator.Send(new LoadGamesCommand(), cancellationToken);
                 var games = await _context.Games.CountAsync(cancellationToken);
                 _logger.LogInformation("Added {Count} games", games);
             }
