@@ -18,8 +18,8 @@ namespace HomeTownPickEm
             var host = CreateHostBuilder(args).Build();
             using (var scope = host.Services.GetService<IServiceProvider>().CreateScope())
             {
-                var seeder = ActivatorUtilities.CreateInstance<DatabaseInit>(scope.ServiceProvider);
-                await seeder.Init();
+                var databaseInit = ActivatorUtilities.CreateInstance<DatabaseInit>(scope.ServiceProvider);
+                await databaseInit.Init();
             }
 
             await host.RunAsync();

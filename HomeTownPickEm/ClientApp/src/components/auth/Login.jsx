@@ -11,7 +11,6 @@ import {useAuth} from '../../hooks/useAuth';
 const Login = () => {
     const auth = useAuth();
     const location = useLocation();
-    const state = location.state;
     const history = useHistory();
     var params = new URLSearchParams(location.search);
     const redirectUri = params.get('redirectUri');
