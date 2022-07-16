@@ -1,5 +1,9 @@
 # TODO
 
+- [ ] Get App working again
+- [ ] Update Folder structure
+- [ ] Connect to Football API
+- [ ] Update MUI
 - [x] add leaderboard
 - [x] disallow picks when the date passes
 - [x] filter weeks by only weeks with games in them

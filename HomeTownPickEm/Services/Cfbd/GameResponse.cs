@@ -1,4 +1,5 @@
 using System;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Models;
 
 namespace HomeTownPickEm.Services.Cfbd
@@ -23,7 +24,7 @@ namespace HomeTownPickEm.Services.Cfbd
         }
     }
 
-    public class GameResponse
+    public class GameResponse: IHasId
     {
         public int Id { get; set; }
 

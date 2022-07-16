@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Services;
@@ -34,7 +35,8 @@ namespace HomeTownPickEm.Application.Games.Commands
 
             public async Task<IEnumerable<GameDto>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var gamesResponse = await _httpClient.GetGames(request, cancellationToken);
+                var gamesResponse = (await _httpClient.GetGames(request, cancellationToken))
+                    .ToHashSet(new IdEqualityComparer<GameResponse>());
 
                 var games = gamesResponse.Select(x => x.ToGame())
                     .ToArray();
@@ -57,7 +59,7 @@ namespace HomeTownPickEm.Application.Games.Commands
                 return games.Select(x => _repository.MapToDto(x)).ToArray();
             }
 
-            private (Game[] existingGames, Game[] newGames) GetGameDiffs(Game[] games, int[] dbGameIds)
+            private (Game[] existingGames, Game[] newGames) GetGameDiffs(IEnumerable<Game> games, int[] dbGameIds)
             {
                 var existingGames = games.Where(x => dbGameIds.Contains(x.Id)).ToArray();
                 var newGames = games.Where(x => !dbGameIds.Contains(x.Id)).ToArray();
@@ -65,4 +67,6 @@ namespace HomeTownPickEm.Application.Games.Commands
             }
         }
     }
+
+  
 }

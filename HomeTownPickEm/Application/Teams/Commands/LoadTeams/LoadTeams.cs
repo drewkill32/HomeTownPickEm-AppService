@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Json;
 using HomeTownPickEm.Models;
@@ -40,7 +41,8 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                         PropertyNamingPolicy = new SnakeCaseNamingPolicy()
                     }, cancellationToken) ?? throw new InvalidOperationException("Thee return value was null");
 
-                var teams = teamsResponse.Select(MapToTeam).ToArray();
+                var t = teamsResponse.ToHashSet(new IdEqualityComparer<TeamResponse>());
+                var teams = t.Select(MapToTeam).ToArray();
 
                 if (_context.Teams.Any())
                 {
@@ -75,7 +77,7 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
     }
 
     [DebuggerDisplay("[{Id}] {School} {Mascot}")]
-    public class TeamResponse
+    public class TeamResponse:IHasId
     {
         public int Id { get; set; }
         public string School { get; set; }
