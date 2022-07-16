@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Application.Common.Behaviors
 {
-    public class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
         private readonly ILogger<TRequest> _logger;
 
