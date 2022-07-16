@@ -140,7 +140,8 @@ namespace HomeTownPickEm
 
             services.AddSwaggerGen(opt =>
             {
-                opt.CustomSchemaIds( t=> t.FullName);  
+                opt.CustomSchemaIds( t=> 
+                    t.IsNested ? $"{t.DeclaringType.Name}_{t.Name}" : t.Name);  
                 opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
