@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoFixture" Version="4.17.0"/>
-        <PackageReference Include="FluentAssertions" Version="6.1.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.9"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4"/>
-        <PackageReference Include="Moq.AutoMock" Version="3.0.0"/>
-        <PackageReference Include="xunit" Version="2.4.1"/>
+        <PackageReference Include="AutoFixture" Version="4.17.0" />
+        <PackageReference Include="FluentAssertions" Version="6.1.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.9" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+        <PackageReference Include="Moq.AutoMock" Version="3.0.0" />
+        <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -26,12 +26,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\HomeTownPickEm\HomeTownPickEm.csproj"/>
+        <ProjectReference Include="..\..\src\HomeTownPickEm\HomeTownPickEm.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="data\**"/>
-        <EmbeddedResource Include="data\**"/>
+        <None Remove="data\**" />
+        <EmbeddedResource Include="data\**" />
     </ItemGroup>
 
 </Project>

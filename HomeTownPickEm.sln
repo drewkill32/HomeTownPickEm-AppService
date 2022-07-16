@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEm", "HomeTownPickEm\HomeTownPickEm.csproj", "{A1073B96-AE2F-4316-AF70-F106AA8830B3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEmTests", "test\HomeTownPickEmTests\HomeTownPickEmTests.csproj", "{995873DE-A820-412D-9A2F-C25508968E0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEm", "src\HomeTownPickEm\HomeTownPickEm.csproj", "{D63E29BB-9917-42C6-81EC-394E4190A76A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,13 +10,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A1073B96-AE2F-4316-AF70-F106AA8830B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1073B96-AE2F-4316-AF70-F106AA8830B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1073B96-AE2F-4316-AF70-F106AA8830B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1073B96-AE2F-4316-AF70-F106AA8830B3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{995873DE-A820-412D-9A2F-C25508968E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{995873DE-A820-412D-9A2F-C25508968E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{995873DE-A820-412D-9A2F-C25508968E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{995873DE-A820-412D-9A2F-C25508968E0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

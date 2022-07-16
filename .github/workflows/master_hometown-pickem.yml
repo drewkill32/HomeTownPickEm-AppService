@@ -33,10 +33,10 @@ jobs:
         dotnet-version: '5.0.x'
 
     - name: Build with dotnet
-      run: dotnet build ./HomeTownPickEm --configuration Release
+      run: dotnet build ./src/HomeTownPickEm --configuration Release
 
     - name: dotnet publish
-      run: dotnet publish ./HomeTownPickEm -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      run: dotnet publish ./src/HomeTownPickEm -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
     - name: Run Azure webapp deploy action using publish profile credentials
       uses: azure/webapps-deploy@v2
