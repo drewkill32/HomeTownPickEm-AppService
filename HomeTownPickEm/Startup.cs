@@ -28,6 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace HomeTownPickEm
 {
@@ -47,6 +48,12 @@ namespace HomeTownPickEm
             {
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
+                app.UseSwagger();
+                app.UseSwaggerUI(opt =>
+                {
+                    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                    opt.RoutePrefix = "api";
+                });
             }
             else
             {
@@ -55,7 +62,7 @@ namespace HomeTownPickEm
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-
+            
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
@@ -110,7 +117,6 @@ namespace HomeTownPickEm
             identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
             identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
 
-
             identityBuilder.AddDefaultTokenProviders();
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
@@ -131,6 +137,35 @@ namespace HomeTownPickEm
                     };
                 });
 
+
+            services.AddSwaggerGen(opt =>
+            {
+                opt.CustomSchemaIds( t=> t.FullName);  
+                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "bearer"
+                });
+                
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
             services.Configure<SendGridSettings>(Configuration.GetSection(SendGridSettings.SettingsKey));
             services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
