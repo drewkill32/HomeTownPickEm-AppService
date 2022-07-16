@@ -48,12 +48,7 @@ namespace HomeTownPickEm
             {
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
-                app.UseSwagger();
-                app.UseSwaggerUI(opt =>
-                {
-                    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                    opt.RoutePrefix = "api";
-                });
+
             }
             else
             {
@@ -62,7 +57,12 @@ namespace HomeTownPickEm
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            
+            app.UseSwagger();
+            app.UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                opt.RoutePrefix = "api";
+            });
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
