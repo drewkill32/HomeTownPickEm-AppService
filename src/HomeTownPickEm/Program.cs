@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using HomeTownPickEm.Abstract.Interfaces;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Common.Behaviors;
 using HomeTownPickEm.Config;
 using HomeTownPickEm.Data;
@@ -16,14 +17,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,8 +50,7 @@ builder.Services.AddSpaStaticFiles(configuration => { configuration.RootPath = "
 
 var app = builder.Build();
 
-app.UseAuthorization();
-app.UseAuthentication();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -69,6 +67,9 @@ app.UseStaticFiles();
 app.UseSpaStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthorization();
+app.UseAuthentication();
 
 
 app.UseSwagger();

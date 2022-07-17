@@ -1,16 +1,11 @@
 #region
 
-using System;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Models;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 
 #endregion
 

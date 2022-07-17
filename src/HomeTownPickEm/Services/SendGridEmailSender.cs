@@ -1,8 +1,5 @@
-using System.Net.Http;
-using System.Threading.Tasks;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Config;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
