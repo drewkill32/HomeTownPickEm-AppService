@@ -38,6 +38,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddRazorPages();
 
+//TODO: move to extension class
 AddIdentity(builder);
 
 AddJwt(builder);
