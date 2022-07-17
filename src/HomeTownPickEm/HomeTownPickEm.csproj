@@ -4,6 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
         <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+        <ImplicitUsings>true</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <SpaRoot>ClientApp\</SpaRoot>
         <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
@@ -26,9 +27,15 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.IdentityModel.Abstractions" Version="6.21.0" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.21.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.21.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.21.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.21.0" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.21.0" />
         <PackageReference Include="SendGrid" Version="9.28.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.2" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
     </ItemGroup>
     <ItemGroup>
         <!-- Don't publish the SPA source files, but do show them in the project files list -->
