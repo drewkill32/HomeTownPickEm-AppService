@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
 using MediatR;
@@ -22,10 +19,12 @@ namespace HomeTownPickEm.Application.Calendar.Queries
         public class QueryHandler : IRequestHandler<Query, IEnumerable<CalendarDto>>
         {
             private readonly ApplicationDbContext _context;
+            private readonly IMapper _mapper;
 
-            public QueryHandler(ApplicationDbContext context)
+            public QueryHandler(ApplicationDbContext context, IMapper mapper)
             {
                 _context = context;
+                _mapper = mapper;
             }
 
             public async Task<IEnumerable<CalendarDto>> Handle(Query request, CancellationToken cancellationToken)
@@ -33,10 +32,11 @@ namespace HomeTownPickEm.Application.Calendar.Queries
                 var calendars = await _context.Calendar
                     .Where(x => x.Season == request.Season && x.SeasonType == request.SeasonType)
                     .WhereWeekIs(request.Week)
+                    .ProjectTo<CalendarDto>(_mapper.ConfigurationProvider)
                     .ToArrayAsync(cancellationToken);
 
 
-                return calendars.Select(x => x.ToCalendarDto())
+                return calendars
                     .OrderBy(x => x.Season)
                     .ThenBy(x => x.Week)
                     .ToArray();

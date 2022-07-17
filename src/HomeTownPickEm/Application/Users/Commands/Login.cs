@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
@@ -24,11 +26,13 @@ namespace HomeTownPickEm.Application.Users.Commands
             private readonly IJwtGenerator _jwtGenerator;
             private readonly ILogger<Handler> _logger;
             private readonly SignInManager<ApplicationUser> _signInManager;
+            private readonly IMapper _mapper;
             private readonly UserManager<ApplicationUser> _userManager;
 
             public Handler(ApplicationDbContext context,
                 UserManager<ApplicationUser> userManager,
                 SignInManager<ApplicationUser> signInManager,
+                IMapper mapper,
                 ILogger<Handler> logger,
                 IJwtGenerator jwtGenerator)
             {
@@ -36,6 +40,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _jwtGenerator = jwtGenerator;
                 _userManager = userManager;
                 _signInManager = signInManager;
+                _mapper = mapper;
                 _logger = logger;
             }
 
@@ -55,11 +60,10 @@ namespace HomeTownPickEm.Application.Users.Commands
                 if (result.Succeeded)
                 {
                     var fullUser = await _context.Users
-                        .Include(x => x.Team)
-                        .Include(x => x.Seasons)
-                        .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
-                    var token = _jwtGenerator.CreateToken(user);
-                    return fullUser.ToUserDto(token);
+                        .ProjectTo<TokenUserDto>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
+                    fullUser.Token = _jwtGenerator.CreateToken(user);
+                    return fullUser;
                 }
 
                 _logger.LogWarning("User {Email} attempted to log in with an incorrect password.", request.Email);

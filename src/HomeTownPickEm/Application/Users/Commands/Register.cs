@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
@@ -32,13 +34,16 @@ namespace HomeTownPickEm.Application.Users.Commands
             private readonly IJwtGenerator _jwtGenerator;
             private readonly ILeagueServiceFactory _leagueServiceFactory;
             private readonly UserManager<ApplicationUser> _userManager;
+            private readonly IMapper _mapper;
 
             public Handler(ApplicationDbContext context,
                 ILeagueServiceFactory leagueServiceFactory,
                 UserManager<ApplicationUser> userManager,
+                IMapper mapper,
                 IJwtGenerator jwtGenerator)
             {
                 _userManager = userManager;
+                _mapper = mapper;
                 _jwtGenerator = jwtGenerator;
                 _context = context;
                 _leagueServiceFactory = leagueServiceFactory;
@@ -94,11 +99,10 @@ namespace HomeTownPickEm.Application.Users.Commands
                     }
 
                     var fullUser = await _context.Users
-                        .Include(x => x.Team)
-                        .Include(x => x.Seasons)
-                        .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
-                    var token = _jwtGenerator.CreateToken(user);
-                    return fullUser.ToUserDto(token);
+                        .ProjectTo<TokenUserDto>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
+                    fullUser.Token = _jwtGenerator.CreateToken(user);
+                    return fullUser;
                 }
 
                 throw new BadRequestException(string.Join(". ", result.Errors.Select(x => x.Description)));

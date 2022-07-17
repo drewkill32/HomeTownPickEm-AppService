@@ -1,5 +1,5 @@
-using System.Threading;
-using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
@@ -26,10 +26,12 @@ namespace HomeTownPickEm.Application.Users.Commands
         public class CommandHandler : IRequestHandler<Command, UserDto>
         {
             private readonly ApplicationDbContext _context;
+            private readonly IMapper _mapper;
 
-            public CommandHandler(ApplicationDbContext context)
+            public CommandHandler(ApplicationDbContext context, IMapper mapper)
             {
                 _context = context;
+                _mapper = mapper;
             }
 
             public async Task<UserDto> Handle(Command request, CancellationToken cancellationToken)
@@ -43,9 +45,8 @@ namespace HomeTownPickEm.Application.Users.Commands
                 UpdateApplicationUser(request, user);
                 _context.Update(user);
                 await _context.SaveChangesAsync(cancellationToken);
-                return (await _context.Users.Include(x => x.Team)
-                        .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken))
-                    .ToUserDto();
+                return await _context.Users.ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
             }
 
             private void UpdateApplicationUser(Command command, ApplicationUser user)

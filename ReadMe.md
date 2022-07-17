@@ -5,6 +5,7 @@
 - [x] update dotnet
 - [x] update npm/node
 - [x] Connect to Football API
+- [ ] check endpoints
 - [ ] add seq
 - [ ] Update MUI
 - [ ] change look of picks screen

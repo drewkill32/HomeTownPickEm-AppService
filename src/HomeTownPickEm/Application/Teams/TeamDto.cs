@@ -1,3 +1,5 @@
+using AutoMapper;
+using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Utils;
 
@@ -23,7 +25,7 @@ namespace HomeTownPickEm.Application.Teams
         }
     }
 
-    public class TeamDto
+    public class TeamDto : IMapFrom<Team>
     {
         public int Id { get; set; }
         public string School { get; set; }
@@ -36,5 +38,11 @@ namespace HomeTownPickEm.Application.Teams
         public string Logo { get; set; }
 
         public string Name => $"{School} {Mascot}";
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<Team, TeamDto>()
+                .ForMember(d => d.Logo, opt => opt.MapFrom(s => LogoHelper.GetSingleLogo(s.Logos)));
+        }
     }
 }

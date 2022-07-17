@@ -1,6 +1,9 @@
+using AutoMapper;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Models;
 using HomeTownPickEm.Services.CFBD;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Calendar.Commands
 {
@@ -14,12 +17,14 @@ namespace HomeTownPickEm.Application.Calendar.Commands
         public class Handler : IRequestHandler<Command, IEnumerable<CalendarDto>>
         {
             private readonly ApplicationDbContext _context;
+            private readonly IMapper _mapper;
             private readonly HttpClient _httpClient;
 
-            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
+            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context, IMapper mapper)
             {
                 _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
                 _context = context;
+                _mapper = mapper;
             }
 
             public async Task<IEnumerable<CalendarDto>> Handle(Command request, CancellationToken cancellationToken)
@@ -28,32 +33,27 @@ namespace HomeTownPickEm.Application.Calendar.Commands
                     $"/calendar?year={request.Year}"
                     , cancellationToken);
 
-                var calendars = calendarResponse.Select(MapToCalendar);
+                var calendars = _mapper.Map<IEnumerable<Models.Calendar>>(calendarResponse).ToArray();
 
                 if (_context.Calendar.Any(c => c.Season == request.Year))
                 {
-                    _context.Calendar.UpdateRange(calendars);
+                    var dbCalendars = await _context.Calendar.Where(c => c.Season == request.Year)
+                        .ToArrayAsync(cancellationToken);
+
+                    var toUpdate = dbCalendars.Union(calendars, new CalendarEqualityComparer()).ToArray();
+                    _context.Calendar.UpdateRange(toUpdate);
+                    var toAdd = dbCalendars.Except(calendars, new CalendarEqualityComparer()).ToArray();
+                    _context.Calendar.AddRange(toAdd);
                 }
                 else
                 {
-                    _context.Calendar.AddRange(calendars);
+                    await _context.Calendar.AddRangeAsync(calendars);
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
                 return calendarResponse.ToArray();
             }
-
-            private Models.Calendar MapToCalendar(CalendarDto dto)
-            {
-                return new Models.Calendar
-                {
-                    Season = dto.Season,
-                    Week = dto.Week,
-                    SeasonType = dto.SeasonType,
-                    FirstGameStart = dto.FirstGameStart,
-                    LastGameStart = dto.LastGameStart
-                };
-            }
+            
         }
     }
 }
