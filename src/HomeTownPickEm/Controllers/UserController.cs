@@ -1,9 +1,6 @@
 #region
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Application.Users.Queries;
@@ -61,7 +58,7 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDto>> Register(Register.Command command)
         {
-            command.LeagueIds = new[] { 1 };
+            command.SeasonId = new[] { 1 };
             var user = await Mediator.Send(command);
             return new ObjectResult(user)
             {

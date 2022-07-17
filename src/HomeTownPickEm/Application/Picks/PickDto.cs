@@ -1,4 +1,3 @@
-using System.Linq;
 using HomeTownPickEm.Application.Games;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Models;
@@ -13,16 +12,16 @@ namespace HomeTownPickEm.Application.Picks
             {
                 Id = pick.Id,
                 Points = pick.Points,
-                LeagueId = pick.LeagueId,
+                SeasonId = pick.SeasonId,
                 GameId = pick.GameId,
                 Game = pick.Game?.ToGameDto(),
                 SelectedTeam = pick.SelectedTeam?.ToTeamDto(),
                 UserId = pick.UserId
             };
-            if (pick.League != null && pick.Game != null)
+            if (pick.Season != null && pick.Game != null)
             {
                 var game = pick.Game;
-                var leagueTeams = pick.League.Teams;
+                var leagueTeams = pick.Season.Teams;
                 if (leagueTeams.Any(x => x.Id == game.AwayId) && leagueTeams.Any(x => x.Id == game.HomeId))
                 {
                     pickDto.Head2Head = true;
@@ -37,7 +36,7 @@ namespace HomeTownPickEm.Application.Picks
     {
         public int Id { get; set; }
 
-        public int LeagueId { get; set; }
+        public int SeasonId { get; set; }
 
         public int GameId { get; set; }
 

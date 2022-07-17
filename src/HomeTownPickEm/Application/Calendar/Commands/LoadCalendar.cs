@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Services.CFBD;
 using MediatR;
@@ -37,7 +30,7 @@ namespace HomeTownPickEm.Application.Calendar.Commands
 
                 var calendars = calendarResponse.Select(MapToCalendar);
 
-                if (_context.Calendar.Any())
+                if (_context.Calendar.Any(c => c.Season == request.Year))
                 {
                     _context.Calendar.UpdateRange(calendars);
                 }

@@ -1,4 +1,3 @@
-using HomeTownPickEm.Data;
 using HomeTownPickEm.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -81,15 +80,7 @@ app.UseSpa(spa =>
     }
 });
 
-await RunStartup(app);
+await app.RunStartup();
 
 await app.RunAsync();
 
-async Task RunStartup(WebApplication webApplication)
-{
-    using (var scope = webApplication.Services.GetService<IServiceProvider>().CreateScope())
-    {
-        var seeder = ActivatorUtilities.CreateInstance<DatabaseInit>(scope.ServiceProvider);
-        await seeder.Init();
-    }
-}

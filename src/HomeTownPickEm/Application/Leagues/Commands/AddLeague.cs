@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using MediatR;
@@ -13,6 +10,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
         {
             public string Name { get; set; }
             public string Season { get; set; } = DateTime.Now.Year.ToString();
+            public string Slug { get; set; }
         }
 
         public class CommandHandler : IRequestHandler<Command, LeagueDto>
@@ -29,8 +27,16 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 var league = new League
                 {
                     Name = request.Name,
-                    Season = request.Season
+                    Slug = request.Slug,
+                    Seasons =
+                    {
+                        new Season
+                        {
+                            Year = request.Season
+                        }
+                    }
                 };
+                
                 _context.League.Add(league);
                 await _context.SaveChangesAsync(cancellationToken);
                 return league.ToLeagueDto();

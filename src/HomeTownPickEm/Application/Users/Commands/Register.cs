@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
@@ -27,7 +23,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 
             public int TeamId { get; set; }
 
-            public int[] LeagueIds { get; set; } = Array.Empty<int>();
+            public int[] SeasonId { get; set; } = Array.Empty<int>();
         }
 
         public class Handler : IRequestHandler<Command, UserDto>
@@ -55,12 +51,12 @@ namespace HomeTownPickEm.Application.Users.Commands
                     throw new BadRequestException("Username already exists");
                 }
 
-                var leagues = await _context.League
-                    .Where(x => request.LeagueIds.Contains(x.Id))
+                var leagues = await _context.Season
+                    .Where(x => request.SeasonId.Contains(x.Id))
                     .AsTracking()
                     .ToArrayAsync(cancellationToken);
 
-                var notFoundLeagues = request.LeagueIds.Except(leagues.Select(x => x.Id)).ToArray();
+                var notFoundLeagues = request.SeasonId.Except(leagues.Select(x => x.Id)).ToArray();
                 if (notFoundLeagues.Any())
                 {
                     throw new NotFoundException(
@@ -77,7 +73,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                         First = request.FirstName,
                         Last = request.LastName
                     },
-                    Leagues = leagues
+                    Seasons = leagues
                 };
                 if (request.TeamId != 0)
                 {
@@ -99,7 +95,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 
                     var fullUser = await _context.Users
                         .Include(x => x.Team)
-                        .Include(x => x.Leagues)
+                        .Include(x => x.Seasons)
                         .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
                     var token = _jwtGenerator.CreateToken(user);
                     return fullUser.ToUserDto(token);

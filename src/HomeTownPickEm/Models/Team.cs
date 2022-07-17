@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace HomeTownPickEm.Models
@@ -10,7 +9,7 @@ namespace HomeTownPickEm.Models
     {
         public Team()
         {
-            Leagues = new HashSet<League>();
+            Seasons = new HashSet<Season>();
         }
 
         public int Id { get; set; }
@@ -23,6 +22,6 @@ namespace HomeTownPickEm.Models
         public string Color { get; set; }
         public string AltColor { get; set; }
         public string Logos { get; set; }
-        public ICollection<League> Leagues { get; set; }
+        public ICollection<Season> Seasons { get; set; }
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Leagues.Commands;
 using HomeTownPickEm.Application.Leagues.Queries;
@@ -19,12 +17,12 @@ namespace HomeTownPickEm.Controllers
             return CreatedAtAction("GetLeague", league);
         }
 
-        [HttpGet("{name}/{season}", Name = "GetLeague")]
-        public async Task<ActionResult<LeagueDto>> GetLeague(string name, string season, [FromQuery] bool picks)
+        [HttpGet("{slug}/{season}", Name = "GetLeague")]
+        public async Task<ActionResult<LeagueDto>> GetLeague(string slug, string season, [FromQuery] bool picks)
         {
             var league = await Mediator.Send(new GetLeague.Query
             {
-                Name = name,
+                LeagueSlug = slug,
                 Year = season,
                 IncludePicks = picks
             });

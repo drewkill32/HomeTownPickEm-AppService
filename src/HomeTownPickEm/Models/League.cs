@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Teams;
@@ -11,14 +9,15 @@ namespace HomeTownPickEm.Models
     {
         public static LeagueDto ToLeagueDto(this League league)
         {
+            var season = league.Seasons.OrderBy(x => x.Year).Last();
             return new LeagueDto
             {
                 Id = league.Id,
                 Name = league.Name,
-                Year = league.Season,
-                Teams = league.Teams?.Select(x => x.ToTeamDto()),
-                Members = league.Members?.Select(x => x.ToUserDto()),
-                Picks = league.Picks?.Select(x => x.ToPickDto())
+                Year = season.Year,
+                Teams = season.Teams?.Select(x => x.ToTeamDto()),
+                Members = season.Members?.Select(x => x.ToUserDto()),
+                Picks = season.Picks?.Select(x => x.ToPickDto())
             };
         }
     }
@@ -27,10 +26,9 @@ namespace HomeTownPickEm.Models
     {
         public League()
         {
-            Teams = new HashSet<Team>();
-            Members = new HashSet<ApplicationUser>();
-            Picks = new HashSet<Pick>();
+            Seasons = new HashSet<Season>();
         }
+
 
         public int Id { get; set; }
 
@@ -38,12 +36,7 @@ namespace HomeTownPickEm.Models
 
         public string Slug { get; set; }
 
-        public string Season { get; set; }
-
-        public ICollection<Team> Teams { get; set; }
-
-        public ICollection<ApplicationUser> Members { get; set; }
-
-        public ICollection<Pick> Picks { get; set; }
+        public ICollection<Season> Seasons { get; set; }
+        
     }
 }

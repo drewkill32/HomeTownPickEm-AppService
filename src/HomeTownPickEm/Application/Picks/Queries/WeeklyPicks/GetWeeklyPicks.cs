@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +11,8 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
             public string LeagueSlug { get; set; }
 
             public int? Week { get; set; }
+
+            public string Season { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<WeeklyPicksDto>>
@@ -32,7 +30,8 @@ namespace HomeTownPickEm.Application.Picks.Queries.WeeklyPicks
                     join u in _context.Users on p.UserId equals u.Id
                     join g in _context.Games on p.GameId equals g.Id
                     join t in _context.Teams on u.TeamId equals t.Id
-                    where p.League.Slug == request.LeagueSlug && (!request.Week.HasValue || g.Week == request.Week)
+                    where p.Season.League.Slug == request.LeagueSlug && p.Season.Year == request.Season &&
+                          (!request.Week.HasValue || g.Week == request.Week)
                     group p by new { g.Week, u.ProfileImg, FirstName = u.Name.First, LastName = u.Name.Last }
                     into g
                     select new WeeklyPicksDto

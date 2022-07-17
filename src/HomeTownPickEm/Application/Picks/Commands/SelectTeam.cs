@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
@@ -10,7 +5,6 @@ using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Application.Picks.Commands
 {
@@ -60,7 +54,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
                     var singleRequest = request.Single(x => x.PickId == pick.Id);
                     if (singleRequest.SelectedTeamId.HasValue)
                     {
-                        var team = await GetTeam(singleRequest.SelectedTeamId.Value, pick.GameId, pick.LeagueId,
+                        var team = await GetTeam(singleRequest.SelectedTeamId.Value, pick.GameId, pick.SeasonId,
                             cancellationToken);
                         pick.SelectedTeamId = team.Id;
                     }
@@ -76,13 +70,13 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 return picks.Select(x => x.ToPickDto());
             }
 
-            private async Task<Team> GetTeam(int teamId, int gameId, int leagueId, CancellationToken cancellationToken)
+            private async Task<Team> GetTeam(int teamId, int gameId, int seasonId, CancellationToken cancellationToken)
             {
                 var game = (await _context.Games
                         .SingleOrDefaultAsync(x => x.Id == gameId, cancellationToken))
                     .GuardAgainstNotFound(gameId);
 
-                await GuardAgainstPickPastCutoff(game, leagueId);
+                GuardAgainstPickPastCutoff(game);
 
                 var selectedTeam = (await _context.Teams
                         .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
@@ -107,12 +101,9 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 }
             }
 
-            private async Task GuardAgainstPickPastCutoff(Game game, int leagueId)
+            private void GuardAgainstPickPastCutoff(Game game)
             {
-                var cutOffDate = await _context.Calendar
-                    .Where(x => x.Week == game.Week && x.LeagueId == leagueId)
-                    .Select(x => x.CutoffDate)
-                    .SingleOrDefaultAsync();
+                var cutOffDate = game.StartDate.AddMinutes(-5);
                 var currDate = DateTimeOffset.UtcNow;
                 if (currDate > cutOffDate)
                 {

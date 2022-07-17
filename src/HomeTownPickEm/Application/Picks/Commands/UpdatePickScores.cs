@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
@@ -15,6 +12,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
         public class Command : GameRequest, IRequest
         {
             public string LeagueSlug { get; set; }
+            
         }
 
         public class CommandHandler : IRequestHandler<Command>
@@ -70,7 +68,9 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 var gameIds = completedGames.Select(x => x.Id).ToArray();
 
                 return await _context.Pick
-                    .Where(p => gameIds.Contains(p.GameId) && p.League.Slug == request.LeagueSlug)
+                    .Where(p => gameIds.Contains(p.GameId) &&
+                                p.Season.League.Slug == request.LeagueSlug &&
+                                p.Season.Year == request.Year)
                     .AsTracking()
                     .ToArrayAsync(cancellationToken);
             }

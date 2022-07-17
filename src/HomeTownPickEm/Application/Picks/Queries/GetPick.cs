@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using MediatR;
@@ -33,7 +30,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .Include(x => x.Game.Home)
                     .Include(x => x.User)
                     .Include(x => x.SelectedTeam)
-                    .Include(x => x.League.Teams)
+                    .Include(x => x.Season.Teams)
                     .AsSplitQuery()
                     .SingleOrDefaultAsync(cancellationToken);
 

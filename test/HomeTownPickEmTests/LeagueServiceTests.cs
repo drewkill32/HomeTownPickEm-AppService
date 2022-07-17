@@ -49,11 +49,11 @@ namespace HomeTownPickEm
             _databaseFixture.SeedDatabase(DbName);
 
             using var context = _databaseFixture.CreateDbContext(DbName);
-            var newLeague = Fixture.Freeze<League>(cfg =>
+            var newLeague = Fixture.Freeze<Season>(cfg =>
                 cfg.Without(x => x.Members)
                     .Without(x => x.Picks)
                     .Without(x => x.Teams));
-            context.League.Add(newLeague);
+            context.Season.Add(newLeague);
             context.SaveChanges();
             LeagueId = newLeague.Id;
         }
@@ -76,7 +76,7 @@ namespace HomeTownPickEm
 
             await leagueService.AddUserAsync(user.Id, CancellationToken.None);
 
-            var league = GetLeagueFromDb();
+            var league = GetSeasonFromDb();
 
             league.Members.Should().ContainSingle(x => x.Id == user.Id);
 
@@ -96,7 +96,7 @@ namespace HomeTownPickEm
 
             await leagueService.AddTeamAsync(team.Id, CancellationToken.None);
 
-            var league = GetLeagueFromDb();
+            var league = GetSeasonFromDb();
 
             league.Teams.Should().ContainSingle(x => x.Id == team.Id);
             league.Picks.Should().BeEmpty();
@@ -125,7 +125,7 @@ namespace HomeTownPickEm
                 await leagueService.AddUserAsync(msuUser.Id, CancellationToken.None);
             }
 
-            var league = GetLeagueFromDb();
+            var league = GetSeasonFromDb();
             var msuGameIds = GetGamesForTeam(msu.Id)
                 .Select(x => x.Id).ToArray();
 
@@ -161,10 +161,12 @@ namespace HomeTownPickEm
             var user = AddUser();
             await leagueService.AddUserAsync(user.Id, CancellationToken.None);
 
-            var league = GetLeagueFromDb();
+            var season = GetSeasonFromDb();
 
-            league.Members.Should().ContainSingle(x => x.Id == user.Id);
-            league.Picks.Should().BeEmpty();
+            season.Members.Should().ContainSingle(x => x.Id == user.Id);
+            // all of the picks should 
+            season.Picks.Should().Match(x =>
+                x.All(y => y.Game.HomeId == user.TeamId || y.Game.AwayId == user.TeamId));
         }
 
         [Fact]
@@ -177,7 +179,7 @@ namespace HomeTownPickEm
             //act
             using (var context = _databaseFixture.CreateDbContext(DbName))
             {
-                var l = context.League.Single();
+                var l = context.Season.Single();
                 l.Teams.Add(mich);
                 l.Members.Add(michUser);
                 context.Update(l);
@@ -196,7 +198,7 @@ namespace HomeTownPickEm
                 await leagueService.Update(CancellationToken.None);
             }
 
-            var league = GetLeagueFromDb();
+            var league = GetSeasonFromDb();
 
             var michGameIds = GetGamesForTeam(mich.Id)
                 .Select(x => x.Id).ToArray();
@@ -312,7 +314,7 @@ namespace HomeTownPickEm
             }
 
 
-            var pick = GetLeagueFromDb().Picks.GroupBy(x => x.UserId).ToArray();
+            var pick = GetSeasonFromDb().Picks.GroupBy(x => x.UserId).ToArray();
 
 
             using (var context = _databaseFixture.CreateDbContext(DbName))
@@ -332,7 +334,7 @@ namespace HomeTownPickEm
             Team team = null;
             using (var context = _databaseFixture.CreateDbContext(DbName))
             {
-                team = context.Teams.Where(x => x.Conference == "Big Ten").GetRandom();
+                team = context.Teams.First(x => x.Id == 130); // GO BLUE!
             }
 
             return AddUser(team);
@@ -344,7 +346,7 @@ namespace HomeTownPickEm
             var user = Fixture.Build<ApplicationUser>()
                 .With(x => x.TeamId, team.Id)
                 .Without(x => x.Team)
-                .Without(x => x.Leagues)
+                .Without(x => x.Seasons)
                 .Create();
             context.Users.Add(user);
             context.SaveChanges();
@@ -366,15 +368,16 @@ namespace HomeTownPickEm
         }
 
 
-        private League GetLeagueFromDb()
+        private Season GetSeasonFromDb()
         {
             using var context = _databaseFixture.CreateDbContext(DbName);
-            var league = context.League
+            var season = context.Season
                 .Include(x => x.Teams)
                 .Include(x => x.Members)
                 .Include(x => x.Picks)
+                .ThenInclude(p => p.Game)
                 .Single();
-            return league;
+            return season;
         }
 
         private Team GetTeam(int teamId)

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace HomeTownPickEm.Models
 {
@@ -7,12 +6,10 @@ namespace HomeTownPickEm.Models
     {
         public ApplicationUser()
         {
-            Leagues = new HashSet<League>();
+            Seasons = new HashSet<Season>();
         }
 
-        public ICollection<League> Leagues { get; set; }
-
-
+        public ICollection<Season> Seasons { get; set; }
         public UserName Name { get; set; }
 
         public Team Team { get; set; }

@@ -1,10 +1,5 @@
 #region
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
@@ -24,6 +19,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
             public int Week { get; set; }
 
             public string LeagueSlug { get; set; }
+
+            public string Season { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<GameProjection>>
@@ -41,7 +38,12 @@ namespace HomeTownPickEm.Application.Picks.Queries
             {
                 var userId = (await _accessor.GetCurrentUserAsync()).Id;
 
-                var dataTask = GetReleatedData(request, cancellationToken);
+                var seasonId = await _context.Season
+                    .Where(s => s.Year == request.Season && s.League.Slug == request.LeagueSlug)
+                    .Select(s => s.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                var dataTask = GetReleatedData(request, seasonId, cancellationToken);
 
                 var games =
                     await _context.Games
@@ -77,7 +79,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
                                     Color = x.Home.Color,
                                     AltColor = x.Home.AltColor
                                 },
-                                Picks = x.Picks.Where(p => p.UserId == userId && p.League.Slug == request.LeagueSlug)
+                                Picks = x.Picks.Where(p =>
+                                        p.UserId == userId && p.SeasonId == seasonId)
                                     .Select(p => new PickProjection
                                     {
                                         Id = p.Id,
@@ -113,21 +116,23 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
             private async Task<(int[] TeamIds, DateTimeOffset? CutoffDate, Dictionary<int, PickTotalDto> PickTotals)>
                 GetReleatedData(Query request,
+                    int seasonId,
                     CancellationToken cancellationToken)
             {
-                var leagueTeamIds = await _context.Teams.Where(x => x.Leagues.Any(l => l.Slug == request.LeagueSlug))
+                var leagueTeamIds = await _context.Teams
+                    .Where(x => x.Seasons.Any(s => s.Id == seasonId))
                     .Select(x => x.Id)
                     .ToArrayAsync(cancellationToken);
 
                 var cutoffDate =
-                    await _context.Calendar.Where(x => x.League.Slug == request.LeagueSlug && x.Week == request.Week)
+                    await _context.Calendar.Where(x => x.Season == request.Season && x.Week == request.Week)
                         .Select(x => x.CutoffDate)
                         .SingleAsync(cancellationToken);
 
 
                 var pickTotals = DateTimeOffset.UtcNow >= cutoffDate.Value
                     ? await _context.Pick.Where(x =>
-                            x.Game.Week == request.Week && x.League.Slug == request.LeagueSlug &&
+                            x.Game.Week == request.Week && x.SeasonId == seasonId &&
                             x.SelectedTeamId != null)
                         .Select(x => new
                         {

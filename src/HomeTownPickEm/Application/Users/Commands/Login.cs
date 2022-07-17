@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
@@ -7,7 +5,6 @@ using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
@@ -59,7 +56,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 {
                     var fullUser = await _context.Users
                         .Include(x => x.Team)
-                        .Include(x => x.Leagues)
+                        .Include(x => x.Seasons)
                         .SingleOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
                     var token = _jwtGenerator.CreateToken(user);
                     return fullUser.ToUserDto(token);

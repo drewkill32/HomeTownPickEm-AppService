@@ -1,14 +1,12 @@
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Data
 {
-    public class DatabaseInit
+    public class DatabaseMigrator
     {
         private readonly ApplicationDbContext _context;
 
-        public DatabaseInit(ApplicationDbContext context)
+        public DatabaseMigrator(ApplicationDbContext context)
         {
             _context = context;
         }

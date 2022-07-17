@@ -1,12 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Services.DataSeed
 {
@@ -29,7 +24,13 @@ namespace HomeTownPickEm.Services.DataSeed
                 {
                     Name = "St. Pete Pick Em",
                     Slug = "st-pete-pick-em",
-                    Season = DateTime.Now.Year.ToString()
+                    Seasons =
+                    {
+                        new Season
+                        {
+                            Year = DateTime.Now.Year.ToString()
+                        }
+                    }
                 });
                 await _context.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation("Added Test League");

@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
@@ -13,7 +10,7 @@ namespace HomeTownPickEm.Application.Leagues.Queries
     {
         public class Query : IRequest<LeagueDto>
         {
-            public string Name { get; set; }
+            public string LeagueSlug { get; set; }
             public string Year { get; set; }
 
             public bool IncludePicks { get; set; }
@@ -30,7 +27,8 @@ namespace HomeTownPickEm.Application.Leagues.Queries
 
             public async Task<LeagueDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                IQueryable<League> query = _context.League.Where(x => x.Name == request.Name)
+                IQueryable<Season> query = _context.Season
+                    .Where(x => x.League.Slug == request.LeagueSlug && x.Year == request.Year)
                     .Include(x => x.Teams)
                     .Include(x => x.Members);
                 if (request.IncludePicks)
@@ -43,7 +41,8 @@ namespace HomeTownPickEm.Application.Leagues.Queries
 
                 if (league == null)
                 {
-                    throw new NotFoundException($"No League found with name: {request.Name} and year {request.Year}");
+                    throw new NotFoundException(
+                        $"No League found with name: {request.LeagueSlug} and year {request.Year}");
                 }
 
                 var dto = league.ToLeagueDto();

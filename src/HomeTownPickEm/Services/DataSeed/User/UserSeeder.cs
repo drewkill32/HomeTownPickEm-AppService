@@ -1,12 +1,8 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace HomeTownPickEm.Services.DataSeed.User
 {
@@ -32,12 +28,14 @@ namespace HomeTownPickEm.Services.DataSeed.User
                 _config.GetSection("User").Bind(registerUserCommand);
 
 
-                var league = await _context.League.OrderBy(x => x.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
+                var seasonId = await _context.Season
+                    .OrderBy(x => x.Id)
+                    .Select(x => x.Id)
+                    .SingleOrDefaultAsync(cancellationToken);
 
-                if (league != null)
+                if (seasonId != default)
                 {
-                    registerUserCommand.LeagueIds = new[] { league.Id };
+                    registerUserCommand.SeasonId = new[] { seasonId };
                 }
 
                 var teamName = _config.GetSection("User")["Team"]?.ToLower();

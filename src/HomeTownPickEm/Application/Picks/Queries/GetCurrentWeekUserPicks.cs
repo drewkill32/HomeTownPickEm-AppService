@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Utils;
@@ -41,31 +37,32 @@ namespace HomeTownPickEm.Application.Picks.Queries
             {
                 var date = DateTimeOffset.UtcNow;
 
-                var cal = (await _context.Calendar
-                        .Where(x => x.League.Slug == request.LeagueSlug
-                                    && x.Week == request.Week
+                var seasonId =
+                    await _context.Season.GetLeagueSeasonId(request.Season, request.LeagueSlug, cancellationToken);
+                var cutoffDate = (await _context.Calendar
+                        .Where(x => x.Week == request.Week
                                     && x.Season == request.Season)
-                        .Select(x => new { x.CutoffDate, x.LeagueId })
+                        .Select(x => x.FirstGameStart)
                         .SingleOrDefaultAsync(cancellationToken))
                     .GuardAgainstNotFound();
 
-                if (date < cal.CutoffDate)
+                if (date < cutoffDate)
                 {
                     throw new ForbiddenAccessException(
-                        $"You can not view picks before the cutoff date. {cal.CutoffDate:yyyy-M-d hh:mm}");
+                        $"You can not view picks before the cutoff date. {cutoffDate:yyyy-M-d hh:mm}");
                 }
 
                 var users = await _context.Users
-                    .Where(x => x.Leagues.Any(l => l.Id == cal.LeagueId))
+                    .Where(x => x.Seasons.Any(l => l.Id == seasonId))
                     .ProjectTo<UserPicksDto.UserProjection>(_mapper.ConfigurationProvider)
                     .ToArrayAsync(cancellationToken);
 
 
                 var userPicks = (await _context.Pick
-                        .Where(x => x.LeagueId == cal.LeagueId
+                        .Where(x => x.SeasonId == seasonId
                                     && x.Game.Week == request.Week)
                         .ProjectTo<UserPicksDto>(_mapper.ConfigurationProvider,
-                            new { cal.LeagueId })
+                            new { seasonId })
                         .ToArrayAsync(cancellationToken))
                     .OrderBy(x => x.Game.StartDate)
                     .ThenBy(x => x.Game.Home.Name)
@@ -220,7 +217,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .ForMember(dest => dest.TotalPoints,
                         opt =>
                             opt.MapFrom(src =>
-                                src.Leagues
+                                src.Seasons
                                     .SelectMany(l => l.Picks)
                                     .Where(p => p.UserId == src.Id)
                                     .Sum(p => p.Points)));

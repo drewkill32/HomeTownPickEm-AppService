@@ -1,8 +1,6 @@
 ﻿using HomeTownPickEm.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace HomeTownPickEm.Data
 {
@@ -20,6 +18,8 @@ namespace HomeTownPickEm.Data
         public DbSet<Team> Teams { get; set; }
         public DbSet<Calendar> Calendar { get; set; }
 
+        public DbSet<Season> Season { get; set; }
+        
         public DbSet<League> League { get; set; }
 
         public DbSet<Leaderboard> Leaderboard { get; set; }
@@ -90,24 +90,21 @@ namespace HomeTownPickEm.Data
                 .WithMany()
                 .HasForeignKey(x => x.HomeId);
 
-            //League
-            builder.Entity<League>()
-                .HasIndex(x => new { x.Name, Year = x.Season })
-                .IsUnique();
+            //Season
 
-            builder.Entity<League>()
+            builder.Entity<Season>()
                 .HasMany(x => x.Members)
-                .WithMany(y => y.Leagues);
+                .WithMany(y => y.Seasons);
 
-            builder.Entity<League>()
+            builder.Entity<Season>()
                 .HasMany(x => x.Teams)
-                .WithMany(y => y.Leagues);
+                .WithMany(y => y.Seasons);
 
             //Pick
             builder.Entity<Pick>()
-                .HasOne(x => x.League)
+                .HasOne(x => x.Season)
                 .WithMany(x => x.Picks)
-                .HasForeignKey(x => x.LeagueId);
+                .HasForeignKey(x => x.SeasonId);
 
             builder.Entity<Pick>()
                 .HasOne(x => x.Game)

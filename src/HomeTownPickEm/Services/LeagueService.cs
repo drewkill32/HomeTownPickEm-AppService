@@ -1,19 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HomeTownPickEm.Services
 {
     public interface ILeagueServiceFactory
     {
-        ILeagueService Create(int leagueId);
+        ILeagueService Create(int seasonId);
     }
 
     public class LeagueServiceFactory : ILeagueServiceFactory
@@ -25,9 +19,9 @@ namespace HomeTownPickEm.Services
             _provider = provider;
         }
 
-        public ILeagueService Create(int leagueId)
+        public ILeagueService Create(int seasonId)
         {
-            return ActivatorUtilities.CreateInstance<LeagueService>(_provider, leagueId);
+            return ActivatorUtilities.CreateInstance<LeagueService>(_provider, seasonId);
         }
     }
 
@@ -41,13 +35,13 @@ namespace HomeTownPickEm.Services
     public class LeagueService : ILeagueService
     {
         private readonly ApplicationDbContext _context;
-        private readonly int _leagueId;
+        private readonly int _seasonId;
         private GameProjection[] _games;
-        private League _league;
+        private Season _season;
 
-        public LeagueService(int leagueId, ApplicationDbContext context)
+        public LeagueService(int seasonId, ApplicationDbContext context)
         {
-            _leagueId = leagueId;
+            _seasonId = seasonId;
             _context = context;
         }
 
@@ -58,21 +52,21 @@ namespace HomeTownPickEm.Services
                     .AsTracking()
                     .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken))
                 .GuardAgainstNotFound(userId);
-            var league = await GetLeague(cancellationToken);
+            var season = await GetSeason(cancellationToken);
 
-            if (league.Members.Any(x => x.Id == userId))
+            if (season.Members.Any(x => x.Id == userId))
             {
                 return user;
             }
 
-            league.Members.Add(user);
+            season.Members.Add(user);
             if (user.TeamId.HasValue)
             {
-                if (league.Teams.All(x => x.Id != user.TeamId))
+                if (season.Teams.All(x => x.Id != user.TeamId))
                 {
                     var team = await _context.Teams
                         .AsTracking().SingleAsync(x => x.Id == user.TeamId, cancellationToken);
-                    league.Teams.Add(team);
+                    season.Teams.Add(team);
                 }
             }
 
@@ -93,14 +87,14 @@ namespace HomeTownPickEm.Services
                     .AsTracking()
                     .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
                 .GuardAgainstNotFound(teamId);
-            var league = await GetLeague(cancellationToken);
+            var season = await GetSeason(cancellationToken);
 
-            if (league.Teams.Any(x => x.Id == teamId))
+            if (season.Teams.Any(x => x.Id == teamId))
             {
                 return team;
             }
 
-            league.Teams.Add(team);
+            season.Teams.Add(team);
 
             await _context.SaveChangesAsync(cancellationToken);
             await UpdatePicks(cancellationToken);
@@ -109,13 +103,13 @@ namespace HomeTownPickEm.Services
 
         public async Task<IEnumerable<Pick>> GetNewPicks(CancellationToken cancellationToken)
         {
-            var league = await GetLeague(cancellationToken);
-            var teams = league.Teams;
+            var season = await GetSeason(cancellationToken);
+            var teams = season.Teams;
             var games = await GetGames(cancellationToken);
 
             return (from team in teams
                     from game in games.Where(x => x.ContainsTeam(team.Id))
-                    select new Pick { LeagueId = league.Id, Points = 0, GameId = game.Id })
+                    select new Pick { SeasonId = season.Id, Points = 0, GameId = game.Id })
                 .ToList();
         }
 
@@ -126,8 +120,8 @@ namespace HomeTownPickEm.Services
                 return _games;
             }
 
-            var league = await GetLeague(cancellationToken);
-            var teamIds = league.Teams.Select(x => x.Id).ToArray();
+            var season = await GetSeason(cancellationToken);
+            var teamIds = season.Teams.Select(x => x.Id).ToArray();
             _games = await _context.Games.Where(x => teamIds.Contains(x.HomeId) || teamIds.Contains(x.AwayId))
                 .Select(x => new GameProjection
                 {
@@ -140,27 +134,27 @@ namespace HomeTownPickEm.Services
         }
 
 
-        private async ValueTask<League> GetLeague(CancellationToken cancellationToken)
+        private async ValueTask<Season> GetSeason(CancellationToken cancellationToken)
         {
-            if (_league != null)
+            if (_season != null)
             {
-                return _league;
+                return _season;
             }
 
-            _league = await _context.League.Where(x => x.Id == _leagueId)
+            _season = await _context.Season.Where(x => x.Id == _seasonId)
                 .Include(x => x.Teams)
                 .Include(x => x.Members)
                 .Include(x => x.Picks)
                 .AsTracking()
                 .AsSplitQuery()
                 .SingleOrDefaultAsync(cancellationToken);
-            return _league;
+            return _season;
         }
 
         private async Task<bool> IsHead2Head(int gameId, CancellationToken cancellationToken)
         {
             var games = await GetGames(cancellationToken);
-            var teamIds = (await GetLeague(cancellationToken)).Teams.Select(x => x.Id).ToArray();
+            var teamIds = (await GetSeason(cancellationToken)).Teams.Select(x => x.Id).ToArray();
             var game = games.Single(g => g.Id == gameId);
             return teamIds.Contains(game.AwayId) && teamIds.Contains(game.HomeId);
         }
@@ -168,12 +162,12 @@ namespace HomeTownPickEm.Services
         private async Task RemovePicks(Team team, CancellationToken cancellationToken)
         {
             var games = await GetGames(cancellationToken);
-            var league = await GetLeague(cancellationToken);
+            var season = await GetSeason(cancellationToken);
 
             var gamesToRemove = games.Where(x => x.ContainsTeam(team.Id)).ToArray();
 
             var gameIds = gamesToRemove.Select(x => x.Id).ToArray();
-            var picksToRemove = await _context.Pick.Where(x => x.LeagueId == _leagueId && gameIds.Contains(x.GameId))
+            var picksToRemove = await _context.Pick.Where(x => x.SeasonId == _seasonId && gameIds.Contains(x.GameId))
                 .ToArrayAsync(cancellationToken);
             _context.Pick.RemoveRange(picksToRemove);
 
@@ -182,7 +176,7 @@ namespace HomeTownPickEm.Services
 
         private async Task RemovePicks(ApplicationUser user, CancellationToken cancellationToken)
         {
-            var picksToRemove = await _context.Pick.Where(x => x.LeagueId == _leagueId && x.UserId == user.Id)
+            var picksToRemove = await _context.Pick.Where(x => x.SeasonId == _seasonId && x.UserId == user.Id)
                 .ToArrayAsync(cancellationToken);
 
             _context.Pick.RemoveRange(picksToRemove);
@@ -193,14 +187,14 @@ namespace HomeTownPickEm.Services
 
         private async Task UpdatePicks(CancellationToken cancellationToken)
         {
-            var league = await GetLeague(cancellationToken);
+            var season = await GetSeason(cancellationToken);
 
-            foreach (var member in league.Members)
+            foreach (var member in season.Members)
             {
                 var newPicks = (await GetNewPicks(cancellationToken)).ToArray();
                 foreach (var newPick in newPicks)
                 {
-                    var picks = league.Picks
+                    var picks = season.Picks
                         .Where(x => x.UserId == member.Id && x.GameId == newPick.GameId)
                         .ToArray();
 
@@ -209,12 +203,12 @@ namespace HomeTownPickEm.Services
                     if (isHead2Head && picks.Length != 2)
                     {
                         newPick.UserId = member.Id;
-                        league.Picks.Add(newPick);
+                        season.Picks.Add(newPick);
                     }
                     else if (picks.Length == 0)
                     {
                         newPick.UserId = member.Id;
-                        league.Picks.Add(newPick);
+                        season.Picks.Add(newPick);
                     }
                 }
             }

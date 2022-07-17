@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
@@ -13,7 +11,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
     {
         public class Command : IRequest<LeagueDto>
         {
-            public string Name { get; set; }
+            public string LeagueSlug { get; set; }
             public string Season { get; set; }
             public string UserId { get; set; }
         }
@@ -31,12 +29,12 @@ namespace HomeTownPickEm.Application.Leagues.Commands
 
             public async Task<LeagueDto> Handle(Command request, CancellationToken cancellationToken)
             {
-                var league = (await _context.League.SingleOrDefaultAsync(x =>
-                        x.Season == request.Season && x.Name == request.Name, cancellationToken))
-                    .GuardAgainstNotFound($"No League {request.Name} - ({request.Season}) found");
-                var service = _leagueServiceFactory.Create(league.Id);
+                var season = (await _context.Season.SingleOrDefaultAsync(x =>
+                        x.Year == request.Season && x.League.Slug == request.LeagueSlug, cancellationToken))
+                    .GuardAgainstNotFound($"No League {request.LeagueSlug} - ({request.Season}) found");
+                var service = _leagueServiceFactory.Create(season.Id);
                 await service.AddUserAsync(request.UserId, cancellationToken);
-                return league.ToLeagueDto();
+                return season.ToLeagueDto();
             }
         }
     }

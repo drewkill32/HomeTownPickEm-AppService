@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Services;
@@ -30,7 +26,7 @@ namespace HomeTownPickEm.Application.Leagues.Queries
 
             public async Task<IEnumerable<TeamDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var teamIds = await _context.League
+                var teamIds = await _context.Season
                     .Include(x => x.Teams)
                     .SelectMany(x => x.Teams, (_, team) => team.Id)
                     .ToArrayAsync(cancellationToken);
