@@ -1,9 +1,9 @@
 # TODO
 
 - [x] Update Folder structure
-- [ ] update dotnet
-- [ ] npm/node
-- [ ] Connect to Football API
+- [x] update dotnet
+- [ ] update npm/node
+- [x] Connect to Football API
 - [ ] Update MUI
 - [ ] change look of picks screen
 - [ ] enlarge font size

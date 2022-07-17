@@ -457,3 +457,5 @@ $RECYCLE.BIN/
 app.db*
 
 .publish/
+
+.backups/

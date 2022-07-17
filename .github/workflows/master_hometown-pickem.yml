@@ -15,12 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.4.1
-        with:
-          node-version: 16.14.2
-
+    
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
