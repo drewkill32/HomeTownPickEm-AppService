@@ -1,15 +1,16 @@
 # TODO
 
+- [ ] update react/CRA
 - [x] Update Folder structure
 - [x] update dotnet
-- [ ] update npm/node
+- [x] update npm/node
 - [x] Connect to Football API
+- [ ] add seq
 - [ ] Update MUI
 - [ ] change look of picks screen
 - [ ] enlarge font size
 - [ ] use user principal
 - [ ] add SSL to site
-- [ ] update react/CRA
 - [ ] swap out leagueId to use slug (in progress)
 - [ ] make entity framework queries better (too many includes statements)
 - [ ] use API endpoints
