@@ -8,33 +8,26 @@ namespace HomeTownPickEm.Application.Calendar
         {
             var cal = new CalendarDto
             {
-                Id = calendar.Id,
                 Season = calendar.Season,
                 SeasonType = calendar.SeasonType,
                 Week = calendar.Week,
                 FirstGameStart = calendar.FirstGameStart,
                 LastGameStart = calendar.LastGameStart
             };
-            if (calendar.CutoffDate.HasValue)
-            {
-                cal.CutoffDate = calendar.CutoffDate.Value;
-            }
-
+            
             return cal;
         }
     }
 
     public class CalendarDto
     {
-        public int Id { get; set; }
 
         public string Season { get; set; }
 
         public int Week { get; set; }
 
         public string SeasonType { get; set; }
-
-        public DateTimeOffset CutoffDate { get; set; }
+        
 
         public DateTimeOffset FirstGameStart { get; set; }
 

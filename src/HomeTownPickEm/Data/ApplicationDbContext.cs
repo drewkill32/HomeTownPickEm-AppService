@@ -67,12 +67,8 @@ namespace HomeTownPickEm.Data
 
             //Calendar
             builder.Entity<Calendar>()
-                .HasKey(x => x.Id);
-
-            builder.Entity<Calendar>()
-                .HasOne(x => x.League)
-                .WithMany()
-                .HasForeignKey(x => x.LeagueId);
+                .HasKey(x => new { x.Week, x.Season, x.SeasonType });
+            
 
             //Game
             builder.Entity<Game>()

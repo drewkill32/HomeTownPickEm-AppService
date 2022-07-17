@@ -126,11 +126,11 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
                 var cutoffDate =
                     await _context.Calendar.Where(x => x.Season == request.Season && x.Week == request.Week)
-                        .Select(x => x.CutoffDate)
+                        .Select(x => x.FirstGameStart)
                         .SingleAsync(cancellationToken);
 
 
-                var pickTotals = DateTimeOffset.UtcNow >= cutoffDate.Value
+                var pickTotals = DateTimeOffset.UtcNow >= cutoffDate
                     ? await _context.Pick.Where(x =>
                             x.Game.Week == request.Week && x.SeasonId == seasonId &&
                             x.SelectedTeamId != null)

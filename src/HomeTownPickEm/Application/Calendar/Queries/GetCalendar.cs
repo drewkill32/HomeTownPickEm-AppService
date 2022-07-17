@@ -16,7 +16,6 @@ namespace HomeTownPickEm.Application.Calendar.Queries
         {
             public string Season { get; set; } = DateTime.Now.Year.ToString();
             public string SeasonType { get; set; } = "regular";
-            public string LeagueSlug { get; set; }
             public int? Week { get; set; }
         }
 
@@ -33,7 +32,6 @@ namespace HomeTownPickEm.Application.Calendar.Queries
             {
                 var calendars = await _context.Calendar
                     .Where(x => x.Season == request.Season && x.SeasonType == request.SeasonType)
-                    .Where(x => x.League.Slug == request.LeagueSlug)
                     .WhereWeekIs(request.Week)
                     .ToArrayAsync(cancellationToken);
 

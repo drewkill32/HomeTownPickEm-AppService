@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Calendar;
 using HomeTownPickEm.Application.Calendar.Commands;
 using HomeTownPickEm.Application.Calendar.Queries;
@@ -9,10 +8,10 @@ namespace HomeTownPickEm.Controllers
     //[Authorize]
     public class CalendarController : ApiControllerBase
     {
-        [HttpGet("{leagueSlug}")]
-        public async Task<ActionResult<CalendarDto>> GetCalendar(string leagueSlug, [FromQuery] GetCalendar.Query query)
+        [HttpGet("{week}")]
+        public async Task<ActionResult<CalendarDto>> GetCalendar(int week, [FromQuery] GetCalendar.Query query)
         {
-            query.LeagueSlug = leagueSlug;
+            query.Week = week;
             var calendars = await Mediator.Send(query);
             return Ok(calendars);
         }
