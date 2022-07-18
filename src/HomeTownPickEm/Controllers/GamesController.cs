@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Games;
 using HomeTownPickEm.Application.Games.Commands;
 using HomeTownPickEm.Application.Games.Queries;
@@ -65,10 +65,10 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpPost("load")]
-        public async Task<ActionResult<GameDto>> LoadGames(LoadGames.Command command)
+        public ActionResult LoadGames(LoadGames.Command command)
         {
-            var games = await Mediator.Send(command);
-            return Ok(games);
+            var result = Mediator.Enqueue("load_games", command);
+            return result ? Accepted() : StatusCode(StatusCodes.Status208AlreadyReported);
         }
     }
 }

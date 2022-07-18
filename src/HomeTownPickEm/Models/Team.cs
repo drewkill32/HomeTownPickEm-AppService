@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using HomeTownPickEm.Application.Common;
 
 namespace HomeTownPickEm.Models
 {
     
 
     [DebuggerDisplay("[{Id}] {School} {Mascot}")]
-    public class Team
+    public class Team : IHasId
     {
         public Team()
         {

@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
+using HomeTownPickEm.Application.Common;
 
 namespace HomeTownPickEm.Models
 {
-    public class Game
+    public class Game : IHasId
     {
         public int Id { get; set; }
 

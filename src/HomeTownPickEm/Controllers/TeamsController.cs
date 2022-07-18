@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
 using HomeTownPickEm.Application.Teams.Queries;
@@ -10,6 +9,7 @@ namespace HomeTownPickEm.Controllers
 {
     public class TeamsController : ApiControllerBase
     {
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<TeamDto>>> Get([FromQuery] string conference,
@@ -38,10 +38,10 @@ namespace HomeTownPickEm.Controllers
 
 
         [HttpPost("load")]
-        public async Task<ActionResult<IEnumerable<TeamDto>>> LoadTeams()
+        public ActionResult LoadTeams()
         {
-            var teams = await Mediator.Send(new LoadTeams.Command());
-            return Ok(teams);
+            var result = Mediator.Enqueue("load_teams", new LoadTeams.Command());
+            return result ? Accepted() : StatusCode(StatusCodes.Status208AlreadyReported);
         }
     }
 }

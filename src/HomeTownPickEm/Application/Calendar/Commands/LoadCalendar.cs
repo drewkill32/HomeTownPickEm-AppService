@@ -1,9 +1,9 @@
 using AutoMapper;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Services.CFBD;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Calendar.Commands
 {
@@ -37,13 +37,15 @@ namespace HomeTownPickEm.Application.Calendar.Commands
 
                 if (_context.Calendar.Any(c => c.Season == request.Year))
                 {
-                    var dbCalendars = await _context.Calendar.Where(c => c.Season == request.Year)
-                        .ToArrayAsync(cancellationToken);
+                    _context.Calendar.AddOrUpdateRange(calendars, c => c.Season == request.Year);
 
-                    var toUpdate = dbCalendars.Union(calendars, new CalendarEqualityComparer()).ToArray();
-                    _context.Calendar.UpdateRange(toUpdate);
-                    var toAdd = dbCalendars.Except(calendars, new CalendarEqualityComparer()).ToArray();
-                    _context.Calendar.AddRange(toAdd);
+                    var dbCalendars = _context.Calendar
+                        .Where(c => c.Season == request.Year)
+                        .ToArray();
+                    var toDelete = dbCalendars.Except(calendars, new CalendarEqualityComparer())
+                        .ToArray();
+                    _context.Calendar.RemoveRange(toDelete);
+            
                 }
                 else
                 {

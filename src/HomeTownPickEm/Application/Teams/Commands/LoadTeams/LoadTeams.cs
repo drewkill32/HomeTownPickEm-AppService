@@ -1,39 +1,36 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Json;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Services.CFBD;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
 {
     public class LoadTeams
     {
-        public class Command : IRequest<IEnumerable<TeamDto>>
+        public class Command : IRequest
         {
         }
 
-        public class Handler : IRequestHandler<Command, IEnumerable<TeamDto>>
+        public class Handler : IRequestHandler<Command>
         {
             private readonly ApplicationDbContext _context;
+            private readonly ILogger<Handler> _logger;
             private readonly HttpClient _httpClient;
 
-            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
+            public Handler(IHttpClientFactory httpClientFactory, ApplicationDbContext context, ILogger<Handler> logger)
             {
                 _context = context;
+                _logger = logger;
                 _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
             }
 
-            public async Task<IEnumerable<TeamDto>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 var teamsResponse = await _httpClient.GetFromJsonAsync<IEnumerable<TeamResponse>>("/teams",
                     new JsonSerializerOptions
@@ -44,9 +41,25 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                 var t = teamsResponse.ToHashSet(new IdEqualityComparer<TeamResponse>());
                 var teams = t.Select(MapToTeam).ToArray();
 
+                await UpdateTeams(teams, cancellationToken);
+                _logger.LogInformation("Loaded {Count} teams", teams.Length);
+                return Unit.Value;
+            }
+
+            private async Task UpdateTeams(Team[] teams, CancellationToken cancellationToken)
+            {
                 if (_context.Teams.Any())
                 {
-                    _context.Teams.UpdateRange(teams);
+                    var teamIds = teams
+                        .Select(x => x.Id)
+                        .ToArray();
+
+                    _context.Teams.AddOrUpdateRange(teams);
+
+                    var toDelete = await _context.Teams
+                        .Where(x => !teamIds.Contains(x.Id))
+                        .ToArrayAsync(cancellationToken);
+                    _context.Teams.RemoveRange(toDelete);
                 }
                 else
                 {
@@ -54,7 +67,6 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
-                return teams.Select(x => x.ToTeamDto()).ToArray();
             }
 
 

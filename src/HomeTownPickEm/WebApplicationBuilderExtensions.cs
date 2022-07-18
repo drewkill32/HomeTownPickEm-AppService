@@ -20,6 +20,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace Microsoft.AspNetCore.Builder.Extensions;
 
@@ -128,7 +130,7 @@ public static class WebApplicationBuilderExtensions
             client.BaseAddress = new Uri(settings.BaseUrl);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Key);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-        });
+        }).AddPolicyHandler(GetRetryPolicy());
 
         builder.Services.AddHttpClient<ICfbdHttpClient, CfbdHttpClient>((provider, client) =>
         {
@@ -136,13 +138,24 @@ public static class WebApplicationBuilderExtensions
             client.BaseAddress = new Uri(settings.BaseUrl);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Key);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-        });
+            client.Timeout = TimeSpan.FromSeconds(5);
+        }).AddPolicyHandler(GetRetryPolicy());
 
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
         builder.Services.AddScoped<GameTeamRepository>();
+        builder.Services.AddSingleton(BackgroundWorkerQueue.Instance);
+        builder.Services.AddHostedService<BackgroundWorker>();
 
         return builder;
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2,
+                retryAttempt)));
     }
 }
