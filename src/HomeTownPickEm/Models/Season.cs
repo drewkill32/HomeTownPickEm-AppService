@@ -43,4 +43,10 @@ public class Season
     public ICollection<ApplicationUser> Members { get; set; }
 
     public ICollection<Pick> Picks { get; set; }
+
+    public string GetLeagueName()
+    {
+        return League?.Slug + ":" + Year;
+    }
+    
 }

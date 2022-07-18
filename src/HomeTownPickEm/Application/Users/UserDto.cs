@@ -17,9 +17,11 @@ namespace HomeTownPickEm.Application.Users
                 FirstName = user.Name.First,
                 LastName = user.Name.Last,
                 Team = user.Team?.ToTeamDto() ?? new TeamDto(),
-                Leagues = user.Seasons.Select(x => x.League.Name),
+                Leagues = user.Seasons.Select(x => x.GetLeagueName())
             };
         }
+
+    
     }
 
     public class UserDto : IMapFrom<ApplicationUser>
@@ -46,7 +48,8 @@ namespace HomeTownPickEm.Application.Users
                 .ForMember(x => x.LastName, exp => exp.MapFrom(s => s.Name.Last))
                 .ForMember(x => x.Leagues,
                     exp => exp.MapFrom(s =>
-                        s.Seasons.Select(y => y.League.Name + "-" + y.Year)));
+                        s.Seasons.Select(x => x.League.Slug + ":" + x.Year)));
         }
+        
     }
 }

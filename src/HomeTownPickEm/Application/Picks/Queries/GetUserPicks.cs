@@ -46,7 +46,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .Select(s => s.Id)
                     .FirstOrDefaultAsync(cancellationToken);
 
-                var dataTask = GetReleatedData(request, seasonId, cancellationToken);
+                var dataTask = GetRelatedData(request, seasonId, cancellationToken);
 
                 var games =
                     await _context.Games
@@ -119,7 +119,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
             }
 
             private async Task<(int[] TeamIds, Dictionary<int, PickTotalDto> PickTotals)>
-                GetReleatedData(Query request,
+                GetRelatedData(Query request,
                     int seasonId,
                     CancellationToken cancellationToken)
             {

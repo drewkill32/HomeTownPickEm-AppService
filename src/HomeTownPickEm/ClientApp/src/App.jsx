@@ -1,12 +1,12 @@
 import React from 'react';
 import './custom.css';
 
-import { ProviderAuth } from './hooks/useAuth';
-import { Route, Switch } from 'react-router';
+import {ProviderAuth} from './hooks/useAuth';
+import {Route, Switch} from 'react-router';
 import Layout from './components/Layout';
 import Home from './components/Home';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import {QueryClient, QueryClientProvider} from 'react-query';
+import {ReactQueryDevtools} from 'react-query/devtools';
 
 import AuthorizeRoute from './components/AuthorizeRoute';
 
@@ -26,14 +26,14 @@ const App = () => {
       <ProviderAuth>
         <Layout>
           <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/register" component={Register} />
-            <Route path="/login" component={Login} />
-            <Route path="/logout" component={Logout} />
-            <Route path="/stats" component={WeeklyStats} />
-            <AuthorizeRoute path="/leaderboard" component={Leaderboard} />
-            <AuthorizeRoute path="/picks" component={PicksHome} />
-            <Route path="*" component={NotFound} />
+            <Route exact path="/" component={Home}/>
+            <Route path="/register" component={Register}/>
+            <Route path="/login" component={Login}/>
+            <Route path="/logout" component={Logout}/>
+            <Route path="/:league/:season/stats" component={WeeklyStats}/>
+            <AuthorizeRoute path="/:league/:season/leaderboard" component={Leaderboard}/>
+            <AuthorizeRoute path="/:league/:season/picks" component={PicksHome}/>
+            <Route path="*" component={NotFound}/>
           </Switch>
         </Layout>
         <ReactQueryDevtools />

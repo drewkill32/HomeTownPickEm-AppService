@@ -16,6 +16,8 @@ namespace HomeTownPickEm.Models
 
         public string LeagueSlug { get; set; }
 
+        public string Year { get; set; }
+
         public int TotalPoints { get; set; }
 
         public int TeamId { get; set; }

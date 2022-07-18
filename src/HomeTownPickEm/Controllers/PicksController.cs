@@ -30,7 +30,7 @@ namespace HomeTownPickEm.Controllers
             return Ok(picks);
         }
 
-        [HttpGet("{leagueSlug}/{Season}/{userId}/week/{week}")]
+        [HttpGet("{LeagueSlug}/{Season}/week/{Week}")]
         public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);

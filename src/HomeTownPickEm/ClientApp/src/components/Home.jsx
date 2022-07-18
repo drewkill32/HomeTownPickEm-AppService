@@ -6,7 +6,11 @@ const Home = () => {
   const { user } = useAuth();
 
   if (user) {
-    return <Redirect to="/leaderboard" />;
+    if (user.leagues.length == 1) {
+      const [league, season] = user.leagues[0].split(':');
+      return <Redirect to={`/${league}/${season}/leaderboard`} />;
+    }
+    //todo: navigate to league selection page
   }
   return <Redirect to="/login" />;
 };

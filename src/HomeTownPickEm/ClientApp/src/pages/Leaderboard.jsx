@@ -1,11 +1,15 @@
-import React from "react";
-import axios from "axios";
-import { useQuery } from "react-query";
-import LeaderboardTable from "../components/leaderboard/LeaderboardTable";
+import React from 'react';
+import axios from 'axios';
+import { useQuery } from 'react-query';
+import LeaderboardTable from '../components/leaderboard/LeaderboardTable';
+import { useParams } from 'react-router-dom';
 
 const Leaderboard = () => {
-  const { isLoading, data, isSuccess } = useQuery("leaderboard", () =>
-    axios.get("/api/leaderboard/st-pete-pick-em").then((res) => res.data)
+  let { league, season } = useParams();
+  const { isLoading, data, isSuccess } = useQuery('leaderboard', () =>
+    axios
+      .get(`/api/league/${league}/${season}/leaderboard`)
+      .then((res) => res.data)
   );
   if (isLoading)
     return (

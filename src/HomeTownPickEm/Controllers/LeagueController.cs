@@ -1,3 +1,5 @@
+using HomeTownPickEm.Application.Leaderboard;
+using HomeTownPickEm.Application.Leaderboard.Queries;
 using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Leagues.Commands;
 using HomeTownPickEm.Application.Leagues.Queries;
@@ -15,6 +17,12 @@ namespace HomeTownPickEm.Controllers
             var league = await Mediator.Send(command);
 
             return CreatedAtAction("GetLeague", league);
+        }
+
+        [HttpGet("{LeagueSlug}/{Season}/leaderboard")]
+        public async Task<ActionResult<LeaderBoardDto>> Get([FromRoute] GetLeaderboard.Query query)
+        {
+            return Ok(await Mediator.Send(query));
         }
 
         [HttpGet("{slug}/{season}", Name = "GetLeague")]

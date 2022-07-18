@@ -1,9 +1,9 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { Alert, Button, Input } from 'reactstrap';
 import { ErrorMessage, Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
 import useGetTeams from '../../hooks/useGetTeams';
+import { Button } from '@material-ui/core';
 
 const Register = () => {
   const auth = useAuth();
