@@ -1,3 +1,4 @@
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
@@ -25,13 +26,16 @@ namespace HomeTownPickEm.Application.Picks.Commands
             private readonly ApplicationDbContext _context;
             private readonly ILogger<CommandHandler> _logger;
             private readonly IUserAccessor _userAccessor;
+            private readonly ISystemDate _date;
 
             public CommandHandler(ApplicationDbContext context,
                 IUserAccessor userAccessor,
+                ISystemDate date,
                 ILogger<CommandHandler> logger)
             {
                 _context = context;
                 _userAccessor = userAccessor;
+                _date = date;
                 _logger = logger;
             }
 
@@ -104,7 +108,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
             private void GuardAgainstPickPastCutoff(Game game)
             {
                 var cutOffDate = game.StartDate.AddMinutes(-5);
-                var currDate = DateTimeOffset.UtcNow;
+                var currDate = _date.UtcNow;
                 if (currDate > cutOffDate)
                 {
                     throw new BadRequestException(

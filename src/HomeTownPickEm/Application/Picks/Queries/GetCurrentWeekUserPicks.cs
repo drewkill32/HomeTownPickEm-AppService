@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Abstract.Interfaces;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Extensions;
@@ -25,17 +26,19 @@ namespace HomeTownPickEm.Application.Picks.Queries
         {
             private readonly ApplicationDbContext _context;
             private readonly IMapper _mapper;
+            private readonly ISystemDate _date;
 
-            public QueryHandler(ApplicationDbContext context, IMapper mapper)
+            public QueryHandler(ApplicationDbContext context, IMapper mapper, ISystemDate date)
             {
                 _context = context;
                 _mapper = mapper;
+                _date = date;
             }
 
             public async Task<IEnumerable<UserPickCollection>> Handle(Query request,
                 CancellationToken cancellationToken)
             {
-                var date = DateTimeOffset.UtcNow;
+                var date = _date.UtcNow;
 
                 var seasonId =
                     await _context.Season.GetLeagueSeasonId(request.Season, request.LeagueSlug, cancellationToken);

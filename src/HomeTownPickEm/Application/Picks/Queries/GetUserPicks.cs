@@ -1,6 +1,7 @@
 #region
 
 using HomeTownPickEm.Abstract.Interfaces;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
@@ -26,12 +27,14 @@ namespace HomeTownPickEm.Application.Picks.Queries
         public class QueryHandler : IRequestHandler<Query, IEnumerable<GameProjection>>
         {
             private readonly IUserAccessor _accessor;
+            private readonly ISystemDate _date;
             private readonly ApplicationDbContext _context;
 
-            public QueryHandler(ApplicationDbContext context, IUserAccessor accessor)
+            public QueryHandler(ApplicationDbContext context, IUserAccessor accessor, ISystemDate date)
             {
                 _context = context;
                 _accessor = accessor;
+                _date = date;
             }
 
             public async Task<IEnumerable<GameProjection>> Handle(Query request, CancellationToken cancellationToken)
@@ -92,17 +95,18 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         .Where(x => x.Picks.Any())
                         .ToArrayAsync(cancellationToken);
 
-                var (leagueTeamIds, cutoffDate, pickTotals) = await dataTask;
+                var (leagueTeamIds, pickTotals) = await dataTask;
 
                 foreach (var game in games)
                 {
-                    game.CutoffDate = cutoffDate;
+                    game.CutoffDate = game.StartDate.AddMinutes(-5);
                     game.Head2Head = leagueTeamIds.Contains(game.Home.Id) && leagueTeamIds.Contains(game.Away.Id);
-                    if (pickTotals.TryGetValue(game.Id, out var totals))
+                    if (_date.UtcNow > game.CutoffDate && pickTotals.TryGetValue(game.Id, out var totals))
                     {
                         game.Home.PercentPicked = totals.HomePercent;
                         game.Away.PercentPicked = totals.AwayPercent;
                     }
+                 
                 }
 
 
@@ -114,7 +118,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                 return orderedGames;
             }
 
-            private async Task<(int[] TeamIds, DateTimeOffset? CutoffDate, Dictionary<int, PickTotalDto> PickTotals)>
+            private async Task<(int[] TeamIds, Dictionary<int, PickTotalDto> PickTotals)>
                 GetReleatedData(Query request,
                     int seasonId,
                     CancellationToken cancellationToken)
@@ -130,7 +134,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         .SingleAsync(cancellationToken);
 
 
-                var pickTotals = DateTimeOffset.UtcNow >= cutoffDate
+                var pickTotals = _date.UtcNow >= cutoffDate
                     ? await _context.Pick.Where(x =>
                             x.Game.Week == request.Week && x.SeasonId == seasonId &&
                             x.SelectedTeamId != null)
@@ -151,7 +155,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         .ToDictionaryAsync(dto => dto.GameId, dto => dto, cancellationToken)
                     : new Dictionary<int, PickTotalDto>();
 
-                return (leagueTeamIds, cutoffDate, pickTotals);
+                return (leagueTeamIds, pickTotals);
             }
         }
     }

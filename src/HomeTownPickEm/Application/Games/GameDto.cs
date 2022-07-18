@@ -1,4 +1,4 @@
-using System;
+using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Teams;
 using HomeTownPickEm.Models;
 
@@ -24,7 +24,7 @@ namespace HomeTownPickEm.Application.Games
         }
     }
 
-    public class GameDto
+    public class GameDto : IMapFrom<Game>
     {
         public int Id { get; set; }
 
@@ -46,8 +46,7 @@ namespace HomeTownPickEm.Application.Games
         public int? AwayPoints { get; set; }
 
 
-        public bool GameFinal => HomePoints.HasValue && AwayPoints.HasValue;
-
+        public bool GameFinal { get; set; }
 
         public TeamDto Winner
         {

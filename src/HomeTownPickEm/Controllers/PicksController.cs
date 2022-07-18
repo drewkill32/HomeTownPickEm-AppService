@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Commands;
 using HomeTownPickEm.Application.Picks.Queries;
@@ -18,21 +16,21 @@ namespace HomeTownPickEm.Controllers
             return Ok(userPicks);
         }
 
-        [HttpGet("{leagueSlug}")]
+        [HttpGet("{leagueSlug}/{Season}")]
         public async Task<ActionResult<PicksCollection>> GetPicks([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
-        [HttpGet("{leagueSlug}/{userId}")]
+        [HttpGet("{leagueSlug}/{Season}/{userId}")]
         public async Task<ActionResult<PicksCollection>> GetPicksByUser([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);
             return Ok(picks);
         }
 
-        [HttpGet("{leagueSlug}/{userId}/week/{week}")]
+        [HttpGet("{leagueSlug}/{Season}/{userId}/week/{week}")]
         public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);

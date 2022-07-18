@@ -148,6 +148,15 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddSingleton(BackgroundWorkerQueue.Instance);
         builder.Services.AddHostedService<BackgroundWorker>();
 
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddSingleton<ISystemDate, DevSystemDate>();
+        }
+        else
+        {
+            builder.Services.AddTransient<ISystemDate, SystemDate>();
+        }
+
         return builder;
     }
 
