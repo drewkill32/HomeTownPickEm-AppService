@@ -1,6 +1,6 @@
 import { ErrorMessage, Formik } from 'formik';
-import { useHistory, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../features/authentication';
 import { Button } from '@mui/material';
 
 // The main responsibility of this component is to handle the user's login process.
@@ -10,7 +10,7 @@ import { Button } from '@mui/material';
 const Login = ({ action }) => {
   const auth = useAuth();
   const { state } = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [submitError, setSubmitError] = React.useState(null);
 
   const email = state && state.email ? state.email : '';
@@ -43,7 +43,7 @@ const Login = ({ action }) => {
               password: password,
             });
             console.log('Login successful');
-            history.push('/', {
+            navigate('/', {
               login: true,
             });
           } catch (error) {

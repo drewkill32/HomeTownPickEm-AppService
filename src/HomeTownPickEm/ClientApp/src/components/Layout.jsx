@@ -1,10 +1,11 @@
+import { Container } from '@mui/material';
 import NavMenu from './NavMenu';
 
 const Layout = ({ children }) => {
   return (
     <div>
       <NavMenu />
-      <div>{children}</div>
+      <Container>{children}</Container>
     </div>
   );
 };

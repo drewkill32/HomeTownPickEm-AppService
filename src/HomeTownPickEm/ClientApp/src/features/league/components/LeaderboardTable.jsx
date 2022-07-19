@@ -8,7 +8,6 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import LeaderboardItem from './LeaderboardItem';
 
 const LeaderboardTable = ({ ranks }) => {
   return (
@@ -38,7 +37,6 @@ const LeaderboardTable = ({ ranks }) => {
               {rank.totalPoints}
             </ListItemSecondaryAction>
           </ListItem>
-          // <LeaderboardItem key={index} rank={rank} />
         ))}
       </List>
     </Container>

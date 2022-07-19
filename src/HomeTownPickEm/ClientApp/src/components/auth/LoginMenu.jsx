@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../features/authentication';
 
 const AuthenticatedView = ({ user }) => {
   return (

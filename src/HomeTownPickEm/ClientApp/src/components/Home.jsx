@@ -1,18 +1,12 @@
-import React from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { Redirect } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import Layout from './Layout';
 
 const Home = () => {
-  const { user } = useAuth();
-
-  if (user) {
-    if (user.leagues.length == 1) {
-      const [league, season] = user.leagues[0].split(':');
-      return <Redirect to={`/${league}/${season}/leaderboard`} />;
-    }
-    //todo: navigate to league selection page
-  }
-  return <Redirect to="/login" />;
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 };
 
 export default Home;

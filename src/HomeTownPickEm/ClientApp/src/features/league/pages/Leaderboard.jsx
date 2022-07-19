@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import LeaderboardTable from '../components/leaderboard/LeaderboardTable';
+import LeaderboardTable from '../components/LeaderboardTable';
 import { useParams } from 'react-router-dom';
 
 const Leaderboard = () => {

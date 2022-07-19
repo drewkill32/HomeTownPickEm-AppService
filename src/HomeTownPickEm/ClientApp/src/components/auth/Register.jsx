@@ -1,13 +1,12 @@
-import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../features/authentication/contexts/AuthProvider.tsx';
 import { ErrorMessage, Formik } from 'formik';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useGetTeams from '../../hooks/useGetTeams';
 import { Button } from '@mui/material';
 
 const Register = () => {
   const auth = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { data: teams } = useGetTeams();
 
   return (
@@ -64,7 +63,7 @@ const Register = () => {
               lastName: values.lastName,
               teamId: teamId,
             });
-            history.push('/login', {
+            navigate('/login', {
               email: values.email,
             });
           } catch (error) {

@@ -1,25 +1,25 @@
-import { useHistory, useLocation } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useNavigate, useLocation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 export const useWeek = () => {
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   var params = new URLSearchParams(location.search);
-  let week = params.get("week");
+  let week = params.get('week');
 
   if (week) {
-    Cookies.set("currWeek", week, { expires: 180 });
+    Cookies.set('currWeek', week, { expires: 180 });
   } else {
-    week = Cookies.get("currWeek");
+    week = Cookies.get('currWeek');
     if (week) {
-      history.push({
+      navigate({
         pathname: location.pathname,
-        search: "?week=" + week,
+        search: '?week=' + week,
       });
     } else {
-      history.push({
+      navigate({
         pathname: location.pathname,
-        search: "?week=1",
+        search: '?week=1',
       });
     }
   }

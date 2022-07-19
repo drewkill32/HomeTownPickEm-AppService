@@ -9,7 +9,21 @@ const getUserCookie = () => {
   return null;
 };
 
-const setUserCookie = (user) => {
+export interface User {
+  token: string;
+  leagues: [string];
+}
+
+export interface AuthContextProps {
+  user: User | null;
+  signIn: (userName: string, password: string) => Promise<User | null>;
+  signOut: () => void;
+  register: (user: User) => Promise<User | null>;
+  forgotPassword: (email: string) => Promise<void>;
+  getToken: () => string | null;
+}
+
+const setUserCookie = (user: User | null) => {
   if (user) {
     Cookies.set('user', JSON.stringify(user), { expires: 30 });
   } else {
@@ -17,11 +31,20 @@ const setUserCookie = (user) => {
   }
 };
 
+const AuthContext = createContext<AuthContextProps>({
+  user: null,
+  signIn: () => Promise.resolve(null),
+  signOut: () => {},
+  register: () => Promise.resolve(null),
+  forgotPassword: () => Promise.resolve(),
+  getToken: () => null,
+});
+
 export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-const register = async (user) => {
+const register = async (user: User) => {
   try {
     var response = await fetch('api/user/register', {
       method: 'POST',
@@ -38,10 +61,10 @@ const register = async (user) => {
     throw error;
   }
 };
-const useProviderAuth = () => {
-  const [user, setUser] = React.useState(getUserCookie());
+const useProviderAuth = (): AuthContextProps => {
+  const [user, setUser] = React.useState<User | null>(getUserCookie());
 
-  const signIn = async ({ email, password }) => {
+  const signIn = async (email: string, password: string) => {
     try {
       var response = await fetch('api/user/login', {
         method: 'POST',
@@ -80,19 +103,15 @@ const useProviderAuth = () => {
     signOut: signOut,
     register: register,
     getToken: getToken,
+    forgotPassword: (email: string) => Promise.resolve(),
   };
 };
 
-export const AuthContext = createContext({
-  user: null,
-  signIn: () => Promise.resolve(null),
-  signOut: () => {},
-  register: () => Promise.resolve(null),
-  forgotPassword: () => Promise.resolve(),
-  getToken: () => {},
-});
+interface AuthProviderProps {
+  children: JSX.Element;
+}
 
-export const ProviderAuth = ({ children }) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const auth = useProviderAuth();
 
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;

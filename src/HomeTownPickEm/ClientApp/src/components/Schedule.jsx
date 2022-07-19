@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { useHistory } from 'react-router';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useWeek } from '../hooks/useWeek';
 import { makeStyles } from '@mui/styles';
 import { Card, Divider, IconButton, Typography } from '@mui/material';
@@ -43,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Schedule = () => {
   const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const week = useWeek();
 
@@ -64,12 +63,12 @@ const Schedule = () => {
 
   const handleClick = (direction) => {
     if (direction === 'next') {
-      history.push({
+      navigate({
         pathname: pathname,
         search: `?week=${parseInt(week, 10) + 1}`,
       });
     } else {
-      history.push({
+      navigate({
         pathname: pathname,
         search: `?week=${parseInt(week, 10) - 1}`,
       });

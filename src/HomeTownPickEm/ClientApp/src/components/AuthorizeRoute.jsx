@@ -1,24 +1,14 @@
-import React from "react";
-import {Redirect, Route} from "react-router-dom";
-import {useAuth} from "../hooks/useAuth";
+import React from 'react';
+import { Navigate, Route, useLocation } from 'react-router-dom';
+import { useAuth } from '../features/authentication';
 
-const AuthorizeRoute = ({component, path, ...rest}) => {
-    const {user} = useAuth();
-
-    const Component = component;
-
-    return (
-        <Route
-            {...rest}
-            render={(props) => {
-                if (user) {
-                    return <Component {...props} />;
-                } else {
-                    return <Redirect to="/login"/>;
-                }
-            }}
-        />
-    );
+const AuthorizeRoute = ({ children }) => {
+  const { user } = useAuth();
+  let location = useLocation();
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return children;
 };
 
 export default AuthorizeRoute;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
-import { useAuth } from './useAuth';
+import { useAuth } from '../features/authentication';
 import { useWeek } from './useWeek';
 
 export const useMakePick = () => {
