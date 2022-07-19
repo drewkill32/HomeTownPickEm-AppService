@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const getUserCookie = () => {
   const userJson = Cookies.get('user');
@@ -12,6 +13,15 @@ const getUserCookie = () => {
 export interface User {
   token: string;
   leagues: [string];
+  firstName: string;
+  lastName: string;
+  team: {
+    school: string;
+    mascot: string;
+    color: string;
+    abbreviation: string;
+    logo: string;
+  };
 }
 
 export interface AuthContextProps {
@@ -46,17 +56,8 @@ export const useAuth = () => {
 
 const register = async (user: User) => {
   try {
-    var response = await fetch('api/user/register', {
-      method: 'POST',
-      body: JSON.stringify(user),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.status === 201) {
-      return await response.json();
-    }
-    throw new Error('Error creating user');
+    var res = await axios.post('api/user/register', user);
+    return res.data;
   } catch (error) {
     throw error;
   }
@@ -66,20 +67,14 @@ const useProviderAuth = (): AuthContextProps => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      var response = await fetch('api/user/login', {
-        method: 'POST',
-        body: JSON.stringify({ email: email, password: password }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      var res = await axios.post('api/user/login', {
+        email: email,
+        password: password,
       });
-      if (response.status === 200) {
-        const user = await response.json();
-        setUserCookie(user);
-        setUser(user);
-        return user;
-      }
-      throw new Error('Error logging in user');
+      var user = res.data as User;
+      setUserCookie(user);
+      setUser(user);
+      return user;
     } catch (error) {
       throw error;
     }

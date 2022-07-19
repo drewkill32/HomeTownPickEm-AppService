@@ -1,6 +1,5 @@
-import React from 'react';
 import useSchedule from '../hooks/useSchedule';
-import {useWeek} from '../hooks/useWeek';
+import { useWeek } from '../hooks/useWeek';
 import Schedule from './Schedule';
 import isAfter from 'date-fns/isAfter';
 import Callout from './Callout';
@@ -29,7 +28,7 @@ const WeeklyStats = () => {
     return (
       <div>
         <Schedule />
-        {isPastCutoff() ? <UserPicksHome/> : <Callout/>}
+        {isPastCutoff() ? <UserPicksHome /> : <Callout />}
       </div>
     );
   }

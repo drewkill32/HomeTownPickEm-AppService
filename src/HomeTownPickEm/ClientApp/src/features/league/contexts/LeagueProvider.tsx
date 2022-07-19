@@ -6,12 +6,12 @@ export interface League {
   season: string;
 }
 
-const leagueContext = createContext<
+const LeagueContext = createContext<
   [League | null, (league: League | null) => void]
 >([null, () => {}]);
 
 export const useLeague = () => {
-  return useContext(leagueContext);
+  return useContext(LeagueContext);
 };
 
 type Props = {
@@ -22,8 +22,8 @@ export function LeagueProvider({ children }: Props) {
   const [league, setLeague] = useLocalStorage<League>('league', null);
 
   return (
-    <leagueContext.Provider value={[league, setLeague]}>
+    <LeagueContext.Provider value={[league, setLeague]}>
       {children}
-    </leagueContext.Provider>
+    </LeagueContext.Provider>
   );
 }

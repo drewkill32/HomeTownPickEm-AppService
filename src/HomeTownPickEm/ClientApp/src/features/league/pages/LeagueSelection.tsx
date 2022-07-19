@@ -3,7 +3,6 @@ import { useAuth } from '../../authentication';
 import { useLeague } from '../contexts/LeagueProvider';
 
 export const LeagueSelection = () => {
-  const [league, setLeague] = useLeague();
   let location = useLocation();
   const { user } = useAuth();
   if (!user) {
@@ -17,7 +16,9 @@ export const LeagueSelection = () => {
     );
   }
   if (user.leagues.length === 1) {
+    const [league, season] = user.leagues[0].split(':');
+    return <Navigate to={`/league/${league}/${season}`} />;
   }
-  return <div>LeagueSelection</div>;
+  return <div>Under Construction Select league</div>;
 };
 export default LeagueSelection;

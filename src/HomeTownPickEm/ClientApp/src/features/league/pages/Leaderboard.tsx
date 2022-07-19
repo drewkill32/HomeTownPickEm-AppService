@@ -4,7 +4,8 @@ import LeaderboardTable from '../components/LeaderboardTable';
 import { useParams } from 'react-router-dom';
 
 const Leaderboard = () => {
-  let { league, season } = useParams();
+  const { league, season } = useParams();
+
   const { isLoading, data, isSuccess } = useQuery('leaderboard', () =>
     axios
       .get(`/api/league/${league}/${season}/leaderboard`)
