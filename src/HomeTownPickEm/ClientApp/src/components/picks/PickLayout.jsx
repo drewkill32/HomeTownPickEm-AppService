@@ -1,4 +1,3 @@
-import React from 'react';
 import { Divider, Paper, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
