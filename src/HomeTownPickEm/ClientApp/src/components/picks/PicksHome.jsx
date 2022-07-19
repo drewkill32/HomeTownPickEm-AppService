@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { CircularProgress, Container, LinearProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { withStyles } from '@material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import useGetPicks from '../../hooks/useGetPicks';
 import PickLayout from './PickLayout';
 import Schedule from '../Schedule';
