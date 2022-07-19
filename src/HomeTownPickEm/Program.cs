@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +17,9 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddRazorPages();
+
+builder.Services.AddCors(ctx => ctx.AddDefaultPolicy(ply =>
+    ply.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.AddIdentity();
 
@@ -36,6 +38,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
+    app.UseCors();
 
 }
 else
@@ -76,7 +79,8 @@ app.UseSpa(spa =>
 
     if (app.Environment.IsDevelopment())
     {
-        spa.UseReactDevelopmentServer(npmScript: "start");
+        var spaUrl = app.Configuration.GetValue("Spa:Url", "http://localhost:3000");
+        spa.UseProxyToSpaDevelopmentServer(spaUrl);
     }
 });
 
