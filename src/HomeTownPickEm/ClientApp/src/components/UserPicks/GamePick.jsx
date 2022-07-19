@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { Divider, Grid, Paper, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import CheckCircleOutlineRoundedIcon from '@material-ui/icons/CheckCircleOutlineRounded';
-import HighlightOffRoundedIcon from '@material-ui/icons/HighlightOffRounded';
-import RadioButtonCheckedOutlinedIcon from '@material-ui/icons/RadioButtonCheckedOutlined';
-import { green, grey, red } from '@material-ui/core/colors';
+import { Divider, Grid, Paper, Typography } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import RadioButtonCheckedOutlinedIcon from '@mui/icons-material/RadioButtonCheckedOutlined';
+import { green, grey, red } from '@mui/material/colors';
 
 const useStyles = makeStyles((theme) => ({
   small: {

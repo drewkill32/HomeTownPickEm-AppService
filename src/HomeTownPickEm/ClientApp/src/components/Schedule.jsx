@@ -4,10 +4,10 @@ import { useQuery } from 'react-query';
 import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { useWeek } from '../hooks/useWeek';
-import { makeStyles } from '@material-ui/core/styles';
-import { Card, Divider, IconButton, Typography } from '@material-ui/core';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import { makeStyles } from '@mui/styles';
+import { Card, Divider, IconButton, Typography } from '@mui/material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import format from 'date-fns/format';
 
 const useStyles = makeStyles((theme) => ({
@@ -90,6 +90,7 @@ const Schedule = () => {
           disabled={status === 'loading' || week <= 1}
           onClick={() => handleClick('prev')}
           color="primary"
+          size="large"
         >
           <ArrowBackIosIcon />
         </IconButton>
@@ -107,6 +108,7 @@ const Schedule = () => {
           disabled={status === 'loading' || week >= maxWeek}
           onClick={() => handleClick('next')}
           color="primary"
+          size="large"
         >
           <ArrowForwardIosIcon />
         </IconButton>

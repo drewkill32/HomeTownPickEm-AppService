@@ -1,7 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import { createTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
+import {
+  createTheme,
+  CssBaseline,
+  ThemeProvider,
+  StyledEngineProvider,
+} from '@mui/material';
 import App from './App';
 
 import { setupAxios } from './utils/agent';
@@ -9,16 +14,18 @@ import { setupAxios } from './utils/agent';
 setupAxios();
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
-const rootElement = document.getElementById('root');
 
 const theme = createTheme();
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
   <BrowserRouter basename={baseUrl}>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  </BrowserRouter>,
-  rootElement
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </StyledEngineProvider>
+  </BrowserRouter>
 );

@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { ErrorMessage, Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
 import useGetTeams from '../../hooks/useGetTeams';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 
 const Register = () => {
   const auth = useAuth();

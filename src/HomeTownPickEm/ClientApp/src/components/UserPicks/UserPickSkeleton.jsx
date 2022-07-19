@@ -1,8 +1,8 @@
 import React from 'react';
-import { Accordion, AccordionSummary } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { Skeleton } from '@material-ui/lab';
+import { Accordion, AccordionSummary } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Skeleton } from '@mui/lab';
 
 const useStyles = makeStyles((theme) => ({
   small: {
@@ -38,7 +38,7 @@ const UserSkeleton = () => {
           <Skeleton
             animation="wave"
             className={classes.small}
-            variant="circle"
+            variant="circular"
           />
           <Skeleton className={classes.root} />
         </div>

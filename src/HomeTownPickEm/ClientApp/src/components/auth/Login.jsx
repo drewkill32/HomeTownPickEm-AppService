@@ -2,7 +2,7 @@ import React from 'react';
 import { ErrorMessage, Formik } from 'formik';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 
 // The main responsibility of this component is to handle the user's login process.
 // This is the starting point for the login process. Any component that needs to authenticate
