@@ -71,7 +71,7 @@ const Login = () => {
           letterSpacing: '.3rem',
           color: 'primary.contrastText',
           textDecoration: 'none',
-          mb: 6,
+          mb: 2,
         }}
       >
         St. Pete Pick'em
