@@ -49,16 +49,15 @@ namespace HomeTownPickEm.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserDto>> Login(Login.Query query)
+        public async Task<ActionResult<TokenUserDto>> Login(Login.Query query)
         {
             return await Mediator.Send(query);
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserDto>> Register(Register.Command command)
+        public async Task<ActionResult<TokenUserDto>> Register(Register.Command command)
         {
-            command.SeasonId = new[] { 1 };
             var user = await Mediator.Send(command);
             return new ObjectResult(user)
             {
@@ -74,22 +73,30 @@ namespace HomeTownPickEm.Controllers
             return Ok();
         }
 
-
-        [HttpPost("unsafelyresetpassword")]
+        [HttpPost("verifyresetpassword")]
         [AllowAnonymous]
-        public async Task<ActionResult> UnsafelyResetPassword(UnSafelyResetPassword.Command command)
+        public async Task<ActionResult<UserDto>> VerifyResetPassword(VerifyPasswordReset.Command command)
+        {
+            var user = await Mediator.Send(command);
+            return Ok(user);
+        }
+
+        [HttpPost("verifyemail")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserDto>> VerifyEmail(VerifyEmail.Command command)
         {
             await Mediator.Send(command);
-            return Ok();
+            return NoContent();
         }
+        
 
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUser.Command command)
         {
             command.Id = id;
-            var users = await Mediator.Send(command);
+            var user = await Mediator.Send(command);
 
-            return Ok(users);
+            return Ok(user);
         }
     }
 }

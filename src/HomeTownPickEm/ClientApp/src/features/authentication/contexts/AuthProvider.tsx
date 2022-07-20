@@ -1,14 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import Cookies from 'js-cookie';
-import axios from 'axios';
-
-const getUserCookie = () => {
-  const userJson = Cookies.get('user');
-  if (userJson) {
-    return JSON.parse(userJson);
-  }
-  return null;
-};
+import axios, { AxiosResponse } from 'axios';
+import useLocalStorage from '../../../hooks/useLocalStorage';
 
 export interface User {
   token: string;
@@ -23,30 +15,36 @@ export interface User {
     logo: string;
   };
 }
+interface ForgotPasswordProps {
+  email: string;
+  password: string;
+  code: string;
+}
+
+interface RegisterProps {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}
 
 export interface AuthContextProps {
   user: User | null;
   signIn: (userName: string, password: string) => Promise<User | null>;
   signOut: () => void;
-  register: (user: User) => Promise<User | null>;
+  register: (user: RegisterProps) => Promise<AxiosResponse<any> | null>;
   forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (email: ForgotPasswordProps) => Promise<void>;
   getToken: () => string | null;
 }
-
-const setUserCookie = (user: User | null) => {
-  if (user) {
-    Cookies.set('user', JSON.stringify(user), { expires: 30 });
-  } else {
-    Cookies.remove('user');
-  }
-};
 
 const AuthContext = createContext<AuthContextProps>({
   user: null,
   signIn: () => Promise.resolve(null),
   signOut: () => {},
-  register: () => Promise.resolve(null),
+  register: () => Promise.resolve<AxiosResponse<any> | null>(null),
   forgotPassword: () => Promise.resolve(),
+  resetPassword: () => Promise.resolve(),
   getToken: () => null,
 });
 
@@ -54,16 +52,23 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-const register = async (user: User) => {
-  try {
-    var res = await axios.post('api/user/register', user);
-    return res.data;
-  } catch (error) {
-    throw error;
-  }
+const register = async (values: RegisterProps) => {
+  var res = await axios.post('api/user/register', values);
+  return res;
 };
+
+const forgotPassword = async (email: string) => {
+  var res = await axios.post('api/user/resetpassword', { email });
+  return res.data;
+};
+
+const resetPassword = async (values: ForgotPasswordProps) => {
+  var res = await axios.post('api/user/verifyresetpassword', values);
+  return res.data;
+};
+
 const useProviderAuth = (): AuthContextProps => {
-  const [user, setUser] = React.useState<User | null>(getUserCookie());
+  const [user, setUser] = useLocalStorage<User>('user', null);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -72,7 +77,6 @@ const useProviderAuth = (): AuthContextProps => {
         password: password,
       });
       var user = res.data as User;
-      setUserCookie(user);
       setUser(user);
       return user;
     } catch (error) {
@@ -88,7 +92,6 @@ const useProviderAuth = (): AuthContextProps => {
   };
 
   const signOut = () => {
-    setUserCookie(null);
     setUser(null);
   };
 
@@ -98,7 +101,8 @@ const useProviderAuth = (): AuthContextProps => {
     signOut: signOut,
     register: register,
     getToken: getToken,
-    forgotPassword: (email: string) => Promise.resolve(),
+    forgotPassword: forgotPassword,
+    resetPassword: resetPassword,
   };
 };
 

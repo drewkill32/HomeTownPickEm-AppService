@@ -19,6 +19,7 @@ namespace HomeTownPickEm.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            
             var client = new SendGridClient(_settings.Key);
             var from = new EmailAddress(_settings.Email);
             var to = new EmailAddress(email);
@@ -31,7 +32,7 @@ namespace HomeTownPickEm.Services
                 _logger.LogError("Error Sending email {Email}. Status {StatusCode}", email, response.StatusCode);
                 throw new HttpRequestException($"Error sending email. Status {response.StatusCode}");
             }
-
+            
             _logger.LogInformation("Successfully sent email to {Email}. Subject: {Subject}", email, subject);
         }
     }

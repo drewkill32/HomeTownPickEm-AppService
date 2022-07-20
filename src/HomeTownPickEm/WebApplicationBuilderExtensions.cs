@@ -12,6 +12,7 @@ using HomeTownPickEm.Services;
 using HomeTownPickEm.Services.Cfbd;
 using HomeTownPickEm.Services.CFBD;
 using HomeTownPickEm.Services.DataSeed;
+using HomeTownPickEm.Services.Dev;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +46,6 @@ public static class WebApplicationBuilderExtensions
         });
         identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
         identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
-
         identityBuilder.AddDefaultTokenProviders();
         return builder;
     }
@@ -120,7 +120,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddScoped<ILeagueServiceFactory, LeagueServiceFactory>();
         builder.Services.Configure<SendGridSettings>(
             builder.Configuration.GetSection(SendGridSettings.SettingsKey));
-        builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+
 
         builder.Services.Configure<CfbdSettings>(
             builder.Configuration.GetSection(CfbdSettings.SettingsKey));
@@ -151,10 +151,12 @@ public static class WebApplicationBuilderExtensions
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddSingleton<ISystemDate, DevSystemDate>();
+            builder.Services.AddSingleton<IEmailSender, DevEmailSender>();
         }
         else
         {
             builder.Services.AddTransient<ISystemDate, SystemDate>();
+            builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
         }
 
         return builder;
@@ -168,3 +170,4 @@ public static class WebApplicationBuilderExtensions
                 retryAttempt)));
     }
 }
+

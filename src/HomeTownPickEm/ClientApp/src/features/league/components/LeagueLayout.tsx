@@ -14,20 +14,26 @@ import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import { useAuth } from '../../authentication';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const settings = [
-  { name: 'Profile', path: '/profile' },
-  { name: 'Leagues', path: '/league-selection' },
-  { name: 'Logout', path: '/logout' },
-];
-
 const LeagueLayout = ({ children }: { children: JSX.Element }) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { league, season } = useParams();
   const navigate = useNavigate();
 
   const pages = [
     { name: 'Leaderboard', path: `/league/${league}/${season}` },
     { name: 'Picks', path: `/league/${league}/${season}/weekly-picks` },
+  ];
+
+  const settings = [
+    { name: 'Profile', path: '/profile' },
+    { name: 'Leagues', path: '/league-selection' },
+    {
+      name: 'Logout',
+      onClick: () => {
+        signOut();
+        navigate('/login');
+      },
+    },
   ];
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
@@ -177,7 +183,14 @@ const LeagueLayout = ({ children }: { children: JSX.Element }) => {
                 {settings.map((setting) => (
                   <MenuItem
                     key={setting.name}
-                    onClick={() => navigate(setting.path)}
+                    onClick={() => {
+                      if (setting.path) {
+                        navigate(setting.path);
+                      }
+                      if (typeof setting.onClick === 'function') {
+                        setting.onClick();
+                      }
+                    }}
                   >
                     <Typography textAlign="center">{setting.name}</Typography>
                   </MenuItem>

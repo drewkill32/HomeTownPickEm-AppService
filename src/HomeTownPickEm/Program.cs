@@ -18,8 +18,12 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddRazorPages();
 
-builder.Services.AddCors(ctx => ctx.AddDefaultPolicy(ply =>
-    ply.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000");
+builder.Services.AddCors(ctx =>
+{
+    ctx.AddDefaultPolicy(ply =>
+        ply.WithOrigins(spaUrl).AllowAnyHeader().AllowAnyMethod());
+});
 
 builder.AddIdentity();
 
@@ -38,13 +42,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
-    app.UseCors();
-
 }
 else
 {
     app.UseHttpsRedirection();
 }
+
+app.UseCors();
 
 
 app.UseStaticFiles();
@@ -79,7 +83,6 @@ app.UseSpa(spa =>
 
     if (app.Environment.IsDevelopment())
     {
-        var spaUrl = app.Configuration.GetValue("Spa:Url", "http://localhost:3000");
         spa.UseProxyToSpaDevelopmentServer(spaUrl);
     }
 });

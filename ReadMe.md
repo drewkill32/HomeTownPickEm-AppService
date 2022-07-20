@@ -5,9 +5,9 @@
 - [x] update dotnet
 - [x] update npm/node
 - [x] Connect to Football API
-- [ ] check endpoints
+- [x] check endpoints
 - [ ] add seq
-- [ ] Update MUI
+- [x] Update MUI
 - [ ] change look of picks screen
 - [ ] enlarge font size
 - [ ] use user principal

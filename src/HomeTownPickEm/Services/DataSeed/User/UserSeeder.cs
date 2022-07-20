@@ -33,20 +33,20 @@ namespace HomeTownPickEm.Services.DataSeed.User
                     .Select(x => x.Id)
                     .SingleOrDefaultAsync(cancellationToken);
 
-                if (seasonId != default)
-                {
-                    registerUserCommand.SeasonId = new[] { seasonId };
-                }
+                //TODO: Add Season Command
 
                 var teamName = _config.GetSection("User")["Team"]?.ToLower();
-                var team = await _context.Teams
-                    .OrderBy(x => x.Id)
-                    .FirstOrDefaultAsync(x => x.School.ToLower().Contains(teamName),
-                        cancellationToken);
-                if (team != null)
-                {
-                    registerUserCommand.TeamId = team.Id;
-                }
+                //TODO: Add Team Command
+                // var team = await _context.Teams
+                //     .OrderBy(x => x.Id)
+                //     .FirstOrDefaultAsync(x => x.School.ToLower().Contains(teamName),
+                //         cancellationToken);
+                //
+                //
+                // if (team != null)
+                // {
+                //     registerUserCommand.TeamId = team.Id;
+                // }
 
                 await _mediator.Send(registerUserCommand, cancellationToken);
             }

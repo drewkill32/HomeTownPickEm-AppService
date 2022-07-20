@@ -19,7 +19,9 @@ public class DevController : ApiControllerBase
         devDateTime.SetNow(date);
         return Ok(new
         {
-            date = date.ToString()
+            UTCDate = date.ToString(),
+            LocalDate = date.ToLocalTime().ToString(),
+            Offset = date.Offset.ToString()
         });
     }
 }

@@ -1,9 +1,11 @@
-using System.Threading;
-using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
@@ -35,16 +37,24 @@ namespace HomeTownPickEm.Application.Users.Commands
         public class CommandHandler : IRequestHandler<Command, UserDto>
         {
             private readonly UserManager<ApplicationUser> _userManager;
+            private readonly ApplicationDbContext _context;
+            private readonly IMapper _mapper;
 
 
-            public CommandHandler(UserManager<ApplicationUser> userManager)
+            public CommandHandler(UserManager<ApplicationUser> userManager, ApplicationDbContext context,
+                IMapper mapper)
             {
                 _userManager = userManager;
+                _context = context;
+                _mapper = mapper;
             }
 
             public async Task<UserDto> Handle(Command request, CancellationToken cancellationToken)
             {
-                return await _userManager.CreateUserAsync(request);
+                var user = await _userManager.CreateUserAsync(request);
+                return await _context.Users.Where(x => x.Id == user.Id)
+                    .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync(cancellationToken);
             }
         }
     }

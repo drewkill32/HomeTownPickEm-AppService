@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
 export default function useLocalStorage<T>(
   key: string,
@@ -6,7 +6,9 @@ export default function useLocalStorage<T>(
 ): [T, (value: T | null) => void] {
   const [value, setValue] = useState(() => {
     const jsonValue = localStorage.getItem(key);
-    if (jsonValue != null) return JSON.parse(jsonValue);
+    if (jsonValue != null) {
+      return JSON.parse(jsonValue) as T;
+    }
     return initialValue as T;
   });
 

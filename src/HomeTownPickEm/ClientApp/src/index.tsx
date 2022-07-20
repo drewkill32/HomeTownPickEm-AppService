@@ -22,6 +22,23 @@ const theme = createTheme({
       default: '#f6f6f6',
     },
   },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          paddingBottom: '1.05rem',
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          marginTop: 0,
+          height: 0,
+        },
+      },
+    },
+  },
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);

@@ -12,7 +12,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 {
     public class Login
     {
-        public class Query : IRequest<UserDto>
+        public class Query : IRequest<TokenUserDto>
         {
             public string Email { get; set; }
 
@@ -20,7 +20,7 @@ namespace HomeTownPickEm.Application.Users.Commands
         }
 
 
-        public class Handler : IRequestHandler<Query, UserDto>
+        public class Handler : IRequestHandler<Query, TokenUserDto>
         {
             private readonly ApplicationDbContext _context;
             private readonly IJwtGenerator _jwtGenerator;
@@ -44,7 +44,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _logger = logger;
             }
 
-            public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<TokenUserDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 var user = await _userManager.FindByEmailAsync(request.Email);
 

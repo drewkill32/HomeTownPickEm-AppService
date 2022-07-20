@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Models;
 using Microsoft.AspNetCore.Identity;
@@ -11,13 +6,14 @@ namespace HomeTownPickEm.Extensions
 {
     public static class UserManagerExtensions
     {
-        public static async Task<UserDto> CreateUserAsync(this UserManager<ApplicationUser> userManager,
+        public static async Task<ApplicationUser> CreateUserAsync(this UserManager<ApplicationUser> userManager,
             AddUser.Command user)
         {
             return (await CreateUsersAsync(userManager, new[] { user })).SingleOrDefault();
         }
 
-        public static async Task<IEnumerable<UserDto>> CreateUsersAsync(this UserManager<ApplicationUser> userManager,
+        public static async Task<IEnumerable<ApplicationUser>> CreateUsersAsync(
+            this UserManager<ApplicationUser> userManager,
             IEnumerable<AddUser.Command> request)
         {
             var users = request.Select(x => x.ToAppUser()).ToArray();
@@ -28,7 +24,7 @@ namespace HomeTownPickEm.Extensions
                 throw new Exception(string.Join(". ", errors.Select(x => x.Description)));
             }
 
-            return users.Select(x => x.ToUserDto());
+            return users;
         }
     }
 }

@@ -1,6 +1,7 @@
 #region
 
 using System.Text;
+using System.Web;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Models;
 using MediatR;
@@ -44,11 +45,12 @@ namespace HomeTownPickEm.Application.Users.Commands
                         request.Email);
                     return Unit.Value;
                 }
-
+                
+                
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var webCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var url =
-                    $"{_context.Request.Scheme}://{_context.Request.Host}/confirmresetpassword?code={webCode}&email={user.Email}";
+                    $"{_context.Request.Scheme}://{_context.Request.Host}/confirm-reset-password?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
 
                 var htmlMessage =
                     $"Click <a href=\"{url}\">here</a> to reset your password. If you did not request a password reset please ignore this email.";
