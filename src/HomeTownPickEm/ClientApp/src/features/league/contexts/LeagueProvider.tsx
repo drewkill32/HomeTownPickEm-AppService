@@ -19,7 +19,7 @@ type Props = {
 };
 
 export function LeagueProvider({ children }: Props) {
-  const [league, setLeague] = useLocalStorage<League>('league', null);
+  const [league, setLeague] = useLocalStorage('league', null);
 
   return (
     <LeagueContext.Provider value={[league, setLeague]}>

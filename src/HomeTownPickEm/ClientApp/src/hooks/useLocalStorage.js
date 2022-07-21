@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react';
 
-type SetStateAction<S> = S | ((prevState: S) => S);
-
-export default function useLocalStorage<T>(
-  key: string,
-  initialValue: T | null
-): [T, (value: T | null) => void] {
-  const [value, setValue] = useState<T>(() => {
+export default function useLocalStorage(key, initialValue) {
+  const [value, setValue] = useState(() => {
     const jsonValue = localStorage.getItem(key);
     if (jsonValue != null) {
       return JSON.parse(jsonValue);
     }
-    return initialValue as T;
+    return initialValue;
   });
 
   useEffect(() => {
@@ -21,6 +16,5 @@ export default function useLocalStorage<T>(
       localStorage.setItem(key, JSON.stringify(value));
     }
   }, [key, value]);
-
-  return [value, setValue];
+  return [value, setValue((value) => value)];
 }
