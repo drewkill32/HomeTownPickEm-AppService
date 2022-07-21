@@ -68,7 +68,7 @@ const resetPassword = async (values: ForgotPasswordProps) => {
 };
 
 const useProviderAuth = (): AuthContextProps => {
-  const [user, setUser] = useLocalStorage('user', null);
+  const [user, setUser] = useLocalStorage<User>('user', null);
 
   const signIn = async (email: string, password: string) => {
     try {
