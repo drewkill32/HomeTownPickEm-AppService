@@ -1,13 +1,7 @@
 # TODO
 
-- [ ] update react/CRA
-- [x] Update Folder structure
-- [x] update dotnet
-- [x] update npm/node
-- [x] Connect to Football API
-- [x] check endpoints
+
 - [ ] add seq
-- [x] Update MUI
 - [ ] change look of picks screen
 - [ ] enlarge font size
 - [ ] use user principal
@@ -18,6 +12,15 @@
 - [ ] use Migration configs for DbContent
 - [ ] Use linq for leaderboard query
 - [ ] use identity server
+
+# Completed Tasks
+- [x] Update MUI
+- [x] update react/CRA
+- [x] Update Folder structure
+- [x] update dotnet
+- [x] update npm/node
+- [x] Connect to Football API
+- [x] check endpoints
 - [x] Get App working again
 - [x] add leaderboard
 - [x] disallow picks when the date passes
