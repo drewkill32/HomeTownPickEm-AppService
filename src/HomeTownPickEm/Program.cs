@@ -18,7 +18,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddRazorPages();
 
-var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000");
+var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000").Split(";");
 builder.Services.AddCors(ctx =>
 {
     ctx.AddDefaultPolicy(ply =>
