@@ -54,15 +54,15 @@ namespace HomeTownPickEm.Application.Users.Commands
                     throw new ForbiddenAccessException();
                 }
 
-                var claims = await _userManager.GetClaimsAsync(user);
                 var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
                 if (result.Succeeded)
                 {
+                    var claims = (await _userManager.GetClaimsAsync(user)).ToArray();
                     var fullUser = await _context.Users
                         .ProjectTo<TokenUserDto>(_mapper.ConfigurationProvider)
                         .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
-                    fullUser.Token = _jwtGenerator.CreateToken(user);
+                    fullUser.Token = _jwtGenerator.CreateToken(user, claims);
                     return fullUser;
                 }
 

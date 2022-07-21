@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using HomeTownPickEm.Models;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HomeTownPickEm.Security
@@ -17,13 +14,18 @@ namespace HomeTownPickEm.Security
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         }
 
-        public string CreateToken(ApplicationUser user)
+        public string CreateToken(ApplicationUser user, params Claim[] additionalClaims)
         {
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.NameId, user.UserName)
+                new(JwtRegisteredClaimNames.NameId, user.UserName),
+                new(JwtRegisteredClaimNames.Email, user.Email),
+                new(JwtRegisteredClaimNames.GivenName, user.Name.First),
+                new(JwtRegisteredClaimNames.FamilyName, user.Name.Last),
+                new("email_verified", user.EmailConfirmed.ToString())
             };
 
+            claims.AddRange(additionalClaims);
             //generate signing credentials
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -44,6 +46,6 @@ namespace HomeTownPickEm.Security
 
     public interface IJwtGenerator
     {
-        string CreateToken(ApplicationUser user);
+        string CreateToken(ApplicationUser user, params Claim[] additionalClaims);
     }
 }

@@ -2,11 +2,12 @@
 
 
 - [ ] add seq
+- [ ] update sendgrid email address
 - [ ] change look of picks screen
+- [ ] email templates
 - [ ] enlarge font size
 - [ ] use user principal
 - [ ] add SSL to site
-- [ ] swap out leagueId to use slug (in progress)
 - [ ] make entity framework queries better (too many includes statements)
 - [ ] use API endpoints
 - [ ] use Migration configs for DbContent
@@ -14,6 +15,7 @@
 - [ ] use identity server
 
 # Completed Tasks
+- [x] swap out leagueId to use slug
 - [x] Update MUI
 - [x] update react/CRA
 - [x] Update Folder structure

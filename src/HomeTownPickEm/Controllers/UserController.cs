@@ -4,6 +4,7 @@ using System.Net;
 using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Application.Users.Queries;
+using HomeTownPickEm.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,12 +32,12 @@ namespace HomeTownPickEm.Controllers
         [HttpGet("{id}", Name = "GetUser")]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get(string id)
         {
-            var users = await Mediator.Send(new GetUser.Query
+            var user = await Mediator.Send(new GetUser.Query
             {
                 Id = id
             });
 
-            return Ok(users);
+            return Ok(user);
         }
 
         [HttpGet("/api/users")]
@@ -52,6 +53,19 @@ namespace HomeTownPickEm.Controllers
         public async Task<ActionResult<TokenUserDto>> Login(Login.Query query)
         {
             return await Mediator.Send(query);
+        }
+
+        [HttpGet("profile")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserDto>> Profile()
+        {
+            var id = HttpContext.RequestServices.GetRequiredService<IUserAccessor>().GetCurrentUsername();
+            var user = await Mediator.Send(new GetUser.Query
+            {
+                Id = id
+            });
+
+            return Ok(user);
         }
 
         [HttpPost("register")]

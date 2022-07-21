@@ -37,18 +37,7 @@ public static class WebApplicationBuilderExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder AddIdentity(this WebApplicationBuilder builder)
-    {
-        var identityBuilder = builder.Services.AddIdentityCore<ApplicationUser>(opt =>
-        {
-            opt.Password.RequireNonAlphanumeric = false;
-            opt.Password.RequiredLength = 4;
-        });
-        identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
-        identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
-        identityBuilder.AddDefaultTokenProviders();
-        return builder;
-    }
+
 
     public static WebApplicationBuilder AddJwt(this WebApplicationBuilder builder)
     {
