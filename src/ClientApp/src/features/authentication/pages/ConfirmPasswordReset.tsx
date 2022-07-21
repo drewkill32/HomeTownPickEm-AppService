@@ -50,7 +50,7 @@ const ConfirmPasswordReset = () => {
         navigate('/');
       } catch (error) {
         var e = RequestError.parse(error);
-        setSubmitError(`Unable create an account. ${e.detail}`);
+        setSubmitError(`Unable create an account. ${e.detail || e.title}`);
       }
     },
   });
@@ -133,7 +133,9 @@ const ConfirmPasswordReset = () => {
           }
         />
         <input type="hidden" name="code" value={formik.values.code} />
-        <Typography color="red">{submitError}</Typography>
+        <Typography textAlign="center" color="red">
+          {submitError}
+        </Typography>
         <Button color="primary" variant="contained" fullWidth type="submit">
           Submit
         </Button>

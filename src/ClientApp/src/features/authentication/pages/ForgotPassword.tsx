@@ -45,11 +45,10 @@ const ForgotPassword = () => {
     onSubmit: async ({ email }) => {
       try {
         await auth.forgotPassword(email);
-        console.log('Reset successful');
         setSubmitted(true);
       } catch (error) {
         var e = RequestError.parse(error);
-        setSubmitError(`Unable create an account. ${e.detail}`);
+        setSubmitError(`Unable to send password reset. ${e.detail || e.title}`);
       }
     },
   });
@@ -137,7 +136,9 @@ const ForgotPassword = () => {
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                 />
-                <Typography color="red">{submitError}</Typography>
+                <Typography textAlign="center" color="red">
+                  {submitError}
+                </Typography>
                 <Button
                   sx={{ maxWidth: '420px' }}
                   color="primary"

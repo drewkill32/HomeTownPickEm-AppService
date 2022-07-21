@@ -15,14 +15,17 @@ import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
 import { RequestError } from '../../../utils/agent';
 
-const validationSchema = yup.object({
+export const validationSchema = yup.object({
   email: yup
     .string()
     .email('Enter a valid email')
     .required('Email is required'),
   password: yup
     .string()
-    .min(8, 'Password should be of minimum 8 characters length')
+    .min(4, 'Password should be of minimum 4 characters length')
+    .matches(/[a-z]+/, 'Password must contain an lower case letter.')
+    .matches(/[A-Z]+/, 'Password must contain an upper case letter.')
+    .matches(/[0-9]+/, 'Password must contain a number.')
     .required('Password is required'),
 });
 
@@ -43,11 +46,15 @@ const Login = () => {
     onSubmit: async ({ email, password }) => {
       try {
         await auth.signIn(email, password);
-        console.log('Login successful');
         navigate('/');
       } catch (error) {
+        console.log({ error });
         var e = RequestError.parse(error);
-        setSubmitError(`Unable create an account. ${e.detail}`);
+        if (e.status === 403) {
+          setSubmitError(`Unable to sign in. email or password is incorrect.`);
+        } else {
+          setSubmitError(`Error logging in. ${e.detail || e.title}`);
+        }
       }
     },
   });
@@ -114,7 +121,9 @@ const Login = () => {
           error={formik.touched.password && Boolean(formik.errors.password)}
           helperText={formik.touched.password && formik.errors.password}
         />
-        <Typography color="red">{submitError}</Typography>
+        <Typography textAlign="center" color="red">
+          {submitError}
+        </Typography>
         <Button
           sx={{ maxWidth: '420px' }}
           color="primary"

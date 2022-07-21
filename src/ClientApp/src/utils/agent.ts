@@ -21,7 +21,7 @@ export const RequestError = z.object({
   type: z.string(),
   title: z.string(),
   status: z.number(),
-  detail: z.string(),
+  detail: z.optional(z.string()),
 });
 
 export type RequestError = z.infer<typeof RequestError>;

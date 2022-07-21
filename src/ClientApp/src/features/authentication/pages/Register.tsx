@@ -69,7 +69,7 @@ const Register = () => {
       title="Create an Account"
       footer={
         <Typography component={RouterLink} to="/login">
-          Login
+          Already have an account?
         </Typography>
       }
     >
@@ -164,7 +164,7 @@ const Register = () => {
           >
             <p>Password must:</p>
             <ul>
-              <li>be at least 4 characters</li>
+              <li>Be at least 4 characters</li>
               <li>Contain at least one lower case letter</li>
               <li>Contain at least one upper case letter</li>
               <li>Contain at least one number</li>
