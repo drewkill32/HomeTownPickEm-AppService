@@ -35,7 +35,7 @@ namespace HomeTownPickEm.Application.Users.Commands
             private readonly UserManager<ApplicationUser> _userManager;
             private readonly IMapper _mapper;
             private readonly IEmailSender _emailSender;
-            private readonly HttpContext? _httpContext;
+            private readonly HttpContext _httpContext;
 
             public Handler(ApplicationDbContext context,
                 ILeagueServiceFactory leagueServiceFactory,

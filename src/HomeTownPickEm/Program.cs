@@ -33,8 +33,6 @@ builder.AddSwagger();
 
 builder.AddServices();
 
-builder.Services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
-
 var app = builder.Build();
 
 
@@ -52,7 +50,6 @@ app.UseCors();
 
 
 app.UseStaticFiles();
-app.UseSpaStaticFiles();
 
 app.UseRouting();
 
@@ -64,7 +61,7 @@ app.UseSwagger();
 app.UseSwaggerUI(opt =>
 {
     opt.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    opt.RoutePrefix = "api";
+    opt.RoutePrefix = "";
 });
 
 
@@ -77,15 +74,6 @@ app.UseEndpoints(endpoints =>
 });
 
 
-app.UseSpa(spa =>
-{
-    spa.Options.SourcePath = "ClientApp";
-
-    if (app.Environment.IsDevelopment())
-    {
-        spa.UseProxyToSpaDevelopmentServer(spaUrl);
-    }
-});
 
 await app.RunStartup();
 
