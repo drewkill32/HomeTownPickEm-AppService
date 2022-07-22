@@ -39,11 +39,8 @@ public class Refresh
             var principal = _tokenService.GetPrincipalFromExpiredToken(request.AccessToken);
             var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var token = await _context.Users
-                .Where(x => x.Id == userId)
-                .Include(x => x.RefreshTokens)
-                .SelectMany(x => x.RefreshTokens)
-                .Where(r => r.Token == request.RefreshToken)
+            var token = await _context.RefreshTokens
+                .Where(x => x.UserId == userId && x.Token == request.RefreshToken)
                 .FirstOrDefaultAsync(cancellationToken);
 
 

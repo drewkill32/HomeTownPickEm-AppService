@@ -268,9 +268,6 @@ namespace HomeTownPickEm.Data.Migrations
                     b.Property<DateTimeOffset>("AddedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTimeOffset>("ExpiryDate")
                         .HasColumnType("TEXT");
 
@@ -287,15 +284,14 @@ namespace HomeTownPickEm.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshToken");
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Season", b =>
@@ -593,13 +589,11 @@ namespace HomeTownPickEm.Data.Migrations
 
             modelBuilder.Entity("HomeTownPickEm.Models.RefreshToken", b =>
                 {
-                    b.HasOne("HomeTownPickEm.Models.ApplicationUser", null)
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("HomeTownPickEm.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -679,11 +673,6 @@ namespace HomeTownPickEm.Data.Migrations
                         .HasForeignKey("TeamsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Game", b =>

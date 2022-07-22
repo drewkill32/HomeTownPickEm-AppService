@@ -48,6 +48,7 @@ namespace HomeTownPickEm.Data
 
             //User
             
+            
             var userNameBuilder = builder.Entity<ApplicationUser>()
                 .OwnsOne(x => x.Name)
                 .ToTable("AspNetUsers");
@@ -64,9 +65,10 @@ namespace HomeTownPickEm.Data
             builder.Entity<RefreshToken>()
                 .HasOne(x => x.User)
                 .WithMany()
-                .HasForeignKey(x => x.UserId);
-
-            builder.Entity<RefreshToken>().ToTable("RefreshToken");
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+            
             
             //Team
             builder.Entity<Team>()
