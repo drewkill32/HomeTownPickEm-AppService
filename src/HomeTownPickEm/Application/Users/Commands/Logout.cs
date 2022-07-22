@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Serialization;
-using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Security;
 using MediatR;
@@ -23,15 +22,13 @@ public class Logout
     {
         private readonly ITokenService _tokenService;
         private readonly ApplicationDbContext _context;
-        private readonly ISystemDate _date;
         private readonly ILogger<Logout> _logger;
 
-        public CommandHandler(ITokenService tokenService, ApplicationDbContext context, ISystemDate date,
+        public CommandHandler(ITokenService tokenService, ApplicationDbContext context,
             ILogger<Logout> logger)
         {
             _tokenService = tokenService;
             _context = context;
-            _date = date;
             _logger = logger;
         }
 
@@ -48,17 +45,20 @@ public class Logout
                 return Unit.Value;
             }
 
-            var userId = principal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var token = await _context.Users
-                .Where(x => x.Id == userId)
-                .Include(x => x.RefreshTokens)
-                .SelectMany(x => x.RefreshTokens)
-                .Where(r => r.Token == request.RefreshToken)
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogError("UserId is empty");
+                return Unit.Value;
+            }
+
+            var token = await _context.RefreshTokens
+                .Where(x => x.UserId == userId && x.Token == request.RefreshToken)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (token != null)
             {
-                _context.Remove(token);
+                _context.RefreshTokens.Remove(token);
                 await _context.SaveChangesAsync(cancellationToken);
             }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { SyntheticEvent } from 'react';
 import { useFormik } from 'formik';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '..';
@@ -14,6 +14,7 @@ import { Box } from '@mui/system';
 import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
 import { RequestError } from '../../../utils/agent';
+import { LoadingButton } from '@mui/lab';
 
 export const validationSchema = yup.object({
   email: yup
@@ -70,12 +71,24 @@ const Login = () => {
           sx={{ textAlign: 'center' }}
         >
           <Grid item xs={12} sm={6}>
-            <Typography component={RouterLink} to="/forgot-password">
+            <Typography
+              component={RouterLink}
+              sx={{
+                pointerEvents: formik.isSubmitting ? 'none' : 'auto',
+              }}
+              to="/forgot-password"
+            >
               Forgot your password?
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography component={RouterLink} to="/register">
+            <Typography
+              component={RouterLink}
+              to="/register"
+              sx={{
+                pointerEvents: formik.isSubmitting ? 'none' : 'auto',
+              }}
+            >
               Create an account
             </Typography>
           </Grid>
@@ -123,15 +136,16 @@ const Login = () => {
         <Typography textAlign="center" color="red">
           {submitError}
         </Typography>
-        <Button
+        <LoadingButton
           sx={{ maxWidth: '420px' }}
           color="primary"
           variant="contained"
           fullWidth
           type="submit"
+          loading={formik.isSubmitting || formik.isValidating}
         >
           Submit
-        </Button>
+        </LoadingButton>
       </Box>
     </AuthLayout>
   );

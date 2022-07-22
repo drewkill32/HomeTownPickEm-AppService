@@ -15,6 +15,8 @@ namespace HomeTownPickEm.Data
             _env = env;
         }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        
         public DbSet<Team> Teams { get; set; }
         public DbSet<Calendar> Calendar { get; set; }
 
@@ -63,6 +65,8 @@ namespace HomeTownPickEm.Data
                 .HasOne(x => x.User)
                 .WithMany()
                 .HasForeignKey(x => x.UserId);
+
+            builder.Entity<RefreshToken>().ToTable("RefreshToken");
             
             //Team
             builder.Entity<Team>()

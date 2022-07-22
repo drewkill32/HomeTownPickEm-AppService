@@ -11,4 +11,5 @@ public class RefreshToken
     public string UserId { get; set; } // Linked to the AspNet Identity User Id
     public ApplicationUser User { get; set; }
     public string IpAddress { get; set; }
+    public string UserAgent { get; set; }
 }

@@ -6,6 +6,7 @@ using HomeTownPickEm.Data;
 using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace HomeTownPickEm.Application.Users.Commands;
 
@@ -36,7 +37,7 @@ public class Refresh
         public async Task<TokenDto> Handle(Command request, CancellationToken cancellationToken)
         {
             var principal = _tokenService.GetPrincipalFromExpiredToken(request.AccessToken);
-            var userId = principal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             var token = await _context.Users
                 .Where(x => x.Id == userId)
@@ -51,7 +52,8 @@ public class Refresh
                 throw new BadRequestException("User or token not found");
             }
 
-            if (token.ExpiryDate <= _date.UtcNow)
+            var tokenId = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+            if (token.ExpiryDate <= _date.UtcNow || token.JwtId != tokenId)
             {
                 throw new BadRequestException("Refresh token is invalid");
             }
