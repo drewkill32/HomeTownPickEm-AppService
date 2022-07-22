@@ -15,9 +15,11 @@ import { useAuth } from '../../authentication';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const LeagueLayout = ({ children }: { children: JSX.Element }) => {
-  const { user, signOut } = useAuth();
+  const { getUser, signOut } = useAuth();
   const { league, season } = useParams();
   const navigate = useNavigate();
+
+  const { data: user } = getUser();
 
   const pages = [
     { name: 'Leaderboard', path: `/league/${league}/${season}` },
@@ -29,8 +31,8 @@ const LeagueLayout = ({ children }: { children: JSX.Element }) => {
     { name: 'Leagues', path: '/league-selection' },
     {
       name: 'Logout',
-      onClick: () => {
-        signOut();
+      onClick: async () => {
+        await signOut();
         navigate('/login');
       },
     },

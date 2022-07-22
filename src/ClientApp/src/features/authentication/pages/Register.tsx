@@ -36,7 +36,7 @@ const validationSchema = yup.object({
 
 const Register = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { register } = useAuth();
   const [submitError, setSubmitError] = useState('');
 
   const formik = useFormik({
@@ -50,7 +50,7 @@ const Register = () => {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        await auth.register({
+        await register({
           email: values.email,
           password: values.password,
           firstName: values.firstName,

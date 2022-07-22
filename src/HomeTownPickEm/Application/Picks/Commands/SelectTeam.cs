@@ -99,7 +99,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
                     if (pick.UserId != user.Id)
                     {
                         _logger.LogError(
-                            $"The user {_userAccessor.GetCurrentUsername()} is not valid of the pick Id: {pick.Id}");
+                            $"The user {_userAccessor.GetCurrentUserId()} is not valid of the pick Id: {pick.Id}");
                         throw new ForbiddenAccessException();
                     }
                 }

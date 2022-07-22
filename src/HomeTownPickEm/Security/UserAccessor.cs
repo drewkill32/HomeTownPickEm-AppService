@@ -1,10 +1,6 @@
-using System.Linq;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace HomeTownPickEm.Security
@@ -20,7 +16,7 @@ namespace HomeTownPickEm.Security
             _userManager = userManager;
         }
 
-        public string GetCurrentUsername()
+        public string GetCurrentUserId()
         {
             var username = _httpContextAccessor.HttpContext?.User?.Claims
                 ?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -30,19 +26,19 @@ namespace HomeTownPickEm.Security
 
         public async Task<ApplicationUser> GetCurrentUserAsync()
         {
-            var userName = GetCurrentUsername();
-            if (string.IsNullOrEmpty(userName))
+            var id = GetCurrentUserId();
+            if (string.IsNullOrEmpty(id))
             {
                 throw new ForbiddenAccessException();
             }
 
-            return await _userManager.FindByNameAsync(userName);
+            return await _userManager.FindByIdAsync(id);
         }
     }
 
     public interface IUserAccessor
     {
-        string GetCurrentUsername();
+        string GetCurrentUserId();
         Task<ApplicationUser> GetCurrentUserAsync();
     }
 }

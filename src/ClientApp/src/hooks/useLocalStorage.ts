@@ -11,10 +11,10 @@ export default function useLocalStorage<T>(
   });
 
   useEffect(() => {
-    if (value === null) {
-      localStorage.removeItem(key);
-    } else {
+    if (value) {
       localStorage.setItem(key, JSON.stringify(value));
+    } else {
+      localStorage.removeItem(key);
     }
   }, [key, value]);
 

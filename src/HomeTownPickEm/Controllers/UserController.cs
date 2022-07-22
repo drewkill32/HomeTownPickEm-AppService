@@ -48,35 +48,63 @@ namespace HomeTownPickEm.Controllers
             return Ok(users);
         }
 
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public async Task<ActionResult<TokenUserDto>> Login(Login.Query query)
-        {
-            return await Mediator.Send(query);
-        }
-
         [HttpGet("profile")]
-        [AllowAnonymous]
         public async Task<ActionResult<UserDto>> Profile()
         {
-            var id = HttpContext.RequestServices.GetRequiredService<IUserAccessor>().GetCurrentUsername();
+            var userId = HttpContext.RequestServices.GetRequiredService<IUserAccessor>().GetCurrentUserId();
             var user = await Mediator.Send(new GetUser.Query
             {
-                Id = id
+                Id = userId
             });
 
             return Ok(user);
         }
 
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TokenDto>> Login(Login.Query query)
+        {
+            return await Mediator.Send(query);
+        }
+
+  
+
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<TokenUserDto>> Register(Register.Command command)
+        public async Task<ActionResult<TokenDto>> Register(Register.Command command)
         {
             var user = await Mediator.Send(command);
             return new ObjectResult(user)
             {
                 StatusCode = (int)HttpStatusCode.Created
             };
+        }
+
+        [HttpPost("validate")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TokenDto>> Validate(Register.Command command)
+        {
+            var user = await Mediator.Send(command);
+            return new ObjectResult(user)
+            {
+                StatusCode = (int)HttpStatusCode.Created
+            };
+        }
+
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TokenDto>> Refresh(Refresh.Command command)
+        {
+            var user = await Mediator.Send(command);
+            return Ok(user);
+        }
+
+        [HttpPost("logout")]
+        [AllowAnonymous]
+        public async Task<ActionResult> Logout(Logout.Command command)
+        {
+            await Mediator.Send(command);
+            return Accepted();
         }
 
         [HttpPost("resetpassword")]

@@ -29,7 +29,7 @@ const ConfirmPasswordReset = () => {
   const navigate = useNavigate();
   const email = searchParams.get('email');
   const code = searchParams.get('code');
-  const auth = useAuth();
+  const { resetPassword } = useAuth();
   const [submitError, setSubmitError] = useState('');
 
   const formik = useFormik({
@@ -42,7 +42,7 @@ const ConfirmPasswordReset = () => {
     validationSchema: validationSchema,
     onSubmit: async ({ email, password, code }) => {
       try {
-        await auth.resetPassword({
+        await resetPassword({
           email,
           password,
           code,

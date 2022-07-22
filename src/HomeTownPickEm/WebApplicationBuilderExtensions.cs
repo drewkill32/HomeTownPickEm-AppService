@@ -6,7 +6,6 @@ using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Common.Behaviors;
 using HomeTownPickEm.Config;
 using HomeTownPickEm.Data;
-using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
 using HomeTownPickEm.Services;
 using HomeTownPickEm.Services.Cfbd;
@@ -16,7 +15,6 @@ using HomeTownPickEm.Services.Dev;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -41,10 +39,9 @@ public static class WebApplicationBuilderExtensions
 
     public static WebApplicationBuilder AddJwt(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IUserAccessor, UserAccessor>();
         builder.Services.AddHostedService<SeederWorkerService>();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey"]));
 
         builder.Services.AddAuthorization(opt =>
         {
@@ -52,15 +49,24 @@ public static class WebApplicationBuilderExtensions
                 .RequireAuthenticatedUser()
                 .Build();
         });
+        var jwtOptions = new JwtOptions();
+        builder.Configuration.GetSection("jwt").Bind(jwtOptions);
+        builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("jwt"));
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
         {
+            opt.SaveToken = true;
             opt.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = false,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidAudience = jwtOptions.Audience,
+                ClockSkew = builder.Environment.IsDevelopment() ? TimeSpan.Zero : TimeSpan.FromMinutes(5),
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = key
+
+
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
             };
         });
 
@@ -159,4 +165,3 @@ public static class WebApplicationBuilderExtensions
                 retryAttempt)));
     }
 }
-

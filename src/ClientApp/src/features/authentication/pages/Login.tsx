@@ -30,10 +30,9 @@ export const validationSchema = yup.object({
 });
 
 const Login = () => {
-  const auth = useAuth();
+  const { signIn } = useAuth();
   const { state } = useLocation();
   //TOOO: navigate back to page that was visited before login
-  //TODO: password validation
   const navigate = useNavigate();
   const [submitError, setSubmitError] = React.useState('');
 
@@ -45,7 +44,7 @@ const Login = () => {
     validationSchema: validationSchema,
     onSubmit: async ({ email, password }) => {
       try {
-        await auth.signIn(email, password);
+        await signIn(email, password);
         navigate('/');
       } catch (error) {
         console.log({ error });

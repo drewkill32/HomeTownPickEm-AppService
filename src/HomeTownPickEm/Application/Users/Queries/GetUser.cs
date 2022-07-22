@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,14 @@ namespace HomeTownPickEm.Application.Users.Queries
             public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 var user = await _context.Users
+                    .Where(x => x.Id == request.Id)
                     .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
-                    .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+                    .SingleOrDefaultAsync(cancellationToken);
 
+                if (user == null)
+                {
+                    throw new NotFoundException($"User {request.Id} not found");
+                }
                 return user;
             }
         }

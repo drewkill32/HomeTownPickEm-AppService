@@ -30,7 +30,7 @@ const validationSchema = yup.object({
 });
 
 const ForgotPassword = () => {
-  const auth = useAuth();
+  const { forgotPassword } = useAuth();
 
   const [submitError, setSubmitError] = React.useState('');
   const [submitted, setSubmitted] = React.useState(false);
@@ -44,7 +44,7 @@ const ForgotPassword = () => {
     validationSchema: validationSchema,
     onSubmit: async ({ email }) => {
       try {
-        await auth.forgotPassword(email);
+        await forgotPassword(email);
         setSubmitted(true);
       } catch (error) {
         var e = RequestError.parse(error);

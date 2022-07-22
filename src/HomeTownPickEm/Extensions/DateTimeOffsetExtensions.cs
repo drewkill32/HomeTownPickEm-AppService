@@ -1,5 +1,3 @@
-using System;
-
 namespace HomeTownPickEm.Extensions
 {
     public static class DateTimeOffsetExtensions
@@ -14,5 +12,6 @@ namespace HomeTownPickEm.Extensions
 
             return new DateTimeOffset(lastThurs.Date.ToUniversalTime());
         }
+        
     }
 }

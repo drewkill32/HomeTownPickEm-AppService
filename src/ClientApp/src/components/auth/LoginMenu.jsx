@@ -55,9 +55,9 @@ const AnonymousView = () => {
 };
 
 const LoginMenu = () => {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <AnonymousView />;
   } else {
     return (

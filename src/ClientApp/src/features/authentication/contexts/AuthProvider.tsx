@@ -1,10 +1,20 @@
 import React, { createContext, useContext } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
+import { RequestError, UserToken } from '../../../utils/agent';
+import { getUnixTime } from 'date-fns';
+import { useLocalQuery } from '../../../hooks/useLocalQuery';
 
 export interface User {
-  token: string;
-  leagues: [string];
+  leagues: [
+    {
+      id: number;
+      name: string;
+      slug: string;
+      years: [string];
+    }
+  ];
   firstName: string;
   lastName: string;
   team: {
@@ -29,23 +39,31 @@ interface RegisterProps {
 }
 
 export interface AuthContextProps {
-  user: User | null;
-  signIn: (userName: string, password: string) => Promise<User | null>;
-  signOut: () => void;
+  getUser: () => UseQueryResult<User, RequestError>;
+  signIn: (userName: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
   register: (user: RegisterProps) => Promise<AxiosResponse<any> | null>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (email: ForgotPasswordProps) => Promise<void>;
   getToken: () => string | null;
+  isAuthenticated: boolean;
 }
 
+const useUser = () => {
+  return useLocalQuery<User>('profile', () =>
+    axios.get('api/user/profile').then((res) => res.data)
+  );
+};
+
 const AuthContext = createContext<AuthContextProps>({
-  user: null,
-  signIn: () => Promise.resolve(null),
-  signOut: () => {},
+  getUser: () => ({} as UseQueryResult<User, RequestError>),
+  signIn: () => Promise.resolve(),
+  signOut: () => Promise.resolve(),
   register: () => Promise.resolve<AxiosResponse<any> | null>(null),
   forgotPassword: () => Promise.resolve(),
   resetPassword: () => Promise.resolve(),
   getToken: () => null,
+  isAuthenticated: false,
 });
 
 export const useAuth = () => {
@@ -68,41 +86,57 @@ const resetPassword = async (values: ForgotPasswordProps) => {
 };
 
 const useProviderAuth = (): AuthContextProps => {
-  const [user, setUser] = useLocalStorage<User>('user', null);
-
+  const [token, setToken] = useLocalStorage<UserToken>('token', null);
+  const queryClient = useQueryClient();
   const signIn = async (email: string, password: string) => {
     try {
       var res = await axios.post('api/user/login', {
         email: email,
         password: password,
       });
-      var user = res.data as User;
-      setUser(user);
-      return user;
+      var t = res.data as UserToken;
+      setToken(t);
     } catch (error) {
       throw error;
     }
   };
 
   const getToken = () => {
-    if (user) {
-      return user.token;
+    if (token) {
+      return token.access_token;
     }
     return null;
   };
 
-  const signOut = () => {
-    setUser(null);
+  const isAuthenticated = token && token.expires_in > getUnixTime(Date.now());
+  console.log({
+    isAuthenticated,
+    token,
+    exp: token?.expires_in,
+    now: getUnixTime(Date.now()),
+  });
+
+  const signOut = async () => {
+    try {
+      await axios.post('/api/user/logout', token);
+    } catch (error) {
+      console.error('Error logging out', error);
+    } finally {
+      setToken(null);
+      queryClient.clear();
+      localStorage.clear();
+    }
   };
 
   return {
-    user,
+    getUser: useUser,
     signIn: signIn,
     signOut: signOut,
     register: register,
     getToken: getToken,
     forgotPassword: forgotPassword,
     resetPassword: resetPassword,
+    isAuthenticated: isAuthenticated,
   };
 };
 

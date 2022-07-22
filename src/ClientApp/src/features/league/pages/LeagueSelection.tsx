@@ -4,8 +4,9 @@ import { useLeague } from '../contexts/LeagueProvider';
 
 export const LeagueSelection = () => {
   let location = useLocation();
-  const { user } = useAuth();
-  if (!user) {
+  const { getUser, isAuthenticated } = useAuth();
+  const { data: user } = getUser();
+  if (!isAuthenticated) {
     return (
       <Navigate
         to="/login"
@@ -15,9 +16,13 @@ export const LeagueSelection = () => {
       />
     );
   }
-  if (user.leagues.length === 1) {
-    const [league, season] = user.leagues[0].split(':');
-    return <Navigate to={`/league/${league}/${season}`} />;
+  if (!user) {
+    return <div>Geting user</div>;
+  }
+  if (user.leagues.length === 1 && user.leagues[0].years.length === 1) {
+    const league = user.leagues[0];
+    const season = league.years[0];
+    return <Navigate to={`/league/${league.slug}/${season}`} />;
   }
   return <div>Under Construction Select league</div>;
 };
