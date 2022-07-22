@@ -4,20 +4,11 @@ import { useLeague } from '../contexts/LeagueProvider';
 
 export const LeagueSelection = () => {
   let location = useLocation();
-  const { getUser, isAuthenticated } = useAuth();
+  const { getUser } = useAuth();
   const { data: user } = getUser();
-  if (!isAuthenticated) {
-    return (
-      <Navigate
-        to="/login"
-        state={{
-          from: location,
-        }}
-      />
-    );
-  }
+
   if (!user) {
-    return <div>Geting user</div>;
+    return null;
   }
   if (user.leagues.length === 1 && user.leagues[0].years.length === 1) {
     const league = user.leagues[0];

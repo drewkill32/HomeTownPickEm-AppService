@@ -1,7 +1,12 @@
 import React, { createContext, useContext } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import useLocalStorage from '../../../hooks/useLocalStorage';
-import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
+import {
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+  UseQueryResult,
+} from 'react-query';
 import { RequestError, UserToken } from '../../../utils/agent';
 import { getUnixTime } from 'date-fns';
 import { useLocalQuery } from '../../../hooks/useLocalQuery';
@@ -39,7 +44,9 @@ interface RegisterProps {
 }
 
 export interface AuthContextProps {
-  getUser: () => UseQueryResult<User, RequestError>;
+  getUser: (
+    options?: UseQueryOptions<User, RequestError>
+  ) => UseQueryResult<User, RequestError>;
   signIn: (userName: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   register: (user: RegisterProps) => Promise<AxiosResponse<any> | null>;
@@ -49,9 +56,14 @@ export interface AuthContextProps {
   isAuthenticated: boolean;
 }
 
-const useUser = () => {
-  return useLocalQuery<User>('profile', () =>
-    axios.get('api/user/profile').then((res) => res.data)
+const useUser = (options?: UseQueryOptions<User, RequestError>) => {
+  return useLocalQuery<User>(
+    'profile',
+    () => axios.get('api/user/profile').then((res) => res.data),
+    {
+      ...options,
+      staleTime: 1000 * 60 * 60,
+    }
   );
 };
 

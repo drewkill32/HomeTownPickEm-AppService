@@ -1,11 +1,19 @@
-import { Box, Button, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Slide,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { useAuth } from '../contexts/AuthProvider';
 import * as yup from 'yup';
 import { RequestError } from '../../../utils/agent';
+import { SwitchTransition } from 'react-transition-group';
 
 const validationSchema = yup.object({
   email: yup
@@ -31,6 +39,8 @@ const ConfirmPasswordReset = () => {
   const code = searchParams.get('code');
   const { resetPassword } = useAuth();
   const [submitError, setSubmitError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const containerRef = useRef(null);
 
   const formik = useFormik({
     initialValues: {
@@ -47,7 +57,7 @@ const ConfirmPasswordReset = () => {
           password,
           code,
         });
-        navigate('/');
+        setSubmitted(true);
       } catch (error) {
         var e = RequestError.parse(error);
         setSubmitError(`Unable create an account. ${e.detail || e.title}`);
@@ -91,54 +101,107 @@ const ConfirmPasswordReset = () => {
           justifyContent: 'center',
           gap: 2,
           width: '100%',
-          maxWidth: '420px',
+          overflow: 'hidden',
+          minHeight: '305px',
         }}
       >
-        <TextField
-          fullWidth
-          id="email"
-          name="email"
-          disabled
-          label="Email"
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          error={formik.touched.email && Boolean(formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-        />
-        <TextField
-          fullWidth
-          id="password"
-          name="password"
-          label="Password"
-          type="password"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          error={formik.touched.password && Boolean(formik.errors.password)}
-          helperText={formik.touched.password && formik.errors.password}
-        />
-        <TextField
-          fullWidth
-          id="confirmPassword"
-          name="confirmPassword"
-          label="Confirm Password"
-          type="confirmPassword"
-          value={formik.values.confirmPassword}
-          onChange={formik.handleChange}
-          error={
-            formik.touched.confirmPassword &&
-            Boolean(formik.errors.confirmPassword)
-          }
-          helperText={
-            formik.touched.confirmPassword && formik.errors.confirmPassword
-          }
-        />
-        <input type="hidden" name="code" value={formik.values.code} />
-        <Typography textAlign="center" color="red">
-          {submitError}
-        </Typography>
-        <Button color="primary" variant="contained" fullWidth type="submit">
-          Submit
-        </Button>
+        <SwitchTransition>
+          <Slide
+            // @ts-ignore - typescript doesn't know about SwitchTransition key
+            key={submitted}
+            in={submitted}
+            direction="left"
+            appear={false}
+            timeout={800}
+            container={containerRef.current}
+            addEndListener={(node, done) => {
+              node.addEventListener('transitionend', done, false);
+            }}
+          >
+            {submitted ? (
+              <Alert
+                severity="success"
+                icon={false}
+                sx={{
+                  textAlign: 'center',
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                }}
+              >
+                <p>You have successfully reset your password</p>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ maxWidth: '420px' }}
+                  onClick={() => navigate('/login')}
+                >
+                  Login
+                </Button>
+              </Alert>
+            ) : (
+              <Box>
+                <TextField
+                  fullWidth
+                  id="email"
+                  name="email"
+                  disabled
+                  label="Email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  error={formik.touched.email && Boolean(formik.errors.email)}
+                  helperText={formik.touched.email && formik.errors.email}
+                />
+                <TextField
+                  fullWidth
+                  id="password"
+                  name="password"
+                  label="Password"
+                  type="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  error={
+                    formik.touched.password && Boolean(formik.errors.password)
+                  }
+                  helperText={formik.touched.password && formik.errors.password}
+                />
+                <TextField
+                  fullWidth
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  type="password"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  error={
+                    formik.touched.confirmPassword &&
+                    Boolean(formik.errors.confirmPassword)
+                  }
+                  helperText={
+                    formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword
+                  }
+                />
+
+                <input type="hidden" name="code" value={formik.values.code} />
+                <Typography textAlign="center" color="red">
+                  {submitError}
+                </Typography>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                >
+                  Submit
+                </Button>
+              </Box>
+            )}
+          </Slide>
+        </SwitchTransition>
       </Box>
     </AuthLayout>
   );

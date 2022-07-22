@@ -1,6 +1,5 @@
 using System.Text;
 using System.Web;
-using AutoMapper;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
@@ -10,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HomeTownPickEm.Application.Users.Commands
 {
@@ -33,10 +33,11 @@ namespace HomeTownPickEm.Application.Users.Commands
             private readonly UserManager<ApplicationUser> _userManager;
             private readonly IEmailSender _emailSender;
             private readonly HttpContext _httpContext;
+            private readonly OriginOptions _opt;
 
             public Handler(ApplicationDbContext context,
                 UserManager<ApplicationUser> userManager,
-                IMapper mapper,
+                IOptions<OriginOptions> originOptions,
                 IEmailSender emailSender,
                 IHttpContextAccessor accessor,
                 ITokenService tokenService)
@@ -46,7 +47,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _tokenService = tokenService;
                 _context = context;
                 _httpContext = accessor.HttpContext;
-
+                _opt = originOptions.Value;
             }
 
             public async Task<TokenDto> Handle(Command request, CancellationToken cancellationToken)
@@ -75,10 +76,13 @@ namespace HomeTownPickEm.Application.Users.Commands
                     throw new BadRequestException(string.Join(". ", result.Errors.Select(x => x.Description)));
                 }
 
+                var origin = _httpContext.Request.Headers["Origin"].ToString();
+                _opt.ValidateOrigin(origin);
+                
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var webCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var url =
-                    $"{_httpContext.Request.Scheme}://{_httpContext.Request.Host}/confirm-email?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
+                    $"{origin}/confirm-email?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
 
                 var htmlMessage =
                     $"Click <a href=\"{url}\">here</a> to confirm your email. If you did not generate this request ignore this email.";

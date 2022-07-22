@@ -123,6 +123,7 @@ const ForgotPassword = () => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: 2,
+                  mt: 2,
                   justifyContent: 'center',
                 }}
               >

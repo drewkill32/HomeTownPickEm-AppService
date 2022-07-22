@@ -4,9 +4,11 @@ using System.Text;
 using System.Web;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 
 #endregion
 
@@ -25,14 +27,17 @@ namespace HomeTownPickEm.Application.Users.Commands
             private readonly IEmailSender _emailSender;
             private readonly ILogger<Handler> _logger;
             private readonly UserManager<ApplicationUser> _userManager;
+            private readonly OriginOptions _opt;
 
             public Handler(UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor,
+                IOptions<OriginOptions> options,
                 IEmailSender emailSender, ILogger<Handler> logger)
             {
                 _userManager = userManager;
                 _context = contextAccessor.HttpContext ?? throw new NullReferenceException("There is no HttpContext");
                 _emailSender = emailSender;
                 _logger = logger;
+                _opt = options.Value;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -45,12 +50,14 @@ namespace HomeTownPickEm.Application.Users.Commands
                         request.Email);
                     return Unit.Value;
                 }
-                
+
+                var origin = _context.Request.Headers["Origin"].ToString();
+                _opt.ValidateOrigin(origin);
                 
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var webCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var url =
-                    $"{_context.Request.Scheme}://{_context.Request.Host}/confirm-reset-password?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
+                    $"{origin}/confirm-reset-password?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
 
                 var htmlMessage =
                     $"Click <a href=\"{url}\">here</a> to reset your password. If you did not request a password reset please ignore this email.";

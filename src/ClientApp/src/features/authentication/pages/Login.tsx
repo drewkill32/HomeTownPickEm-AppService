@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from 'react';
+import React, { SyntheticEvent, useEffect } from 'react';
 import { useFormik } from 'formik';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '..';
@@ -31,11 +31,23 @@ export const validationSchema = yup.object({
 });
 
 const Login = () => {
-  const { signIn } = useAuth();
+  const { signIn, getUser } = useAuth();
   const { state } = useLocation();
   //TOOO: navigate back to page that was visited before login
   const navigate = useNavigate();
   const [submitError, setSubmitError] = React.useState('');
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const { data } = getUser({
+    enabled: submitted,
+  });
+
+  // fetch the profile after login
+  useEffect(() => {
+    if (submitted && data) {
+      navigate('/');
+    }
+  }, [submitted, data]);
 
   const formik = useFormik({
     initialValues: {
@@ -46,7 +58,7 @@ const Login = () => {
     onSubmit: async ({ email, password }) => {
       try {
         await signIn(email, password);
-        navigate('/');
+        setSubmitted(true);
       } catch (error) {
         console.log({ error });
         var e = RequestError.parse(error);

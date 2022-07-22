@@ -1,4 +1,5 @@
-using HomeTownPickEm.Filters;
+﻿using HomeTownPickEm.Filters;
+using HomeTownPickEm.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder.Extensions;
@@ -19,6 +20,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddRazorPages();
 
 var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000").Split(";");
+builder.Services.Configure<OriginOptions>(options => { options.AllowedOrigins = spaUrl; });
 builder.Services.AddCors(ctx =>
 {
     ctx.AddDefaultPolicy(ply =>
