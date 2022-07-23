@@ -4,6 +4,7 @@ using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Leagues.Commands;
 using HomeTownPickEm.Application.Leagues.Queries;
 using HomeTownPickEm.Application.Teams;
+using HomeTownPickEm.Application.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,7 +39,7 @@ namespace HomeTownPickEm.Controllers
             return Ok(league);
         }
 
-        [HttpGet("{leagueSlug}/game/{gameId}")]
+        [HttpGet("{LeagueSlug}/{Season}/game/{gameId}")]
         public async Task<ActionResult<IEnumerable<UserPickResponse>>> GetMemberGamePicks(
             [FromRoute] GetMemberPicksByGame.Query query)
         {
@@ -63,6 +64,13 @@ namespace HomeTownPickEm.Controllers
         {
             await Mediator.Send(command);
             return NoContent();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserLeagueDto>>> GetLeagues()
+        {
+            var leagues = await Mediator.Send(new GetLeagues.Query());
+            return Ok(leagues);
         }
     }
 }

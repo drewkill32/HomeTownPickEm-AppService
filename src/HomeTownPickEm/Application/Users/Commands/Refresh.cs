@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Serialization;
 using HomeTownPickEm.Application.Common;
-using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Security;
 using MediatR;
@@ -26,12 +25,15 @@ public class Refresh
         private readonly ITokenService _tokenService;
         private readonly ApplicationDbContext _context;
         private readonly ISystemDate _date;
+        private readonly ILogger<Refresh> _logger;
 
-        public CommandHandler(ITokenService tokenService, ApplicationDbContext context, ISystemDate date)
+        public CommandHandler(ITokenService tokenService, ApplicationDbContext context, ISystemDate date,
+            ILogger<Refresh> logger)
         {
             _tokenService = tokenService;
             _context = context;
             _date = date;
+            _logger = logger;
         }
 
         public async Task<TokenDto> Handle(Command request, CancellationToken cancellationToken)
@@ -46,17 +48,18 @@ public class Refresh
 
             if (token == null)
             {
-                throw new BadRequestException("User or token not found");
+                throw new UnauthorizedAccessException("User or token not found");
             }
 
             var tokenId = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
             if (token.ExpiryDate <= _date.UtcNow || token.JwtId != tokenId)
             {
-                throw new BadRequestException("Refresh token is invalid");
+                throw new UnauthorizedAccessException("Refresh token is invalid");
             }
 
             var newToken = await _tokenService.GenerateNewTokens(token.UserId, cancellationToken);
-            _context.Remove(token);
+            _logger.LogInformation("Removing token {Token}", token.Token);
+            _context.RefreshTokens.Remove(token);
             await _context.SaveChangesAsync(cancellationToken);
             return newToken;
         }

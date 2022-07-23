@@ -58,6 +58,7 @@ public class Logout
 
             if (token != null)
             {
+                _logger.LogInformation("Removing token {Token}", token.Token);
                 _context.RefreshTokens.Remove(token);
                 await _context.SaveChangesAsync(cancellationToken);
             }

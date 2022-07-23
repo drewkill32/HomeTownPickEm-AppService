@@ -59,7 +59,9 @@ const JwtToken = z.object({
 
 export type RequestError = z.infer<typeof RequestError>;
 
-const fetchNewRefreshToken = async (token: UserToken): Promise<UserToken> => {
+const fetchNewRefreshToken = async (
+  token: UserToken
+): Promise<UserToken | null> => {
   try {
     // use fetch here to avoid using axios infinite loop
     const res = await fetch(`${getUrl()}/api/user/refresh`, {
@@ -72,18 +74,28 @@ const fetchNewRefreshToken = async (token: UserToken): Promise<UserToken> => {
         'Content-Type': 'application/json',
       },
     });
-    const newToken = await res.json();
-    setUserToken(newToken);
-    return UserToken.parse(newToken);
+    if (res.status === 200) {
+      const newToken = await res.json();
+      const t = UserToken.parse(newToken);
+      console.log(
+        `refreshed token: ${token.refresh_token} with token: ${t.refresh_token}`
+      );
+      setUserToken(t);
+      return t;
+    }
+    if (res.status === 401) {
+      console.log(`401 on token: ${token.refresh_token}`);
+      setUserToken(null);
+      window.location.reload();
+    }
+    throw new Error(`${res.status} ${res.statusText}`);
   } catch (error) {
-    console.error('Error getting refresh token', error);
-    localStorage.removeItem('token');
-    window.location.reload();
-    return {} as UserToken; // never reached
+    console.error('Error getting refresh token', { error });
   }
+  return null;
 };
 
-const throttler = new Semaphore<UserToken>();
+const throttler = new Semaphore<UserToken | null>();
 
 export function setupAxios() {
   axios.defaults.baseURL = getUrl();
@@ -98,7 +110,9 @@ export function setupAxios() {
           const newToken = await throttler.callFunction(() =>
             fetchNewRefreshToken({ ...userToken } as UserToken)
           );
-          config.headers.Authorization = `Bearer ${newToken.access_token}`;
+          if (newToken) {
+            config.headers.Authorization = `Bearer ${newToken.access_token}`;
+          }
         } else {
           console.log('using non-expired token');
           config.headers.Authorization = `Bearer ${userToken.access_token}`;
@@ -110,38 +124,26 @@ export function setupAxios() {
   axios.interceptors.response.use(
     (res) => res,
     async (error) => {
-      console.log('error', { error });
-      //if we get a 401, we can try to refresh the token
-      // request failed. maybe the server is down or network error
-      if (!error.response) {
-        if (error.request) {
-          throw {
-            type: 'Request error',
-            title: 'Request error',
-            status: 600,
-            detail: 'The request was made but no response was received.',
-          } as RequestError;
-        }
+      if (error.response && error.response.data) {
+        throw error.response.data as RequestError;
+      }
 
-        //fallback error we have no idea what happened
+      if (error.request) {
         throw {
-          type: 'Unknown error',
-          title: 'Unknown error',
+          type: 'Request error',
+          title: 'Request error',
           status: 600,
-          detail: 'Error settings up a request',
+          detail: 'The request was made but no response was received.',
         } as RequestError;
       }
 
-      if (error.response) {
-        if (error.response.status === 401) {
-          setUserToken(null);
-          window.location.reload();
-          return;
-        }
-        if (error.response.data) {
-          throw error.response.data as RequestError;
-        }
-      }
+      //fallback error we have no idea what happened
+      throw {
+        type: 'Unknown error',
+        title: 'Unknown error',
+        status: 600,
+        detail: 'Error settings up a request',
+      } as RequestError;
     }
   );
 }

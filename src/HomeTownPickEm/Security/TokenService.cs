@@ -4,8 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Users;
+using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -17,6 +19,7 @@ public class TokenService : ITokenService
 {
     private readonly IHostEnvironment _env;
     private readonly ApplicationDbContext _context;
+    private readonly BackgroundWorkerQueue _queue;
     private readonly ISystemDate _date;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly JwtOptions _opt;
@@ -24,10 +27,12 @@ public class TokenService : ITokenService
 
     public TokenService(IOptions<JwtOptions> options, IHostEnvironment env,
         ApplicationDbContext context, IHttpContextAccessor contextAccessor,
+        BackgroundWorkerQueue queue,
         ISystemDate date, UserManager<ApplicationUser> userManager)
     {
         _env = env;
         _context = context;
+        _queue = queue;
         _date = date;
         _userManager = userManager;
         _httpContext = contextAccessor.HttpContext;
@@ -73,7 +78,7 @@ public class TokenService : ITokenService
     {
         var dto = await CreateNewToken(id, cancellationToken);
 
-        await RemoveOldTokens(id, cancellationToken);
+        _queue.Queue(id, new RevokeOldTokens.Command { UserId = id });
         return dto;
     }
 
@@ -112,21 +117,7 @@ public class TokenService : ITokenService
         await _context.SaveChangesAsync(cancellationToken);
         return dto;
     }
-
-    private async Task RemoveOldTokens(string id, CancellationToken cancellationToken)
-    {
-        var tokensToRemove = (await _context.RefreshTokens
-                .Where(y => y.UserId == id)
-                .ToArrayAsync(cancellationToken))
-            .Where(x => x.ExpiryDate < _date.UtcNow.DateTime)
-            .ToArray();
-        ;
-        foreach (var token in tokensToRemove)
-        {
-            _context.Remove(token);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-    }
+    
 
     public string CreateRefreshToken()
     {

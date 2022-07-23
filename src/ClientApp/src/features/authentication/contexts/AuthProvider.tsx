@@ -60,10 +60,7 @@ const useUser = (options?: UseQueryOptions<User, RequestError>) => {
   return useLocalQuery<User>(
     'profile',
     () => axios.get('api/user/profile').then((res) => res.data),
-    {
-      ...options,
-      staleTime: 1000 * 60 * 60,
-    }
+    options
   );
 };
 
