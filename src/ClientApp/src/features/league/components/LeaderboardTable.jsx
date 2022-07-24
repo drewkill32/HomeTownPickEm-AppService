@@ -1,10 +1,7 @@
 import {
-  Avatar,
-  Container,
   Divider,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemSecondaryAction,
   ListItemText,
   Typography,

@@ -1,10 +1,9 @@
+/* eslint-disable no-throw-literal */
 import axios from 'axios';
-import { string } from 'yup';
 import { z } from 'zod';
 import jwt_decode from 'jwt-decode';
 import { getUnixTime } from 'date-fns';
 import Semaphore from './Semaphore';
-import { formControlClasses } from '@mui/material';
 
 const getUrl = () => {
   if (process.env.REACT_APP_API_URL) {
@@ -17,7 +16,7 @@ const getUrl = () => {
   return url + '/';
 };
 
-const getUserToken = (): UserToken | null => {
+const getUserToken = (): UserTokenType | null => {
   const token = localStorage.getItem('token');
   if (token) {
     var result = JSON.parse(token);
@@ -28,7 +27,7 @@ const getUserToken = (): UserToken | null => {
   return null;
 };
 
-const setUserToken = (token: UserToken | null) => {
+const setUserToken = (token: UserTokenType | null) => {
   if (token) {
     var t = UserToken.parse(token);
     localStorage.setItem('token', JSON.stringify(t));
@@ -44,7 +43,7 @@ export const UserToken = z.object({
   refresh_token: z.string(),
 });
 
-export type UserToken = z.infer<typeof UserToken>;
+export type UserTokenType = z.infer<typeof UserToken>;
 
 export const RequestError = z.object({
   type: z.string(),
@@ -57,11 +56,11 @@ const JwtToken = z.object({
   exp: z.number(),
 });
 
-export type RequestError = z.infer<typeof RequestError>;
+export type RequestErrorType = z.infer<typeof RequestError>;
 
 const fetchNewRefreshToken = async (
-  token: UserToken
-): Promise<UserToken | null> => {
+  token: UserTokenType
+): Promise<UserTokenType | null> => {
   try {
     // use fetch here to avoid using axios infinite loop
     const res = await fetch(`${getUrl()}/api/user/refresh`, {
@@ -95,7 +94,7 @@ const fetchNewRefreshToken = async (
   return null;
 };
 
-const throttler = new Semaphore<UserToken | null>();
+const throttler = new Semaphore<UserTokenType | null>();
 
 export function setupAxios() {
   axios.defaults.baseURL = getUrl();
@@ -108,7 +107,7 @@ export function setupAxios() {
         var exp = JwtToken.parse(decoded).exp;
         if (exp <= getUnixTime(new Date())) {
           const newToken = await throttler.callFunction(() =>
-            fetchNewRefreshToken({ ...userToken } as UserToken)
+            fetchNewRefreshToken({ ...userToken } as UserTokenType)
           );
           if (newToken) {
             config.headers.Authorization = `Bearer ${newToken.access_token}`;
@@ -125,7 +124,7 @@ export function setupAxios() {
     (res) => res,
     async (error) => {
       if (error.response && error.response.data) {
-        throw error.response.data as RequestError;
+        throw error.response.data as RequestErrorType;
       }
 
       if (error.request) {
@@ -134,7 +133,7 @@ export function setupAxios() {
           title: 'Request error',
           status: 600,
           detail: 'The request was made but no response was received.',
-        } as RequestError;
+        } as RequestErrorType;
       }
 
       //fallback error we have no idea what happened
@@ -143,7 +142,7 @@ export function setupAxios() {
         title: 'Unknown error',
         status: 600,
         detail: 'Error settings up a request',
-      } as RequestError;
+      } as RequestErrorType;
     }
   );
 }

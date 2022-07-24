@@ -1,20 +1,20 @@
-import React, { SyntheticEvent, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useFormik } from 'formik';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '..';
-import {
-  Button,
-  Divider,
-  Grid,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Grid, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
 import { RequestError } from '../../../utils/agent';
 import { LoadingButton } from '@mui/lab';
+
+import { z } from 'zod';
+import { useLeague } from '../../league';
+
+const LocState = z.object({
+  from: z.optional(z.string()),
+});
 
 export const validationSchema = yup.object({
   email: yup
@@ -32,8 +32,9 @@ export const validationSchema = yup.object({
 
 const Login = () => {
   const { signIn, getUser } = useAuth();
+  const [league] = useLeague();
+
   const { state } = useLocation();
-  //TOOO: navigate back to page that was visited before login
   const navigate = useNavigate();
   const [submitError, setSubmitError] = React.useState('');
   const [submitted, setSubmitted] = React.useState(false);
@@ -45,9 +46,19 @@ const Login = () => {
   // fetch the profile after login
   useEffect(() => {
     if (submitted && data) {
+      //navigate back to page that was visited before login
+      const from = LocState.parse(state || {}).from;
+      if (from) {
+        navigate(from);
+        return;
+      }
+      if (league) {
+        navigate(`/league/${league.slug}/${league.season}`);
+        return;
+      }
       navigate('/');
     }
-  }, [submitted, data]);
+  }, [submitted, data, league, navigate, state]);
 
   const formik = useFormik({
     initialValues: {

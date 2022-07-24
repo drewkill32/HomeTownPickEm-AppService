@@ -1,13 +1,12 @@
-import axios from 'axios';
 import { useQuery, UseQueryOptions } from 'react-query';
-import { RequestError } from '../utils/agent';
+import { RequestErrorType } from '../utils/agent';
 
 export function useLocalQuery<T>(
   queryKey: string,
   queryFnc: () => Promise<T>,
-  options?: UseQueryOptions<T, RequestError>
+  options?: UseQueryOptions<T, RequestErrorType>
 ) {
-  return useQuery<T, RequestError>(queryKey, queryFnc, {
+  return useQuery<T, RequestErrorType>(queryKey, queryFnc, {
     ...options,
     initialData: () => {
       //get from local storage

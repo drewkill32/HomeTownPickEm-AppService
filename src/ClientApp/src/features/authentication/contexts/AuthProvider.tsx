@@ -1,13 +1,8 @@
 import React, { createContext, useContext } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import useLocalStorage from '../../../hooks/useLocalStorage';
-import {
-  useQuery,
-  useQueryClient,
-  UseQueryOptions,
-  UseQueryResult,
-} from 'react-query';
-import { RequestError, UserToken } from '../../../utils/agent';
+import { useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
+import { RequestErrorType, UserTokenType } from '../../../utils/agent';
 import { getUnixTime } from 'date-fns';
 import { useLocalQuery } from '../../../hooks/useLocalQuery';
 
@@ -45,8 +40,8 @@ interface RegisterProps {
 
 export interface AuthContextProps {
   getUser: (
-    options?: UseQueryOptions<User, RequestError>
-  ) => UseQueryResult<User, RequestError>;
+    options?: UseQueryOptions<User, RequestErrorType>
+  ) => UseQueryResult<User, RequestErrorType>;
   signIn: (userName: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   register: (user: RegisterProps) => Promise<AxiosResponse<any> | null>;
@@ -56,7 +51,7 @@ export interface AuthContextProps {
   isAuthenticated: boolean;
 }
 
-const useUser = (options?: UseQueryOptions<User, RequestError>) => {
+const useUser = (options?: UseQueryOptions<User, RequestErrorType>) => {
   return useLocalQuery<User>(
     'profile',
     () => axios.get('api/user/profile').then((res) => res.data),
@@ -65,7 +60,7 @@ const useUser = (options?: UseQueryOptions<User, RequestError>) => {
 };
 
 const AuthContext = createContext<AuthContextProps>({
-  getUser: () => ({} as UseQueryResult<User, RequestError>),
+  getUser: () => ({} as UseQueryResult<User, RequestErrorType>),
   signIn: () => Promise.resolve(),
   signOut: () => Promise.resolve(),
   register: () => Promise.resolve<AxiosResponse<any> | null>(null),
@@ -95,7 +90,7 @@ const resetPassword = async (values: ForgotPasswordProps) => {
 };
 
 const useProviderAuth = (): AuthContextProps => {
-  const [token, setToken] = useLocalStorage<UserToken>('token', null);
+  const [token, setToken] = useLocalStorage<UserTokenType>('token', null);
   const queryClient = useQueryClient();
   const signIn = async (email: string, password: string) => {
     try {
@@ -103,7 +98,7 @@ const useProviderAuth = (): AuthContextProps => {
         email: email,
         password: password,
       });
-      var t = res.data as UserToken;
+      var t = res.data as UserTokenType;
       setToken(t);
     } catch (error) {
       throw error;

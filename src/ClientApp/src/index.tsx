@@ -14,8 +14,6 @@ import { setupAxios } from './utils/agent';
 
 setupAxios();
 
-const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
-
 const theme = createTheme({
   palette: {
     background: {

@@ -4,9 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../';
 import {
   Button,
-  Divider,
   Grid,
-  Stack,
   TextField,
   Typography,
   Slide,
@@ -15,7 +13,6 @@ import {
 
 import { SwitchTransition } from 'react-transition-group';
 import { Box } from '@mui/system';
-import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
 import { RequestError } from '../../../utils/agent';

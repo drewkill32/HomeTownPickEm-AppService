@@ -2,6 +2,8 @@ import { createContext, useContext } from 'react';
 import useLocalStorage from '../../../hooks/useLocalStorage';
 
 export interface League {
+  id: number;
+  name: string;
   slug: string;
   season: string;
 }
