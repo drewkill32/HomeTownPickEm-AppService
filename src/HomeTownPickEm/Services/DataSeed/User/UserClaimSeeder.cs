@@ -1,13 +1,10 @@
-using System.Linq;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Exceptions;
+using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace HomeTownPickEm.Services.DataSeed.User
 {
@@ -15,10 +12,13 @@ namespace HomeTownPickEm.Services.DataSeed.User
     {
         private readonly IConfiguration _config;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UserClaimSeeder(UserManager<ApplicationUser> userManager, IConfiguration config)
+        public UserClaimSeeder(UserManager<ApplicationUser> userManager, ApplicationDbContext context,
+            IConfiguration config)
         {
             _userManager = userManager;
+            _context = context;
             _config = config;
         }
 
@@ -37,6 +37,16 @@ namespace HomeTownPickEm.Services.DataSeed.User
             {
                 await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
             }
+
+            var leagueIds = await _context.League.Select(x => x.Id).ToArrayAsync(cancellationToken);
+            foreach (var id in leagueIds)
+            {
+                if (!claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "Admin"))
+                {
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, $"Commissioner:{id}"));
+                }
+            }
+            
         }
     }
 }
