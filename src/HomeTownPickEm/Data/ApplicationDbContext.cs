@@ -6,14 +6,12 @@ namespace HomeTownPickEm.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        private readonly IWebHostEnvironment _env;
-
-        public ApplicationDbContext(IWebHostEnvironment env,
-            DbContextOptions<ApplicationDbContext> options
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         ) : base(options)
         {
-            _env = env;
+           
         }
+        
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         
@@ -29,17 +27,7 @@ namespace HomeTownPickEm.Data
         public DbSet<Pick> Pick { get; set; }
 
         public DbSet<Game> Games { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            if (_env.IsDevelopment())
-            {
-                optionsBuilder.EnableSensitiveDataLogging();
-            }
-
-            base.OnConfiguring(optionsBuilder);
-        }
+        
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -111,6 +99,13 @@ namespace HomeTownPickEm.Data
                 .WithMany(y => y.Seasons);
 
             //Pick
+            builder.Entity<Pick>()
+                .HasKey(x => x.Id);
+
+            builder.Entity<Pick>()
+                .Property(x => x.Id)
+                .ValueGeneratedOnAdd();
+            
             builder.Entity<Pick>()
                 .HasOne(x => x.Season)
                 .WithMany(x => x.Picks)

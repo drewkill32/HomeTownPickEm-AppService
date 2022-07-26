@@ -29,7 +29,9 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder AddDbContext(this WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .EnableSensitiveDataLogging(builder.Environment.IsDevelopment()));
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         return builder;

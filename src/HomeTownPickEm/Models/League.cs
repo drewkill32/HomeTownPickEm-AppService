@@ -36,6 +36,9 @@ namespace HomeTownPickEm.Models
 
         public string Slug { get; set; }
 
+        public string ImageUrl { get; set; }
+        
+
         public ICollection<Season> Seasons { get; set; }
         
     }

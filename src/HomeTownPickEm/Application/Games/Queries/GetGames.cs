@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Services;
@@ -35,7 +31,7 @@ namespace HomeTownPickEm.Application.Games.Queries
             {
                 var games = await _context.Games
                     .Where(x => x.Season == request.Season)
-                    .WhereTeamIs(request.TeamId)
+                    .WhereTeamIsPlaying(request.TeamId)
                     .WhereWeekIs(request.Week)
                     .Include(x => x.Away)
                     .Include(x => x.Home)

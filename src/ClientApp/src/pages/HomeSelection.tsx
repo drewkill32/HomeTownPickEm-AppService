@@ -3,8 +3,7 @@ import { useAuth } from '../features/authentication';
 import { useLeague } from '../features/league';
 
 const HomeSelection = () => {
-  const { getUser } = useAuth();
-  const { data: user } = getUser();
+  const { user } = useAuth();
   const [league] = useLeague();
 
   if (!user) {

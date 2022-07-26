@@ -20,6 +20,30 @@ namespace HomeTownPickEm.Controllers
             return CreatedAtAction("GetLeague", league);
         }
 
+        [HttpGet("settings/{LeagueId}")]
+        public async Task<ActionResult<LeagueSettingsDto>> GetLeagueSettings([FromRoute] GetLeagueSettings.Query query)
+        {
+            var leagueSettings = await Mediator.Send(query);
+
+            return Ok(leagueSettings);
+        }
+
+        [HttpGet("user")]
+        public async Task<ActionResult<IEnumerable<UserLeagueDto>>> GetUserLeagues()
+        {
+            var leagues = await Mediator.Send(new GetUserLeagues.Query());
+
+            return Ok(leagues);
+        }
+
+        [HttpPost("new-season")]
+        public async Task<IActionResult> CreateSeason(AddSeason.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status201Created);
+        }
+
+
         [HttpGet("{LeagueSlug}/{Season}/leaderboard")]
         public async Task<ActionResult<LeaderBoardDto>> Get([FromRoute] GetLeaderboard.Query query)
         {
@@ -67,9 +91,9 @@ namespace HomeTownPickEm.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserLeagueDto>>> GetLeagues()
+        public async Task<ActionResult<IEnumerable<UserLeagueDto>>> GetLeagues([FromQuery] GetLeagues.Query query)
         {
-            var leagues = await Mediator.Send(new GetLeagues.Query());
+            var leagues = await Mediator.Send(query);
             return Ok(leagues);
         }
     }

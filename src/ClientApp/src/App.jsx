@@ -17,8 +17,10 @@ import {
   LeagueIndex,
   LeagueProvider,
   LeagueHome,
+  LeagueAdmin,
 } from './features/league';
 import WeeklyStats from './components/WeeklyStats';
+import { ProfilePage } from './features/profile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,9 +38,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />}>
               <Route index element={<LeagueHome />} />
+              <Route path="profile" element={<ProfilePage />} />
               <Route path="league/:league/:season" element={<LeagueIndex />}>
                 <Route index element={<Leaderboard />}></Route>
                 <Route path="weekly-stats" element={<WeeklyStats />} />
+                <Route path="admin" element={<LeagueAdmin />} />
               </Route>
             </Route>
             <Route path="/register" element={<Register />} />

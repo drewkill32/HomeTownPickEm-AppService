@@ -29,6 +29,8 @@ namespace HomeTownPickEm.Application.Users
         public int Id { get; set; }
         public string Name { get; set; }
         public string Slug { get; set; }
+
+        public string ImageUrl { get; set; }
         public IEnumerable<string> Years { get; set; }
 
         public void Mapping(Profile profile)
@@ -48,6 +50,8 @@ namespace HomeTownPickEm.Application.Users
         public string FirstName { get; set; }
 
         public IEnumerable<UserLeagueDto> Leagues { get; set; }
+
+        public IEnumerable<string> Roles { get; set; }
 
 
         public virtual void Mapping(Profile profile)

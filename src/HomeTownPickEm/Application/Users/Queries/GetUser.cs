@@ -1,8 +1,11 @@
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Models;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Users.Queries
@@ -18,11 +21,13 @@ namespace HomeTownPickEm.Application.Users.Queries
         {
             private readonly ApplicationDbContext _context;
             private readonly IMapper _mapper;
+            private readonly UserManager<ApplicationUser> _userManager;
 
-            public QueryHandler(ApplicationDbContext context, IMapper mapper)
+            public QueryHandler(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager)
             {
                 _context = context;
                 _mapper = mapper;
+                _userManager = userManager;
             }
 
             public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
@@ -32,6 +37,15 @@ namespace HomeTownPickEm.Application.Users.Queries
                     .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
                     .SingleOrDefaultAsync(cancellationToken);
 
+
+                user.Roles = (await _userManager.GetClaimsAsync(new ApplicationUser
+                    {
+                        Id = user.Id
+                    })).Where(c => c.Type == ClaimTypes.Role)
+                    .Select(c => c.Value.ToLower())
+                    .ToArray();
+                
+                
                 if (user == null)
                 {
                     throw new NotFoundException($"User {request.Id} not found");

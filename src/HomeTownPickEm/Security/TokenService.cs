@@ -62,8 +62,8 @@ public class TokenService : ITokenService
             Audience = _opt.Audience,
             Issuer = _opt.Issuer,
             Subject = new ClaimsIdentity(claims),
-            Expires = _env.IsDevelopment()
-                ? DateTime.UtcNow.AddSeconds(10)
+            Expires = _opt.Expiration.HasValue
+                ? DateTime.UtcNow.Add(_opt.Expiration.Value)
                 : DateTime.UtcNow.AddMinutes(15),
             SigningCredentials = creds,
             IssuedAt = _date.UtcNow.DateTime
@@ -92,7 +92,9 @@ public class TokenService : ITokenService
         var claims = (await _userManager.GetClaimsAsync(user)).ToArray();
 
 
-        var expiryDate = DateTimeOffset.UtcNow.AddMonths(6);
+        var expiryDate = _opt.RefreshExpiration.HasValue
+            ? DateTimeOffset.UtcNow.Add(_opt.RefreshExpiration.Value)
+            : DateTimeOffset.UtcNow.AddMonths(6);
 
         var (jwtId, accessToken) = CreateToken(user, claims);
         var dto = new TokenDto

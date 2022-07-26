@@ -22,8 +22,15 @@ public class BackgroundWorkerQueue : IDisposable
         await _semaphore.WaitAsync(cancellationToken);
         _keyQueue.TryDequeue(out var key);
         _queue.TryGetValue(key, out var request);
-        await process(request, cancellationToken);
-        _queue.TryRemove(key, out _);
+        try
+        {
+            await process(request, cancellationToken);
+        }
+        finally
+        {
+            _queue.TryRemove(key, out _);
+        }
+        
     }
 
     public bool Queue(string key, IRequest request)

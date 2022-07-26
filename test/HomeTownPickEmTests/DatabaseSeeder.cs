@@ -11,17 +11,7 @@ namespace HomeTownPickEm
 {
     public static class DatabaseSeeder
     {
-        public static TEntity GetRandom<TEntity>(this IQueryable<TEntity> query) where TEntity : class
-        {
-            return query.GetRandom(1).FirstOrDefault();
-        }
-
-        public static IEnumerable<TEntity> GetRandom<TEntity>(this IQueryable<TEntity> dbSet, int take)
-            where TEntity : class
-        {
-            return dbSet.AsNoTracking().OrderBy(x => Guid.NewGuid()).Take(take);
-        }
-
+       
         public static void SeedGames(ApplicationDbContext context)
         {
             var gameJson = GetResource("Games.json");

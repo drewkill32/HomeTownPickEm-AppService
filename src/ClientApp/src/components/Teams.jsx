@@ -40,9 +40,10 @@ const TeamsTable = ({ teams }) => {
 const Teams = () => {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { getToken } = useAuth();
+  const { token: getToken } = useAuth();
   useEffect(() => {
     populateTeams();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const populateTeams = async () => {

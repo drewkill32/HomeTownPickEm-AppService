@@ -12,7 +12,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { useAuth } from '../contexts/AuthProvider';
 import * as yup from 'yup';
-import { RequestError } from '../../../utils/agent';
+import { RequestError } from '../../../zod';
 import { SwitchTransition } from 'react-transition-group';
 
 const validationSchema = yup.object({

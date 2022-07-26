@@ -5,11 +5,15 @@ const LeagueLayout = ({ children }: { children: JSX.Element }) => {
   const { league, season } = useParams();
 
   const pages = [
-    { name: 'Leagues', path: '/home' },
+    { name: 'Leagues', path: '/' },
     { name: 'Leaderboard', path: `/league/${league}/${season}` },
-    { name: 'Picks', path: `/league/${league}/${season}/weekly-picks` },
+    { name: 'Picks', path: `/league/${league}/${season}/weekly-stats` },
   ];
 
-  return <MainLayout pages={pages}>{children}</MainLayout>;
+  return (
+    <MainLayout pages={pages} header={season}>
+      {children}
+    </MainLayout>
+  );
 };
 export default LeagueLayout;

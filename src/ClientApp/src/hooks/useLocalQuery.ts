@@ -1,18 +1,23 @@
 import { useQuery, UseQueryOptions } from 'react-query';
-import { RequestErrorType } from '../utils/agent';
+import { RequestErrorType } from '../zod';
 
 export function useLocalQuery<T>(
   queryKey: string,
   queryFnc: () => Promise<T>,
-  options?: UseQueryOptions<T, RequestErrorType>
+  options?: UseQueryOptions<T, RequestErrorType>,
+  postProcessor?: (data: any) => T
 ) {
   return useQuery<T, RequestErrorType>(queryKey, queryFnc, {
     ...options,
     initialData: () => {
       //get from local storage
-      var user = localStorage.getItem(queryKey);
-      if (user) {
-        return JSON.parse(user);
+      const data = localStorage.getItem(queryKey);
+      if (data) {
+        const json = JSON.parse(data);
+        if (postProcessor) {
+          return postProcessor(json);
+        }
+        return json;
       }
     },
     onSuccess: (data) => {

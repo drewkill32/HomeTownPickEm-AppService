@@ -5,6 +5,7 @@ export interface League {
   id: number;
   name: string;
   slug: string;
+  imageUrl: string;
   season: string;
 }
 

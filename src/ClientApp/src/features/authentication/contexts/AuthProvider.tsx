@@ -1,30 +1,12 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import useLocalStorage from '../../../hooks/useLocalStorage';
-import { useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
-import { RequestErrorType, UserTokenType } from '../../../utils/agent';
+import { useQueryClient } from 'react-query';
+import { JwtTokenType, User, UserTokenType } from '../../../models';
+import { JwtToken } from '../../../zod';
 import { getUnixTime } from 'date-fns';
-import { useLocalQuery } from '../../../hooks/useLocalQuery';
+import jwt_decode from 'jwt-decode';
 
-export interface User {
-  leagues: [
-    {
-      id: number;
-      name: string;
-      slug: string;
-      years: [string];
-    }
-  ];
-  firstName: string;
-  lastName: string;
-  team: {
-    school: string;
-    mascot: string;
-    color: string;
-    abbreviation: string;
-    logo: string;
-  };
-}
 interface ForgotPasswordProps {
   email: string;
   password: string;
@@ -39,34 +21,24 @@ interface RegisterProps {
 }
 
 export interface AuthContextProps {
-  getUser: (
-    options?: UseQueryOptions<User, RequestErrorType>
-  ) => UseQueryResult<User, RequestErrorType>;
+  user: User | null;
   signIn: (userName: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   register: (user: RegisterProps) => Promise<AxiosResponse<any> | null>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (email: ForgotPasswordProps) => Promise<void>;
-  getToken: () => string | null;
+  token: { token: string; decoded: JwtTokenType } | null;
   isAuthenticated: boolean;
 }
 
-const useUser = (options?: UseQueryOptions<User, RequestErrorType>) => {
-  return useLocalQuery<User>(
-    'profile',
-    () => axios.get('api/user/profile').then((res) => res.data),
-    options
-  );
-};
-
 const AuthContext = createContext<AuthContextProps>({
-  getUser: () => ({} as UseQueryResult<User, RequestErrorType>),
+  user: null,
   signIn: () => Promise.resolve(),
   signOut: () => Promise.resolve(),
   register: () => Promise.resolve<AxiosResponse<any> | null>(null),
   forgotPassword: () => Promise.resolve(),
   resetPassword: () => Promise.resolve(),
-  getToken: () => null,
+  token: null,
   isAuthenticated: false,
 });
 
@@ -75,12 +47,11 @@ export const useAuth = () => {
 };
 
 const register = async (values: RegisterProps) => {
-  var res = await axios.post('api/user/register', values);
-  return res;
+  return await axios.post('api/user/register', values);
 };
 
 const forgotPassword = async (email: string) => {
-  var res = await axios.post('api/user/resetpassword', { email });
+  const res = await axios.post('api/user/resetpassword', { email });
   return res.data;
 };
 
@@ -91,7 +62,9 @@ const resetPassword = async (values: ForgotPasswordProps) => {
 
 const useProviderAuth = (): AuthContextProps => {
   const [token, setToken] = useLocalStorage<UserTokenType>('token', null);
+  const [user, setUser] = useLocalStorage<User>('profile', null);
   const queryClient = useQueryClient();
+
   const signIn = async (email: string, password: string) => {
     try {
       var res = await axios.post('api/user/login', {
@@ -99,26 +72,32 @@ const useProviderAuth = (): AuthContextProps => {
         password: password,
       });
       var t = res.data as UserTokenType;
+      const user = await axios
+        .get('api/user/profile', {
+          headers: {
+            Authorization: `Bearer ${t.access_token}`,
+          },
+        })
+        .then((res) => res.data as User);
       setToken(t);
+      setUser(user);
     } catch (error) {
       throw error;
     }
   };
 
-  const getToken = () => {
+  const getToken = useMemo(() => {
     if (token) {
-      return token.access_token;
+      var decoded = jwt_decode(token.access_token);
+      return {
+        token: token.access_token,
+        decoded: JwtToken.parse(decoded),
+      };
     }
     return null;
-  };
+  }, [token]);
 
   const isAuthenticated = token && token.expires_in > getUnixTime(Date.now());
-  console.log({
-    isAuthenticated,
-    token,
-    exp: token?.expires_in,
-    now: getUnixTime(Date.now()),
-  });
 
   const signOut = async () => {
     try {
@@ -127,17 +106,18 @@ const useProviderAuth = (): AuthContextProps => {
       console.error('Error logging out', error);
     } finally {
       setToken(null);
+      setUser(null);
       queryClient.clear();
       localStorage.clear();
     }
   };
 
   return {
-    getUser: useUser,
+    user: user,
     signIn: signIn,
     signOut: signOut,
     register: register,
-    getToken: getToken,
+    token: getToken,
     forgotPassword: forgotPassword,
     resetPassword: resetPassword,
     isAuthenticated: isAuthenticated,

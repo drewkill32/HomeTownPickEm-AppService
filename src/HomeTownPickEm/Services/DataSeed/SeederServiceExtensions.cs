@@ -1,8 +1,8 @@
 #region
 
 using HomeTownPickEm.Abstract.Interfaces;
+using HomeTownPickEm.Data;
 using HomeTownPickEm.Services.DataSeed.User;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 #endregion
@@ -16,6 +16,13 @@ namespace HomeTownPickEm.Services.DataSeed
         {
             services.TryAddTransient<ISeeder, AggregateSeeder>();
             services.Add(ServiceDescriptor.Transient(_ => new SeederFactory(typeof(TSeeder))));
+            return services;
+        }
+
+        private static IServiceCollection SeedDatabase(this IServiceCollection services,
+            Func<ApplicationDbContext, CancellationToken, Task> execute)
+        {
+            services.AddTransient<ISeeder>(p => ActivatorUtilities.CreateInstance<FuncSeeder>(p, execute));
             return services;
         }
 

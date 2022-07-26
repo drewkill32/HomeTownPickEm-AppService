@@ -1,19 +1,19 @@
 import { makeStyles } from '@mui/styles';
 import { useQuery } from 'react-query';
-import { useWeek } from '../../hooks/useWeek';
+import { useWeek } from '../../../hooks/useWeek';
 import axios from 'axios';
-import UserPick from './UserPick';
+import UserPick from '../../../components/UserPicks/UserPick';
 
-import UserPickSkeleton from './UserPickSkeleton';
+import UserPickSkeleton from '../../../components/UserPicks/UserPickSkeleton';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     width: '100%',
     minWidth: '200px',
   },
 }));
 
-export default function UserPicksHome() {
+export function WeeklyPicks() {
   const classes = useStyles();
   const week = useWeek();
   const { isLoading, data } = useQuery(['userpick', week], () =>

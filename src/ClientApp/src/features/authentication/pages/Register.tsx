@@ -5,7 +5,7 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { useAuth } from '../contexts/AuthProvider';
 import * as yup from 'yup';
-import { RequestError } from '../../../utils/agent';
+import { RequestError } from '../../../zod';
 
 const validationSchema = yup.object({
   email: yup

@@ -15,7 +15,7 @@ import { SwitchTransition } from 'react-transition-group';
 import { Box } from '@mui/system';
 import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
-import { RequestError } from '../../../utils/agent';
+import { RequestError } from '../../../zod';
 
 //Check your inbox for the next steps. If you don't receive an email, and it's not in your spam folder this could mean you signed up with a different address.
 

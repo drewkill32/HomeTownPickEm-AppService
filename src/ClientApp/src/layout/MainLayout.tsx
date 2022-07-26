@@ -32,15 +32,14 @@ const PathPage = PageRoot.extend({
 type Page = z.infer<typeof PathPage> | z.infer<typeof ClickPage>;
 
 export interface MainLayoutProps {
-  children: JSX.Element;
+  children?: JSX.Element;
   pages?: Page[];
+  header?: string;
 }
 
-const MainLayout = ({ children, pages }: MainLayoutProps) => {
-  const { getUser, signOut } = useAuth();
+const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const { data: user } = getUser();
 
   const settings = [
     { name: 'Profile', path: '/profile' },
@@ -94,6 +93,7 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
             <Typography
               variant="h6"
               noWrap
+              onClick={() => navigate('/')}
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
@@ -102,11 +102,10 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                 letterSpacing: '.3rem',
                 color: 'inherit',
                 textDecoration: 'none',
-              }}
-            >
-              St. Pete Pick'em
+                cursor: 'pointer',
+              }}>
+              {`St.Pete Pick'em ${header || ''}`}
             </Typography>
-
             {pages && pages.length > 0 && (
               <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                 <IconButton
@@ -115,8 +114,7 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                   aria-controls="menu-appbar"
                   aria-haspopup="true"
                   onClick={handleOpenNavMenu}
-                  color="inherit"
-                >
+                  color="inherit">
                   <MenuIcon />
                 </IconButton>
                 <Menu
@@ -135,13 +133,11 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                   onClose={handleCloseNavMenu}
                   sx={{
                     display: { xs: 'block', md: 'none' },
-                  }}
-                >
+                  }}>
                   {pages.map((page) => (
                     <MenuItem
                       key={page.name}
-                      onClick={() => handlePageClick(page)}
-                    >
+                      onClick={() => handlePageClick(page)}>
                       <Typography textAlign="center">{page.name}</Typography>
                     </MenuItem>
                   ))}
@@ -154,6 +150,7 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
             <Typography
               variant="h5"
               noWrap
+              onClick={() => navigate('/')}
               sx={{
                 mr: 2,
                 display: { xs: 'flex', md: 'none' },
@@ -163,9 +160,9 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                 letterSpacing: '.1rem',
                 color: 'inherit',
                 fontSize: '1rem',
-              }}
-            >
-              St. Pete Pick'em
+                cursor: 'pointer',
+              }}>
+              {`St.Pete Pick'em ${header || ''}`}
             </Typography>
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages &&
@@ -173,8 +170,7 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                   <Button
                     onClick={() => handlePageClick(page)}
                     key={page.name}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                  >
+                    sx={{ my: 2, color: 'white', display: 'block' }}>
                     {page.name}
                   </Button>
                 ))}
@@ -210,8 +206,7 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                   horizontal: 'right',
                 }}
                 open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
+                onClose={handleCloseUserMenu}>
                 {settings.map((setting) => (
                   <MenuItem
                     key={setting.name}
@@ -222,8 +217,7 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
                       if (typeof setting.onClick === 'function') {
                         setting.onClick();
                       }
-                    }}
-                  >
+                    }}>
                     <Typography textAlign="center">{setting.name}</Typography>
                   </MenuItem>
                 ))}
@@ -235,12 +229,9 @@ const MainLayout = ({ children, pages }: MainLayoutProps) => {
       <Container
         maxWidth="md"
         sx={{
-          mt: '75px',
+          mt: '90px',
           mb: '15px',
-          bgcolor: 'white',
-          borderRadius: '4px',
-        }}
-      >
+        }}>
         {children}
       </Container>
     </>

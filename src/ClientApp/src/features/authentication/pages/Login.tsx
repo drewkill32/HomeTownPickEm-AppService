@@ -6,15 +6,9 @@ import { Grid, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
-import { RequestError } from '../../../utils/agent';
+import { RequestError, LocationState } from '../../../zod';
 import { LoadingButton } from '@mui/lab';
-
-import { z } from 'zod';
 import { useLeague } from '../../league';
-
-const LocState = z.object({
-  from: z.optional(z.string()),
-});
 
 export const validationSchema = yup.object({
   email: yup
@@ -31,7 +25,7 @@ export const validationSchema = yup.object({
 });
 
 const Login = () => {
-  const { signIn, getUser } = useAuth();
+  const { signIn } = useAuth();
   const [league] = useLeague();
 
   const { state } = useLocation();
@@ -39,15 +33,15 @@ const Login = () => {
   const [submitError, setSubmitError] = React.useState('');
   const [submitted, setSubmitted] = React.useState(false);
 
-  const { data } = getUser({
-    enabled: submitted,
-  });
-
   // fetch the profile after login
   useEffect(() => {
-    if (submitted && data) {
+    if (submitted) {
       //navigate back to page that was visited before login
-      const from = LocState.parse(state || {}).from;
+      const from = LocationState.parse(
+        state || {
+          from: '',
+        }
+      ).from;
       if (from) {
         navigate(from);
         return;
@@ -58,7 +52,7 @@ const Login = () => {
       }
       navigate('/');
     }
-  }, [submitted, data, league, navigate, state]);
+  }, [submitted, league, navigate, state]);
 
   const formik = useFormik({
     initialValues: {
@@ -91,16 +85,14 @@ const Login = () => {
           spacing={1}
           alignItems="center"
           justifyContent="center"
-          sx={{ textAlign: 'center' }}
-        >
+          sx={{ textAlign: 'center' }}>
           <Grid item xs={12} sm={6}>
             <Typography
               component={RouterLink}
               sx={{
                 pointerEvents: formik.isSubmitting ? 'none' : 'auto',
               }}
-              to="/forgot-password"
-            >
+              to="/forgot-password">
               Forgot your password?
             </Typography>
           </Grid>
@@ -110,14 +102,12 @@ const Login = () => {
               to="/register"
               sx={{
                 pointerEvents: formik.isSubmitting ? 'none' : 'auto',
-              }}
-            >
+              }}>
               Create an account
             </Typography>
           </Grid>
         </Grid>
-      }
-    >
+      }>
       <Box
         component="form"
         onSubmit={formik.handleSubmit}
@@ -133,8 +123,7 @@ const Login = () => {
           gap: 2,
           width: '100%',
           maxWidth: '420px',
-        }}
-      >
+        }}>
         <TextField
           fullWidth
           id="email"
@@ -165,8 +154,7 @@ const Login = () => {
           variant="contained"
           fullWidth
           type="submit"
-          loading={formik.isSubmitting || formik.isValidating}
-        >
+          loading={formik.isSubmitting || formik.isValidating}>
           Submit
         </LoadingButton>
       </Box>

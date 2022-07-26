@@ -57,5 +57,6 @@ namespace HomeTownPickEm.Models
                 return HomePoints > AwayPoints ? HomeId : AwayId;
             }
         }
+        
     }
 }

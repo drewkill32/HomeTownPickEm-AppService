@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import LeaderboardTable from '../components/LeaderboardTable';
 import { useParams } from 'react-router-dom';
+import { Paper } from '@mui/material';
 
 const Leaderboard = () => {
   const { league, season } = useParams();
@@ -18,7 +19,11 @@ const Leaderboard = () => {
       </p>
     );
   if (isSuccess) {
-    return <LeaderboardTable ranks={data} />;
+    return (
+      <Paper>
+        <LeaderboardTable ranks={data} />
+      </Paper>
+    );
   }
   return null;
 };

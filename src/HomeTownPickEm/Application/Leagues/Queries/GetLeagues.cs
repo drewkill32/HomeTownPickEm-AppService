@@ -12,6 +12,7 @@ public class GetLeagues
 {
     public class Query : IRequest<IEnumerable<UserLeagueDto>>
     {
+        public bool? Active { get; set; }
     }
 
     public class QueryHandler : IRequestHandler<Query, IEnumerable<UserLeagueDto>>
@@ -32,6 +33,8 @@ public class GetLeagues
             var userId = _userAccessor.GetCurrentUserId();
             var leagues = await _context.Season
                 .Where(x => x.Members.Any(y => y.Id == userId))
+                .Where(x => !request.Active.HasValue || x.Active == request.Active)
+                .Select(x => x.League)
                 .ProjectTo<UserLeagueDto>(_mapper.ConfigurationProvider)
                 .ToArrayAsync(cancellationToken);
             return leagues;
