@@ -41,9 +41,10 @@ namespace HomeTownPickEm.Services.DataSeed.User
             var leagueIds = await _context.League.Select(x => x.Id).ToArrayAsync(cancellationToken);
             foreach (var id in leagueIds)
             {
-                if (!claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "Admin"))
+                var claim = $"Commissioner:{id}";
+                if (!claims.Any(x => x.Type == ClaimTypes.Role && x.Value == claim))
                 {
-                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, $"Commissioner:{id}"));
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, claim));
                 }
             }
             
