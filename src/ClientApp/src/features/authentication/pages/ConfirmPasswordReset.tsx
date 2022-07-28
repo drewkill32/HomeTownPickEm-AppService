@@ -8,12 +8,13 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useRef, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { useAuth } from '../contexts/AuthProvider';
 import * as yup from 'yup';
 import { RequestError } from '../../../zod';
 import { SwitchTransition } from 'react-transition-group';
+import { InvalidRefUrl } from '../components/InvalidRefUrl';
 
 const validationSchema = yup.object({
   email: yup
@@ -67,21 +68,11 @@ const ConfirmPasswordReset = () => {
 
   if (!email || !code) {
     return (
-      <AuthLayout
-        title="Unable to reset password"
-        footer={
-          <Button
-            color="primary"
-            variant="contained"
-            fullWidth
-            onClick={() => navigate('/')}
-          >
-            Return to login
-          </Button>
-        }
-      >
-        <Typography>The request to reset the password is invalid</Typography>
-      </AuthLayout>
+      <InvalidRefUrl
+        onClick={() => navigate('/')}
+        subtitle={'The request to reset the password is invalid'}
+        title={'Reset Password'}
+      />
     );
   }
 
@@ -103,8 +94,7 @@ const ConfirmPasswordReset = () => {
           width: '100%',
           overflow: 'hidden',
           minHeight: '305px',
-        }}
-      >
+        }}>
         <SwitchTransition>
           <Slide
             // @ts-ignore - typescript doesn't know about SwitchTransition key
@@ -116,8 +106,7 @@ const ConfirmPasswordReset = () => {
             container={containerRef.current}
             addEndListener={(node, done) => {
               node.addEventListener('transitionend', done, false);
-            }}
-          >
+            }}>
             {submitted ? (
               <Alert
                 severity="success"
@@ -130,15 +119,13 @@ const ConfirmPasswordReset = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 4,
-                }}
-              >
+                }}>
                 <p>You have successfully reset your password</p>
                 <Button
                   variant="contained"
                   color="primary"
                   sx={{ maxWidth: '420px' }}
-                  onClick={() => navigate('/login')}
-                >
+                  onClick={() => navigate('/login')}>
                   Login
                 </Button>
               </Alert>
@@ -194,8 +181,7 @@ const ConfirmPasswordReset = () => {
                   color="primary"
                   variant="contained"
                   fullWidth
-                  type="submit"
-                >
+                  type="submit">
                   Submit
                 </Button>
               </Box>

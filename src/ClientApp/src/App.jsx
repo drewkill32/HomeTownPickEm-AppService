@@ -45,7 +45,7 @@ const App = () => {
                 <Route path="admin" element={<LeagueAdmin />} />
               </Route>
             </Route>
-            <Route path="/register" element={<Register />} />
+            <Route path="/new-user" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route

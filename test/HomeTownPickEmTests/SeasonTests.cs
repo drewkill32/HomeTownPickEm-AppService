@@ -33,10 +33,10 @@ public class SeasonTests
             //we need to fetch the entity from the database to get the id
             var user = context.Users.FirstOrDefault(u => u.Id == userId);
             var team = context.Teams.FirstOrDefault(x => x.Id == MichTeamId);
-            var games = context.Games.WhereTeamIsPlaying(MichTeamId).ToArray();
+            season.AddTeam(team);
+            var games = context.Games.WhereTeamIsPlaying(team).ToArray();
             gameIds = games.Select(x => x.Id).ToArray();
-            season.AddMember(user);
-            season.AddTeam(team, games);
+            season.AddMember(user, games);
             context.Season.Add(season);
             context.SaveChanges();
             seasonId = season.Id;
@@ -79,17 +79,15 @@ public class SeasonTests
     }
 
     [Fact]
-    public void AddTwoUser_ShouldGetAllPicksForTwoTeam()
+    public void AddTwoUser_ShouldGetAllPicksForTwoTeams()
     {
         var teamIds = new[] { MichTeamId, MSUTeamId };
 
         var users = new[] { Database.CreateUser(), Database.CreateUser() };
 
-        var h2hGameId = 401282777;
 
         int seasonId;
         var gameCount = 0;
-        var teamCount = teamIds.Length;
 
         var leagueId = Database.CreateLeague().Id;
 
@@ -124,9 +122,117 @@ public class SeasonTests
         }
 
         var dbSeason = GetSeasonFromDatabase(seasonId);
+
+
         dbSeason.Members.Should().HaveCount(users.Length);
         dbSeason.Teams.Should().HaveCount(teamIds.Length);
         dbSeason.Picks.Should().HaveCount(gameCount * users.Length);
+
+
+    }
+
+    [Fact]
+    public void Removing_Team_Should_RemoveAllGames_Except_KeepHead2HeadGame()
+    {
+        var teamIds = new[] { MichTeamId, MSUTeamId };
+
+        var user = Database.CreateUser();
+
+
+        var leagueId = Database.CreateLeague().Id;
+
+        var season = CreateSeason(leagueId, user, teamIds);
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var sut = context.Season
+                .Include(x => x.Members)
+                .Include(x => x.Picks)
+                .ThenInclude(p => p.Game)
+                .Include(x => x.Teams)
+                .First(x => x.Id == season.Id);
+            var team = context.Teams.First(x => x.Id == MSUTeamId);
+            sut.RemoveTeam(team);
+            context.SaveChanges();
+        }
+
+        var dbSeason = GetSeasonFromDatabase(season.Id);
+
+
+        dbSeason.Teams.Should().NotContain(x => x.Id == MSUTeamId);
+        // one of the head to head games should be kept because we know MSU is playing against Mich
+        dbSeason.Picks.Should().ContainSingle(x => x.Game.TeamIsPlaying(MSUTeamId));
+    }
+
+    [Fact]
+    public void Removing_Member_Should_RemoveAllPicksForMember()
+    {
+        var teamIds = new[] { MichTeamId, MSUTeamId };
+
+        var users = new[] { Database.CreateUser(), Database.CreateUser() };
+
+        var userToRemove = users[0];
+
+        var leagueId = Database.CreateLeague().Id;
+
+        var season = CreateSeason(leagueId, users, teamIds);
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var sut = context.Season
+                .Include(x => x.Members)
+                .Include(x => x.Picks)
+                .ThenInclude(p => p.Game)
+                .Include(x => x.Teams)
+                .First(x => x.Id == season.Id);
+            var dbUser = context.Users.First(x => x.Id == userToRemove.Id);
+            sut.RemoveMember(dbUser);
+            context.SaveChanges();
+        }
+
+        var dbSeason = GetSeasonFromDatabase(season.Id);
+
+
+        dbSeason.Members.Should().HaveCountGreaterThan(0)
+            .And.NotContain(x => x.Id == userToRemove.Id);
+
+        dbSeason.Picks.Should().HaveCountGreaterThan(0)
+            .And.NotContain(x => x.UserId == userToRemove.Id);
+    }
+
+    private Season CreateSeason(int leagueId, ApplicationUser user, params int[] teamIds)
+    {
+        return CreateSeason(leagueId, new[] { user }, teamIds);
+    }
+
+    private Season CreateSeason(int leagueId, ApplicationUser[] users, params int[] teamIds)
+    {
+        using var context = Database.CreateTrackingDbContext();
+        var season = new Season
+        {
+            Year = "2022",
+            LeagueId = leagueId
+        };
+
+        var userIds = users.Select(x => x.Id).ToArray();
+        //get from the db for change tracking
+        var dbUsers = context.Users.Where(x => userIds.Contains(x.Id)).ToArray();
+        foreach (var dbUser in dbUsers)
+        {
+            season.AddMember(dbUser);
+        }
+
+        foreach (var teamId in teamIds)
+        {
+            var team = context.Teams.FirstOrDefault(x => x.Id == teamId);
+            var games = context.Games.WhereTeamIsPlaying(team.Id).ToArray();
+            season.AddTeam(team, games);
+        }
+
+        context.Season.Add(season);
+        context.SaveChanges();
+
+        return season;
     }
 
     private Season GetSeasonFromDatabase(int seasonId)

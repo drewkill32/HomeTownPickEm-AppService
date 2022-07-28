@@ -80,7 +80,7 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                     Division = teamResponse.Division,
                     Mascot = teamResponse.Mascot,
                     Id = teamResponse.Id,
-                    Logos = teamResponse.Logos == null ? "" : string.Join(";", teamResponse.Logos),
+                    Logos = teamResponse.Logos == null || teamResponse.Logos.Length == 0 ? "" : teamResponse.Logos[0],
                     School = teamResponse.School,
                     AltColor = teamResponse.AltColor
                 };

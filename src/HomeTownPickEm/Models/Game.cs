@@ -57,6 +57,16 @@ namespace HomeTownPickEm.Models
                 return HomePoints > AwayPoints ? HomeId : AwayId;
             }
         }
+
+        public bool TeamIsPlaying(int teamId)
+        {
+            return HomeId == teamId || AwayId == teamId;
+        }
+
+        public bool TeamIsPlaying(Team team)
+        {
+            return TeamIsPlaying(team.Id);
+        }
         
     }
 }

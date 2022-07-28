@@ -12,6 +12,8 @@ namespace HomeTownPickEm.Controllers
 {
     public class LeagueController : ApiControllerBase
     {
+
+        
         [HttpPost]
         public async Task<ActionResult> CreateLeague(AddLeague.Command command)
         {
@@ -41,6 +43,13 @@ namespace HomeTownPickEm.Controllers
         {
             await Mediator.Send(command);
             return new StatusCodeResult(StatusCodes.Status201Created);
+        }
+
+        [HttpPost("add-member")]
+        public async Task<IActionResult> AddMember(AddNewMember.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
         }
 
 
@@ -96,5 +105,13 @@ namespace HomeTownPickEm.Controllers
             var leagues = await Mediator.Send(query);
             return Ok(leagues);
         }
+
+        [HttpGet("{Id}/{Season}/MembersTeams")]
+        public async Task<IActionResult> GetLeagueMembersAndTeams([FromRoute] GetLeagueMembersAndTeams.Query query)
+        {
+            var leagues = await Mediator.Send(query);
+            return Ok(leagues);
+        }
+        
     }
 }

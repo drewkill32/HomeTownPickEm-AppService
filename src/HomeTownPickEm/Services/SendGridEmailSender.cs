@@ -1,23 +1,23 @@
-using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Config;
+using HomeTownPickEm.Models;
+using HomeTownPickEm.Security;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
 namespace HomeTownPickEm.Services
 {
-    public class SendGridEmailSender : IEmailSender
+    public class SendGridEmailSender : EmailSenderBase
     {
-        private readonly ILogger<SendGridEmailSender> _logger;
-        private readonly SendGridSettings _settings;
-
-        public SendGridEmailSender(IOptions<SendGridSettings> options, ILogger<SendGridEmailSender> logger)
+        public SendGridEmailSender(IOptions<SendGridSettings> options,
+            IHttpContextAccessor accessor,
+            IOptions<OriginOptions> originOptions, UserManager<ApplicationUser> userManager,
+            ILogger<SendGridEmailSender> logger) : base(options, accessor, originOptions, userManager, logger)
         {
-            _logger = logger;
-            _settings = options.Value;
         }
 
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public override async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             
             var client = new SendGridClient(_settings.Key);

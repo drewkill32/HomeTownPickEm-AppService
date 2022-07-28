@@ -1,11 +1,16 @@
 import { Alert, Button, Grid, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  useNavigate,
+  Link as RouterLink,
+  useSearchParams,
+} from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { useAuth } from '../contexts/AuthProvider';
 import * as yup from 'yup';
 import { RequestError } from '../../../zod';
+import { InvalidRefUrl } from '../components/InvalidRefUrl';
 
 const validationSchema = yup.object({
   email: yup
@@ -28,12 +33,15 @@ const validationSchema = yup.object({
 
 const Register = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get('email');
+  const code = searchParams.get('code');
   const { register } = useAuth();
   const [submitError, setSubmitError] = useState('');
 
   const formik = useFormik({
     initialValues: {
-      email: process.env.REACT_APP_USERNAME || '',
+      email: email || process.env.REACT_APP_USERNAME || '',
       password: process.env.REACT_APP_PASSWORD || '',
       confirmPassword: process.env.REACT_APP_PASSWORD || '',
       firstName: '',
@@ -47,32 +55,41 @@ const Register = () => {
           password: values.password,
           firstName: values.firstName,
           lastName: values.lastName,
+          code: code!,
         });
         navigate('/');
       } catch (error) {
-        var e = RequestError.parse(error);
-        setSubmitError(`Unable create an account. ${e.detail}`);
+        const e = RequestError.parse(error);
+        setSubmitError(`Unable create an account. ${e.detail || e.title}`);
       }
     },
   });
 
+  if (!email || !code) {
+    return (
+      <InvalidRefUrl
+        onClick={() => navigate('/')}
+        subtitle={'The request for a new account is invalid'}
+        title={'Activate Account'}
+      />
+    );
+  }
+
   return (
     <AuthLayout
-      title="Create an Account"
+      title="Activate Account"
       footer={
         <Typography component={RouterLink} to="/login">
           Already have an account?
         </Typography>
-      }
-    >
+      }>
       <Grid
         container
         spacing={2}
         component="form"
         justifyContent="center"
         alignItems="center"
-        onSubmit={formik.handleSubmit}
-      >
+        onSubmit={formik.handleSubmit}>
         <Grid item xs={12}>
           <TextField
             fullWidth
@@ -152,8 +169,7 @@ const Register = () => {
               '& li': {
                 listStyleType: 'none',
               },
-            }}
-          >
+            }}>
             <p>Password must:</p>
             <ul>
               <li>Be at least 4 characters</li>
@@ -174,8 +190,7 @@ const Register = () => {
             color="primary"
             variant="contained"
             fullWidth
-            type="submit"
-          >
+            type="submit">
             Submit
           </Button>
         </Grid>

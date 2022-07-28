@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -68,11 +65,13 @@ namespace HomeTownPickEm.Filters
 
         private void HandleForbiddenAccessException(ExceptionContext context)
         {
+            var exception = context.Exception as ForbiddenAccessException;
             var details = new ProblemDetails
             {
                 Status = StatusCodes.Status403Forbidden,
                 Title = "Forbidden",
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+                Detail = exception.Message
             };
 
             context.Result = new ObjectResult(details)
@@ -127,11 +126,13 @@ namespace HomeTownPickEm.Filters
 
         private void HandleUnauthorizedAccessException(ExceptionContext context)
         {
+            var exception = context.Exception as UnauthorizedAccessException;
             var details = new ProblemDetails
             {
                 Status = StatusCodes.Status401Unauthorized,
                 Title = "Unauthorized",
-                Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
+                Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
+                Detail = exception.Message
             };
 
             context.Result = new ObjectResult(details)

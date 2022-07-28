@@ -16,14 +16,21 @@ namespace HomeTownPickEm.Data.Extensions
 
         public static IQueryable<Game> WhereTeamIsPlaying(this IQueryable<Game> query, Team team)
         {
-            if (team != null)
-            {
-                var teamId = team.Id;
-                query = query.Where(x => x.HomeId == teamId || x.AwayId == teamId);
-            }
-
-            return query;
+            return query.WhereTeamIsPlaying(team.Id);
+            
         }
+
+        public static IQueryable<Game> WhereTeamsArePlaying(this IQueryable<Game> query, IEnumerable<int> teamIds)
+        {
+            return query.Where(g => teamIds.Contains(g.HomeId) || teamIds.Contains(g.AwayId));
+        }
+
+        public static IQueryable<Game> WhereTeamsArePlaying(this IQueryable<Game> query, IEnumerable<Team> teams)
+        {
+            var teamIds = teams.Select(x => x.Id).ToArray();
+            return query.WhereTeamsArePlaying(teamIds);
+        }
+        
 
         public static IQueryable<Game> WhereWeekIs(this IQueryable<Game> query, int? week)
         {

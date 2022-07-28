@@ -1,7 +1,7 @@
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Extensions;
-using HomeTownPickEm.Models;
-using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,32 +9,53 @@ namespace HomeTownPickEm.Application.Leagues.Commands
 {
     public class AddNewMember
     {
-        public class Command : IRequest<LeagueDto>
+        public class Command : ILeagueCommissionerRequest
         {
-            public string LeagueSlug { get; set; }
+            public int LeagueId { get; set; }
             public string Season { get; set; }
+            
             public string UserId { get; set; }
         }
 
-        public class CommandHandler : IRequestHandler<Command, LeagueDto>
+        public class CommandHandler : IRequestHandler<Command>
         {
             private readonly ApplicationDbContext _context;
-            private readonly ILeagueServiceFactory _leagueServiceFactory;
 
-            public CommandHandler(ApplicationDbContext context, ILeagueServiceFactory leagueServiceFactory)
+            public CommandHandler(ApplicationDbContext context)
             {
                 _context = context;
-                _leagueServiceFactory = leagueServiceFactory;
             }
 
-            public async Task<LeagueDto> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var season = (await _context.Season.SingleOrDefaultAsync(x =>
-                        x.Year == request.Season && x.League.Slug == request.LeagueSlug, cancellationToken))
-                    .GuardAgainstNotFound($"No League {request.LeagueSlug} - ({request.Season}) found");
-                var service = _leagueServiceFactory.Create(season.Id);
-                await service.AddUserAsync(request.UserId, cancellationToken);
-                return season.ToLeagueDto();
+                //get the season
+                var season = await
+                    _context.Season
+                        .AsTracking()
+                        .Include(x => x.Teams)
+                        .Include(x => x.Members)
+                        .Where(s => s.LeagueId == request.LeagueId && s.Year == request.Season)
+                        .FirstOrDefaultAsync(cancellationToken)
+                        .GuardAgainstNotFound(
+                            $"There is no season with for {request.Season} and LeagueId {request.LeagueId}");
+
+                //get the user
+                var user = await _context.Users
+                    .AsTracking()
+                    .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken)
+                    .GuardAgainstNotFound($"User '{request.UserId}' not found");
+
+
+                //get the games to add
+                var teamIds = season.Teams.Select(x => x.Id).ToArray();
+                var games = await _context.Games.WhereTeamsArePlaying(teamIds)
+                    .AsTracking()
+                    .ToArrayAsync(cancellationToken);
+
+                season.AddMember(user, games);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return Unit.Value;
             }
         }
     }

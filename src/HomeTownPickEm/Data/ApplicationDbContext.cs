@@ -27,6 +27,8 @@ namespace HomeTownPickEm.Data
         public DbSet<Pick> Pick { get; set; }
 
         public DbSet<Game> Games { get; set; }
+
+        public DbSet<PendingInvite> PendingInvites { get; set; }
         
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -78,6 +80,7 @@ namespace HomeTownPickEm.Data
             builder.Entity<Game>()
                 .Property(x => x.Id)
                 .ValueGeneratedNever();
+            
             builder.Entity<Game>()
                 .HasOne(x => x.Away)
                 .WithMany()
@@ -94,6 +97,9 @@ namespace HomeTownPickEm.Data
                 .HasMany(x => x.Members)
                 .WithMany(y => y.Seasons);
 
+            builder.Entity<Season>()
+                .HasIndex(x => x.Year);
+            
             builder.Entity<Season>()
                 .HasMany(x => x.Teams)
                 .WithMany(y => y.Seasons);
@@ -129,6 +135,16 @@ namespace HomeTownPickEm.Data
             //Leaderboard
             builder.Entity<Leaderboard>().HasNoKey();
             builder.Entity<Leaderboard>().ToView("Leaderboard");
+
+
+            //PendingInvites
+            builder.Entity<PendingInvite>()
+                .HasKey(x => new
+                {
+                    x.UserId,
+                    x.Season,
+                    x.LeagueId
+                });
         }
     }
 }

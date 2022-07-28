@@ -1,8 +1,9 @@
 using System.Text;
-using System.Web;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Data.Extensions;
+using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
 using MediatR;
@@ -15,7 +16,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 {
     public class Register
     {
-        public class Command : IRequest<TokenDto>
+        public class Command : IRequest
         {
             public string Email { get; set; }
 
@@ -24,9 +25,11 @@ namespace HomeTownPickEm.Application.Users.Commands
             public string FirstName { get; set; }
 
             public string LastName { get; set; }
+
+            public string Code { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command, TokenDto>
+        public class Handler : IRequestHandler<Command>
         {
             private readonly ApplicationDbContext _context;
             private readonly ITokenService _tokenService;
@@ -50,46 +53,78 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _opt = originOptions.Value;
             }
 
-            public async Task<TokenDto> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (await _context.Users.AnyAsync(x => x.UserName == request.Email, cancellationToken))
+                var user = await _context.Users
+                    .Where(x => x.Email == request.Email)
+                    .AsTracking()
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (user == null)
                 {
-                    throw new BadRequestException("Username already exists");
+                    throw new BadRequestException("You are not registered with this email address.");
                 }
-                
 
-                var user = new ApplicationUser
+                var pendingInvites = await _context.PendingInvites
+                    .Where(x => x.UserId == user.Id)
+                    .ToArrayAsync(cancellationToken);
+
+                if (!pendingInvites.Any())
                 {
-                    Email = request.Email,
-                    UserName = request.Email,
-                    Name = new UserName
-                    {
-                        First = request.FirstName,
-                        Last = request.LastName
-                    }
-                };
-                
+                    throw new UnauthorizedAccessException(
+                        "You are not invited to join any leagues. Please contact your league commissioner.");
+                }
 
-                var result = await _userManager.CreateAsync(user, request.Password);
+                var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Code));
+                var result = await _userManager.ResetPasswordAsync(user, code, request.Password);
                 if (!result.Succeeded)
                 {
-                    throw new BadRequestException(string.Join(". ", result.Errors.Select(x => x.Description)));
+                    throw new BadRequestException(
+                        $"Unable to reset password. {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 }
 
-                var origin = _httpContext.Request.Headers["Origin"].ToString();
-                _opt.ValidateOrigin(origin);
-                
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var webCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var url =
-                    $"{origin}/confirm-email?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
+                user.EmailConfirmed = true;
+                foreach (var invite in pendingInvites)
+                {
+                    await AddInvite(invite, user, cancellationToken);
+                }
 
-                var htmlMessage =
-                    $"Click <a href=\"{url}\">here</a> to confirm your email. If you did not generate this request ignore this email.";
 
-                await _emailSender.SendEmailAsync(user.Email, "St. Pete Pick'em Reset Password", htmlMessage);
+                await _context.SaveChangesAsync(cancellationToken);
+                return Unit.Value;
+            }
 
-                return await _tokenService.GenerateNewTokens(user.Id, cancellationToken);
+            private async Task AddInvite(PendingInvite invite, ApplicationUser user, CancellationToken token)
+            {
+                var season = await _context.Season
+                    .AsTracking()
+                    .Where(x => x.LeagueId == invite.LeagueId && x.Year == invite.Season)
+                    .Include(x => x.Teams)
+                    .Include(x => x.Members)
+                    .FirstOrDefaultAsync(token)
+                    .GuardAgainstNotFound($"Season not found for leagueId {invite.LeagueId} and year {invite.Season}.");
+
+
+                if (invite.TeamId.HasValue)
+                {
+                    var team = await _context.Teams
+                        .Where(x => x.Id == invite.TeamId)
+                        .AsTracking()
+                        .FirstOrDefaultAsync(token)
+                        .GuardAgainstNotFound($"Team {invite.TeamId} not found.");
+
+                    var games = await _context.Games.AsTracking().WhereTeamIsPlaying(team).ToArrayAsync(token);
+                    user.ProfileImg = team.Logos;
+                    user.TeamId = team.Id;
+                    season.AddTeam(team, games);
+                }
+
+                var teamIds = season.Teams.Select(x => x.Id).ToArray();
+                var allGames = await _context.Games.WhereTeamsArePlaying(teamIds)
+                    .AsTracking()
+                    .ToArrayAsync(token);
+
+                season.AddMember(user, allGames);
             }
         }
     }

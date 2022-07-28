@@ -21,6 +21,7 @@ public class DatabaseFixture
     public ApplicationDbContext CreateDbContext(Action<DbContextOptionsBuilder> optionsAction = null)
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseInMemoryDatabase(_name);
         optionsAction?.Invoke(options);
         return new ApplicationDbContext(options.Options);

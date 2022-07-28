@@ -18,6 +18,7 @@ interface RegisterProps {
   firstName: string;
   lastName: string;
   password: string;
+  code: string;
 }
 
 export interface AuthContextProps {

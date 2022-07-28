@@ -1,17 +1,20 @@
-﻿using HomeTownPickEm.Application.Common;
+﻿using HomeTownPickEm.Config;
+using HomeTownPickEm.Models;
+using HomeTownPickEm.Security;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace HomeTownPickEm.Services.Dev;
 
-public class DevEmailSender : IEmailSender
+public class DevEmailSender : EmailSenderBase
 {
-    private readonly ILogger<DevEmailSender> _logger;
-
-    public DevEmailSender(ILogger<DevEmailSender> logger)
+    public DevEmailSender(IOptions<SendGridSettings> options, IHttpContextAccessor accessor,
+        IOptions<OriginOptions> originOptions, UserManager<ApplicationUser> userManager,
+        ILogger<SendGridEmailSender> logger) : base(options, accessor, originOptions, userManager, logger)
     {
-        _logger = logger;
     }
 
-    public Task SendEmailAsync(string email, string subject, string htmlMessage)
+    public override Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
         var file = $"{Path.GetTempFileName()}.html";
         File.WriteAllText(file, htmlMessage);

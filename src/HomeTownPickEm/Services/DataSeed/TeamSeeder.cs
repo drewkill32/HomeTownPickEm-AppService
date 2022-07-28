@@ -1,13 +1,9 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Teams.Commands.LoadTeams;
 using HomeTownPickEm.Data;
+using HomeTownPickEm.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HomeTownPickEm.Services.DataSeed
 {
@@ -40,6 +36,20 @@ namespace HomeTownPickEm.Services.DataSeed
                 {
                     _logger.LogError(e, "Error Adding Teams. {ErrorMessage}", e.Message);
                 }
+            }
+
+            var logoTeams = await _context.Teams
+                .Where(x => x.Logos.Contains(";"))
+                .AsTracking()
+                .ToArrayAsync(cancellationToken);
+            if (logoTeams.Any())
+            {
+                foreach (var logoTeam in logoTeams)
+                {
+                    logoTeam.Logos = LogoHelper.GetSingleLogo(logoTeam.Logos);
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
             }
         }
     }

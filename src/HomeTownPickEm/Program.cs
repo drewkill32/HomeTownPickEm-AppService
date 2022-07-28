@@ -19,7 +19,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddRazorPages();
 
-var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000").Split(";");
+var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000;https://localhost:5001").Split(";");
 builder.Services.Configure<OriginOptions>(options => { options.AllowedOrigins = spaUrl; });
 builder.Services.AddCors(ctx =>
 {

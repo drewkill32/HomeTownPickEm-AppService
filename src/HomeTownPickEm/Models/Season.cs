@@ -1,7 +1,6 @@
 ﻿using HomeTownPickEm.Application.Leagues;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Teams;
-using HomeTownPickEm.Application.Users;
 
 namespace HomeTownPickEm.Models;
 
@@ -15,7 +14,6 @@ public static class SeasonExtenstions
             Name = season.League.Name,
             Year = season.Year,
             Teams = season.Teams?.Select(x => x.ToTeamDto()),
-            Members = season.Members?.Select(x => x.ToUserDto()),
             Picks = season.Picks?.Select(x => x.ToPickDto())
         };
     }
@@ -23,11 +21,15 @@ public static class SeasonExtenstions
 
 public class Season
 {
+    private readonly HashSet<Team> _teams;
+    private readonly HashSet<Pick> _picks;
+    private readonly HashSet<ApplicationUser> _members;
+
     public Season()
     {
-        Teams = new HashSet<Team>();
-        Members = new HashSet<ApplicationUser>();
-        Picks = new HashSet<Pick>();
+        _teams = new HashSet<Team>();
+        _members = new HashSet<ApplicationUser>();
+        _picks = new HashSet<Pick>();
     }
 
     public int Id { get; set; }
@@ -40,98 +42,75 @@ public class Season
 
     public bool Active { get; set; }
 
-    public ICollection<Team> Teams { get; set; }
+    public IReadOnlyCollection<Team> Teams => _teams;
 
-    public ICollection<ApplicationUser> Members { get; set; }
+    public IReadOnlyCollection<ApplicationUser> Members => _members;
 
-    public ICollection<Pick> Picks { get; set; }
+    public IReadOnlyCollection<Pick> Picks => _picks;
 
 
     public void RemoveTeam(Team team)
     {
-        Teams.Remove(team);
-        var picks = Picks.Where(p => p.ContainsTeam(team)).ToArray();
+        var picks = Picks.Where(p => p.Game.TeamIsPlaying(team)).ToArray();
         var h2hPickRemoved = new HashSet<int>();
         foreach (var pick in picks)
         {
-            if (IsHead2Head(pick.Game) && !h2hPickRemoved.Contains(pick.GameId))
+            if (IsHead2Head(pick.Game))
             {
-                Picks.Remove(pick);
-                h2hPickRemoved.Add(pick.GameId);
+                if (!h2hPickRemoved.Contains(pick.GameId))
+                {
+                    _picks.Remove(pick);
+                    h2hPickRemoved.Add(pick.GameId);
+                }
             }
             else
             {
-                Picks.Remove(pick);
+                _picks.Remove(pick);
             }
         }
+
+        _teams.Remove(team);
     }
 
     public void RemoveMember(ApplicationUser user)
     {
-        Members.Remove(user);
+        _members.Remove(user);
         var picks = Picks.Where(x => x.UserId == user.Id).ToArray();
         foreach (var pick in picks)
         {
-            Picks.Remove(pick);
+            _picks.Remove(pick);
         }
     }
 
 
-    public void AddTeam(Team team, IEnumerable<Game> games)
+    public void AddTeam(Team team)
     {
-        if (Teams.Any(x => x.Id == team.Id))
+        if (_teams.Any(x => x.Id == team.Id))
         {
             throw new InvalidOperationException($"Team {team.Id} already exists in season {Year}");
         }
 
-        Teams.Add(team);
+        _teams.Add(team);
+    }
 
+    public void AddTeam(Team team, IEnumerable<Game> games)
+    {
+        AddTeam(team);
+        
         foreach (var member in Members)
         {
-            var newPicks = games.Select(x => new Pick
-            {
-                Points = 0,
-                GameId = x.Id,
-                Game = x,
-                UserId = member.Id
-            }).ToArray();
-
-            foreach (var newPick in newPicks)
-            {
-                var picks = Picks
-                    .Where(x => x.UserId == member.Id && x.GameId == newPick.GameId)
-                    .ToArray();
-
-                if (picks.Length == 0)
-                {
-                    Picks.Add(newPick);
-                }
-
-                var isHead2Head = IsHead2Head(newPick.Game);
-
-                //add another pick 
-                if (isHead2Head && picks.Length < 2)
-                {
-                    Picks.Add(new Pick
-                    {
-                        Points = 0,
-                        GameId = newPick.Id,
-                        Game = newPick.Game,
-                        UserId = newPick.UserId
-                    });
-                }
-            }
+            AssignPicks(member, games);
         }
     }
 
     public void AddMember(ApplicationUser user)
     {
-        if (Members.Any(x => x.Id == user.Id))
+        if (_members.Any(x => x.Id == user.Id))
         {
             throw new InvalidOperationException($"User {user.Id} already exists in season {Year}");
         }
 
-        Members.Add(user);
+        _members.Add(user);
     }
 
     public bool IsHead2Head(Game game)
@@ -139,6 +118,49 @@ public class Season
         var teamIds = Teams.Select(x => x.Id).ToArray();
         return teamIds.Contains(game.AwayId) && teamIds.Contains(game.HomeId);
     }
-    
-    
+
+
+    public void AddMember(ApplicationUser member, IEnumerable<Game> games)
+    {
+        AddMember(member);
+
+        AssignPicks(member, games);
+    }
+
+    private void AssignPicks(ApplicationUser member, IEnumerable<Game> games)
+    {
+        var newPicks = games.Select(x => new Pick
+        {
+            Points = 0,
+            GameId = x.Id,
+            Game = x,
+            UserId = member.Id
+        }).ToArray();
+
+        foreach (var newPick in newPicks)
+        {
+            var picks = Picks
+                .Where(x => x.UserId == member.Id && x.GameId == newPick.GameId)
+                .ToArray();
+
+            if (picks.Length == 0)
+            {
+                _picks.Add(newPick);
+            }
+
+            var isHead2Head = IsHead2Head(newPick.Game);
+
+            //add another pick 
+            if (isHead2Head && picks.Length < 2)
+            {
+                _picks.Add(new Pick
+                {
+                    Points = 0,
+                    GameId = newPick.Id,
+                    Game = newPick.Game,
+                    UserId = newPick.UserId
+                });
+            }
+        }
+    }
 }

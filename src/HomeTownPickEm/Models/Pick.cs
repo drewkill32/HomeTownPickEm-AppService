@@ -22,9 +22,6 @@ namespace HomeTownPickEm.Models
 
         public int? SelectedTeamId { get; set; }
         
-        public bool ContainsTeam(Team team)
-        {
-            return Game.HomeId == team.Id || Game.AwayId == team.Id;
-        }
+
     }
 }

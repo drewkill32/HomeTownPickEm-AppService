@@ -18,6 +18,7 @@ import {
 import NewSeasonConfirmDialog from './NewSeasonConfirmDialog';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Box } from '@mui/system';
+import { useLeague } from '../contexts/LeagueProvider';
 
 interface LeagueCardParams {
   league: UserLeague;
@@ -34,6 +35,7 @@ const PastYearsMenu = ({ pastSeasons, slug }: PastYearsMenuParams) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+
   return (
     <div>
       <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
@@ -57,6 +59,7 @@ const PastYearsMenu = ({ pastSeasons, slug }: PastYearsMenuParams) => {
 export function LeagueCard({ league, season, user }: LeagueCardParams) {
   const [newLeague, setNewLeague] = useState<UserLeague>();
   const navigate = useNavigate();
+  const [, setLeague] = useLeague();
 
   const pastYears = (league?.years || []).filter((x) => x !== season);
   const handleNewSeason = (league: UserLeague) => {
@@ -74,7 +77,16 @@ export function LeagueCard({ league, season, user }: LeagueCardParams) {
           <Box sx={{ flexGrow: 1 }}>
             {league.years.includes(season) ? (
               <Button
-                onClick={() => navigate(`/league/${league.slug}/${season}`)}>
+                onClick={() => {
+                  setLeague({
+                    id: league.id,
+                    name: league.name,
+                    slug: league.slug,
+                    imageUrl: league.imageUrl,
+                    season: season,
+                  });
+                  navigate(`/league/${league.slug}/${season}`);
+                }}>
                 {`${season} Season`}
               </Button>
             ) : user.roles.includes(`commissioner:${league.id}`) ? (

@@ -80,6 +80,15 @@ namespace HomeTownPickEm.Controllers
             };
         }
 
+        [HttpPost("invite")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TokenDto>> Invite(InviteUser.Command command)
+        {
+            var user = await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status201Created);
+        }
+
+
         [HttpPost("validate")]
         [AllowAnonymous]
         public async Task<ActionResult<TokenDto>> Validate(Register.Command command)
@@ -140,5 +149,6 @@ namespace HomeTownPickEm.Controllers
 
             return Ok(user);
         }
+        
     }
 }

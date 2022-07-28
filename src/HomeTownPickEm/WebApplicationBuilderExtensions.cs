@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common;
@@ -28,10 +29,15 @@ public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder AddDbContext(this WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        void Configure(DbContextOptionsBuilder options)
+        {
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .EnableSensitiveDataLogging(builder.Environment.IsDevelopment()));
+                .EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+        }
+
+        builder.Services.AddDbContext<ApplicationDbContext>((Action<DbContextOptionsBuilder>)Configure);
+  
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         return builder;
@@ -44,12 +50,15 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IUserAccessor, UserAccessor>();
         builder.Services.AddHostedService<SeederWorkerService>();
-
+        builder.Services.AddScoped<IAuthorizationHandler, CommissionerHandler>();
         builder.Services.AddAuthorization(opt =>
         {
             opt.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
                 .Build();
+            opt.AddPolicy(Policies.LeagueCommissioner,
+                p => p.Requirements.Add(new CommissionerRequirement()));
+            opt.AddPolicy(Policies.Admin, p => p.RequireClaim(ClaimTypes.Role, Claims.Values.Admin));
         });
         var jwtOptions = new JwtOptions();
         builder.Configuration.GetSection("jwt").Bind(jwtOptions);
@@ -114,7 +123,6 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddSeeders();
-        builder.Services.AddScoped<ILeagueServiceFactory, LeagueServiceFactory>();
         builder.Services.Configure<SendGridSettings>(
             builder.Configuration.GetSection(SendGridSettings.SettingsKey));
 
@@ -148,12 +156,12 @@ public static class WebApplicationBuilderExtensions
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddSingleton<ISystemDate, DevSystemDate>();
-            builder.Services.AddSingleton<IEmailSender, DevEmailSender>();
+            builder.Services.AddScoped<IEmailSender, DevEmailSender>();
         }
         else
         {
             builder.Services.AddTransient<ISystemDate, SystemDate>();
-            builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+            builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
         }
 
         return builder;
