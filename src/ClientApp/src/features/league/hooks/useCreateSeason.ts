@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
+import { LeagueKeys } from '../utils/queryKeys';
 
 export interface CreateSeasonParams {
   leagueId: number;
@@ -12,7 +13,12 @@ export interface CreateSeasonParams {
 }
 
 export const useCreateSeason = () => {
-  return useMutation((body: CreateSeasonParams) =>
-    axios.post(`/api/league/new-season`, body).then((res) => res.data)
+  const queryClient = useQueryClient();
+  return useMutation(
+    (body: CreateSeasonParams) =>
+      axios.post(`/api/league/new-season`, body).then((res) => res.data),
+    {
+      onSuccess: () => queryClient.invalidateQueries(LeagueKeys.UserLeagues),
+    }
   );
 };

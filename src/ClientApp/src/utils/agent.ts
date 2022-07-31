@@ -100,7 +100,6 @@ export function setupAxios() {
             config.headers.Authorization = `Bearer ${newToken.access_token}`;
           }
         } else {
-          console.log('using non-expired token');
           config.headers.Authorization = `Bearer ${userToken.access_token}`;
         }
       }

@@ -19,6 +19,7 @@ import NewSeasonConfirmDialog from './NewSeasonConfirmDialog';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Box } from '@mui/system';
 import { useLeague } from '../contexts/LeagueProvider';
+import { League } from '../types';
 
 interface LeagueCardParams {
   league: UserLeague;
@@ -28,12 +29,13 @@ interface LeagueCardParams {
 
 interface PastYearsMenuParams {
   pastSeasons: string[];
-  slug: string;
+  league: Omit<League, 'season'>;
 }
 
-const PastYearsMenu = ({ pastSeasons, slug }: PastYearsMenuParams) => {
+const PastYearsMenu = ({ pastSeasons, league }: PastYearsMenuParams) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [, setLeague] = useLeague();
   const navigate = useNavigate();
 
   return (
@@ -47,7 +49,16 @@ const PastYearsMenu = ({ pastSeasons, slug }: PastYearsMenuParams) => {
         {pastSeasons.map((year) => (
           <MenuItem
             key={year}
-            onClick={() => navigate(`/league/${slug}/${year}`)}>
+            onClick={() => {
+              setLeague({
+                id: league.id,
+                name: league.name,
+                slug: league.slug,
+                imageUrl: league.imageUrl,
+                season: year,
+              });
+              navigate(`/league/${league.slug}/${year}`);
+            }}>
             {year}
           </MenuItem>
         ))}
@@ -65,6 +76,7 @@ export function LeagueCard({ league, season, user }: LeagueCardParams) {
   const handleNewSeason = (league: UserLeague) => {
     setNewLeague(league);
   };
+
   return (
     <>
       <Card>
@@ -91,7 +103,7 @@ export function LeagueCard({ league, season, user }: LeagueCardParams) {
               </Button>
             ) : user.claims['commissioner'] === league.id.toString() ? (
               <Button
-                disabled={Boolean(league)}
+                disabled={Boolean(!league)}
                 onClick={() => handleNewSeason(league)}>
                 Start new Season
               </Button>
@@ -102,7 +114,7 @@ export function LeagueCard({ league, season, user }: LeagueCardParams) {
               </Tooltip>
             )}
           </Box>
-          <PastYearsMenu pastSeasons={pastYears} slug={league.slug} />
+          <PastYearsMenu pastSeasons={pastYears} league={league} />
         </CardActions>
       </Card>
       <NewSeasonConfirmDialog
