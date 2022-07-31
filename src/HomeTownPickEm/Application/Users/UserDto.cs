@@ -51,7 +51,7 @@ namespace HomeTownPickEm.Application.Users
 
         public IEnumerable<UserLeagueDto> Leagues { get; set; }
 
-        public IEnumerable<string> Roles { get; set; }
+        public Dictionary<string, string> Claims { get; set; }
 
 
         public virtual void Mapping(Profile profile)

@@ -19,8 +19,11 @@ export interface UserTeam {
 }
 
 export interface User {
+  id: string;
   leagues: [UserLeague];
-  roles: [string];
+  claims: {
+    [key: string]: string;
+  };
   firstName: string;
   lastName: string;
   team: UserTeam;

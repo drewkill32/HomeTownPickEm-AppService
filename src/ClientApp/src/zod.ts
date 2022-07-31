@@ -4,6 +4,7 @@ export const UserToken = z.object({
   access_token: z.string(),
   expires_in: z.number(),
   refresh_token: z.string(),
+  version: z.number(),
 });
 
 export const RequestError = z.object({

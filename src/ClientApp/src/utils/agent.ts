@@ -59,6 +59,12 @@ const fetchNewRefreshToken = async (
       console.log(
         `refreshed token: ${token.refresh_token} with token: ${t.refresh_token}`
       );
+      if (t.version > token.version) {
+        console.log('the token is updated. forcing logout');
+        setUserToken(null);
+        window.location.reload();
+        return null;
+      }
       setUserToken(t);
       return t;
     }
@@ -122,7 +128,7 @@ export function setupAxios() {
         type: 'Unknown error',
         title: 'Unknown error',
         status: 600,
-        detail: 'Error settings up a request',
+        detail: 'Error setting up a request',
       } as RequestErrorType;
     }
   );

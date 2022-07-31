@@ -34,17 +34,12 @@ namespace HomeTownPickEm.Services.DataSeed.User
             }
 
             var claims = await _userManager.GetClaimsAsync(user);
-            if (!claims.Any(x => x.Type == ClaimTypes.Role && x.Value == Claims.Values.Admin))
-            {
-                await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, Claims.Values.Admin));
-            }
-
             await RemoveOldClaims(user, claims);
 
-            await AddCommissionerClaims(cancellationToken, claims, user);
+            await AddClaims(cancellationToken, claims, user);
         }
 
-        private async Task AddCommissionerClaims(CancellationToken cancellationToken, IList<Claim> claims,
+        private async Task AddClaims(CancellationToken cancellationToken, IList<Claim> claims,
             ApplicationUser user)
         {
             var leagueIds = await _context.League.Select(x => x.Id).ToArrayAsync(cancellationToken);
@@ -55,6 +50,12 @@ namespace HomeTownPickEm.Services.DataSeed.User
                     await _userManager.AddClaimAsync(user, new Claim(Claims.Types.Commissioner, id.ToString()));
                 }
             }
+
+            //add new role admin claim
+            if (!claims.Any(x => x.Type == Claims.Types.Admin && x.Value == Claims.Values.True))
+            {
+                await _userManager.AddClaimAsync(user, new Claim(Claims.Types.Admin, Claims.Values.True));
+            }
         }
 
         private async Task RemoveOldClaims(ApplicationUser user, IList<Claim> claims)
@@ -63,6 +64,12 @@ namespace HomeTownPickEm.Services.DataSeed.User
                 .Where(c => c.Type == ClaimTypes.Role &&
                             c.Value.StartsWith("commissioner:",
                                 StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+            await _userManager.RemoveClaimsAsync(user, claimsToRemove);
+
+            claimsToRemove = claims
+                .Where(c => c.Type == ClaimTypes.Role &&
+                            c.Value == Claims.Values.Admin)
                 .ToArray();
             await _userManager.RemoveClaimsAsync(user, claimsToRemove);
         }

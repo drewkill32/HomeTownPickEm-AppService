@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HomeTownPickEm.Application.Exceptions;
@@ -38,14 +37,13 @@ namespace HomeTownPickEm.Application.Users.Queries
                     .SingleOrDefaultAsync(cancellationToken);
 
 
-                user.Roles = (await _userManager.GetClaimsAsync(new ApplicationUser
+                user.Claims = (await _userManager.GetClaimsAsync(new ApplicationUser
                     {
                         Id = user.Id
-                    })).Where(c => c.Type == ClaimTypes.Role)
-                    .Select(c => c.Value.ToLower())
-                    .ToArray();
-                
-                
+                    }))
+                    .ToDictionary(x => x.Type.ToLower(), x => x.Value.ToLower());
+
+
                 if (user == null)
                 {
                     throw new NotFoundException($"User {request.Id} not found");

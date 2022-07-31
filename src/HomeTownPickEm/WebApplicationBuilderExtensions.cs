@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common;
@@ -58,7 +57,7 @@ public static class WebApplicationBuilderExtensions
                 .Build();
             opt.AddPolicy(Policies.LeagueCommissioner,
                 p => p.Requirements.Add(new CommissionerRequirement()));
-            opt.AddPolicy(Policies.Admin, p => p.RequireClaim(ClaimTypes.Role, Claims.Values.Admin));
+            opt.AddPolicy(Policies.Admin, p => p.RequireClaim(Claims.Types.Admin, Claims.Values.True));
         });
         var jwtOptions = new JwtOptions();
         builder.Configuration.GetSection("jwt").Bind(jwtOptions);

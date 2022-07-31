@@ -41,7 +41,7 @@ export const LeagueHome = () => {
                   mb: 1,
                 }}>
                 <Typography variant="h5">My Leagues</Typography>
-                {user.roles.includes('admin') && (
+                {user.claims['admin'] === 'true' && (
                   <Button variant="contained">Create League</Button>
                 )}
               </Stack>

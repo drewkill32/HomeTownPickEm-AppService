@@ -52,6 +52,27 @@ namespace HomeTownPickEm.Controllers
             return new StatusCodeResult(StatusCodes.Status204NoContent);
         }
 
+        [HttpPost("remove-member")]
+        public async Task<IActionResult> RemoveMember(RemoveMember.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
+        [HttpPost("make-commissioner")]
+        public async Task<IActionResult> MakeCommissioner(MakeCommissioner.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
+        [HttpPost("remove-commissioner")]
+        public async Task<IActionResult> RemoveCommissioner(RemoveCommissioner.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
 
         [HttpGet("{LeagueSlug}/{Season}/leaderboard")]
         public async Task<ActionResult<LeaderBoardDto>> Get([FromRoute] GetLeaderboard.Query query)

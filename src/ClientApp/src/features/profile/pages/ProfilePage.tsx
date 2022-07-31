@@ -30,8 +30,7 @@ const ProfileItem = ({ children }: ProfileItemProps) => {
       direction="row"
       alignItems="center"
       spacing={2}
-      justifyContent="space-between"
-    >
+      justifyContent="space-between">
       {children}
     </Stack>
   );
@@ -72,8 +71,7 @@ const FetchDataButton = ({ children, type }: FetchDataButtonProps) => {
       }}
       loading={isLoading}
       variant="contained"
-      onClick={handleClick}
-    >
+      onClick={handleClick}>
       {children}
     </LoadingButton>
   );
@@ -88,7 +86,7 @@ export const ProfilePage = () => {
     return null;
   }
 
-  const isAdmin = user.roles.includes('admin');
+  const isAdmin = user.claims['admin'] === 'true';
   const accessToken = jwt?.token || '';
 
   return (
@@ -114,8 +112,7 @@ export const ProfilePage = () => {
                 open={copied}
                 disableFocusListener
                 disableHoverListener
-                disableTouchListener
-              >
+                disableTouchListener>
                 <IconButton
                   color="primary"
                   onClick={() => {
@@ -124,8 +121,7 @@ export const ProfilePage = () => {
                       setCopied(true);
                       setTimeout(() => setCopied(false), 1200);
                     }
-                  }}
-                >
+                  }}>
                   <ContentCopyIcon />
                 </IconButton>
               </Tooltip>
@@ -143,8 +139,7 @@ export const ProfilePage = () => {
               <a
                 href={process.env.REACT_APP_API_URL || '#'}
                 target="_blank"
-                rel="noreferrer"
-              >
+                rel="noreferrer">
                 API
               </a>
             </ProfileItem>

@@ -14,8 +14,7 @@ const LeagueLayout = ({ children }: { children: JSX.Element }) => {
     { name: 'Leaderboard', path: `/league/${league}/${season}` },
     { name: 'Picks', path: `/league/${league}/${season}/weekly-stats` },
   ];
-  console.log({ user, league: l });
-  if (user && l && user.roles.includes(`commissioner:${l.id}`)) {
+  if (user && l && user.claims['commissioner'] === l.id.toString()) {
     pages.push({ name: 'Admin', path: `/league/${league}/${season}/admin` });
   }
 

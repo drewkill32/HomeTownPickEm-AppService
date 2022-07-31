@@ -42,7 +42,7 @@ const PastYearsMenu = ({ pastSeasons, slug }: PastYearsMenuParams) => {
         <MoreVertIcon />
       </IconButton>
       <Menu open={open} anchorEl={anchorEl} onClose={() => setAnchorEl(null)}>
-        <MenuItem>Previous Seasons</MenuItem>
+        <MenuItem disabled>Previous Seasons</MenuItem>
         <Divider />
         {pastSeasons.map((year) => (
           <MenuItem
@@ -89,7 +89,7 @@ export function LeagueCard({ league, season, user }: LeagueCardParams) {
                 }}>
                 {`${season} Season`}
               </Button>
-            ) : user.roles.includes(`commissioner:${league.id}`) ? (
+            ) : user.claims['commissioner'] === league.id.toString() ? (
               <Button
                 disabled={Boolean(league)}
                 onClick={() => handleNewSeason(league)}>

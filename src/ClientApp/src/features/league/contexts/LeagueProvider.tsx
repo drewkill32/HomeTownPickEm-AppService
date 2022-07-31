@@ -1,13 +1,6 @@
 import { createContext, useContext } from 'react';
 import useLocalStorage from '../../../hooks/useLocalStorage';
-
-export interface League {
-  id: number;
-  name: string;
-  slug: string;
-  imageUrl: string;
-  season: string;
-}
+import { League } from '../types';
 
 const LeagueContext = createContext<
   [League | null, (league: League | null) => void]

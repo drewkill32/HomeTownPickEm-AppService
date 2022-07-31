@@ -89,9 +89,10 @@ namespace HomeTownPickEm.Application.Users.Commands
                     await AddInvite(invite, user, cancellationToken);
                 }
 
-
+                
                 await _context.SaveChangesAsync(cancellationToken);
                 return Unit.Value;
+                
             }
 
             private async Task AddInvite(PendingInvite invite, ApplicationUser user, CancellationToken token)

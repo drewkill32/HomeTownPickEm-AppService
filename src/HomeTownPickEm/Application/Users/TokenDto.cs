@@ -15,4 +15,6 @@ public class TokenDto
 
     [JsonPropertyName("token_type")]
     public string TokenType { get; set; } = "Bearer";
+
+    public int Version { get; set; } = 1;
 }
