@@ -2,7 +2,7 @@ import React from 'react';
 import { Accordion, AccordionSummary } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Skeleton } from '@mui/lab';
+import { Skeleton } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   small: {
@@ -32,8 +32,7 @@ const UserSkeleton = () => {
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1a-content"
-        id="panel1a-header"
-      >
+        id="panel1a-header">
         <div className={classes.summary}>
           <Skeleton
             animation="wave"

@@ -16,6 +16,14 @@ namespace HomeTownPickEm.Controllers
             return Ok(userPicks);
         }
 
+        [HttpGet("league/{LeagueId}/season/{Season}/week/{Week}")]
+        public async Task<ActionResult<IEnumerable<UserPickCollection>>> GetUserPicks(
+            [FromRoute] GetCurrentWeekUserPicks.Query query)
+        {
+            var userPicks = await Mediator.Send(query);
+            return Ok(userPicks);
+        }
+
         [HttpGet("{leagueSlug}/{Season}")]
         public async Task<ActionResult<PicksCollection>> GetPicks([FromRoute] GetUserPicks.Query query)
         {
@@ -30,7 +38,7 @@ namespace HomeTownPickEm.Controllers
             return Ok(picks);
         }
 
-        [HttpGet("{LeagueSlug}/{Season}/week/{Week}")]
+        [HttpGet("league/{LeagueId}/season/{Season}/week/{Week}/user")]
         public async Task<ActionResult<PicksCollection>> GetPicksByUserWeek([FromRoute] GetUserPicks.Query query)
         {
             var picks = await Mediator.Send(query);

@@ -4,7 +4,6 @@ using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
-using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Utils;
 using MediatR;
@@ -16,7 +15,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
     {
         public class Query : IRequest<IEnumerable<UserPickCollection>>
         {
-            public string LeagueSlug { get; set; }
+            public int LeagueId { get; set; }
             public int Week { get; set; }
 
             public string Season { get; set; } = DateTime.Now.Year.ToString();
@@ -38,23 +37,12 @@ namespace HomeTownPickEm.Application.Picks.Queries
             public async Task<IEnumerable<UserPickCollection>> Handle(Query request,
                 CancellationToken cancellationToken)
             {
-                var date = _date.UtcNow;
 
                 var seasonId =
-                    await _context.Season.GetLeagueSeasonId(request.Season, request.LeagueSlug, cancellationToken);
-                var cutoffDate = (await _context.Calendar
-                        .Where(x => x.Week == request.Week
-                                    && x.Season == request.Season)
-                        .Select(x => x.FirstGameStart)
-                        .SingleOrDefaultAsync(cancellationToken))
-                    .GuardAgainstNotFound();
+                    await _context.Season.GetSeason(request.Season, request.LeagueId, cancellationToken);
 
-                if (date < cutoffDate)
-                {
-                    throw new ForbiddenAccessException(
-                        $"You can not view picks before the cutoff date. {cutoffDate:yyyy-M-d hh:mm}");
-                }
-
+                
+                
                 var users = await _context.Users
                     .Where(x => x.Seasons.Any(l => l.Id == seasonId))
                     .ProjectTo<UserPicksDto.UserProjection>(_mapper.ConfigurationProvider)

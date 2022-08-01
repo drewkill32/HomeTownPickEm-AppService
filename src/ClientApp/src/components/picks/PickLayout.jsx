@@ -1,10 +1,9 @@
-import { Divider, Paper, Typography } from '@mui/material';
+import { Divider, Paper, Tooltip, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import format from 'date-fns/format';
 
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
-import isBefore from 'date-fns/isBefore';
+import { isBefore, formatDistance } from 'date-fns';
 import grey from '@mui/material/colors/grey';
 import { useGame } from '../../hooks/useGame';
 
@@ -13,6 +12,7 @@ import { PickButton, SplitButton } from './PickButtons';
 import Head2HeadFooter from './Head2HeadFooter';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import UserPicks from './UserPicks';
+import { useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,8 +47,22 @@ const useStyles = makeStyles((theme) => ({
     gap: theme.spacing(2),
     paddingInline: theme.spacing(2),
     marginBottom: theme.spacing(1),
+    position: 'relative',
   },
 }));
+
+const DisabledTooltip = ({ children, disabled }) => {
+  if (disabled) {
+    return (
+      <Tooltip
+        enterDelay={500}
+        title="You are unable to change your pick. The Game has already started.">
+        {children}
+      </Tooltip>
+    );
+  }
+  return children;
+};
 
 const PickLayout = ({ game: currentGame }) => {
   const classes = useStyles();
@@ -84,9 +98,10 @@ const PickLayout = ({ game: currentGame }) => {
 
   return (
     <Paper className={classes.root}>
-      {isBefore(new Date(), game.cutoffDate) && (
+      {isBefore(game.currentDateTime, game.cutoffDate) && (
         <Typography gutterBottom className={classes.subtitle} align="center">
-          Pick will lock in {formatDistanceToNow(game.cutoffDate)}
+          Pick will lock in{' '}
+          {formatDistance(game.currentDateTime, game.cutoffDate)}
           <LockOutlinedIcon className={classes.subtitleLock} />
         </Typography>
       )}
@@ -94,77 +109,91 @@ const PickLayout = ({ game: currentGame }) => {
       <Typography gutterBottom align="center">
         {format(game.startDate, 'E MMM do h:mm a')}
       </Typography>
-      <div className={classes.buttonContainer}>
-        <PickButton
-          team={game.away}
-          disabled={pastCutoff}
-          noWrap={pastCutoff}
-          onClick={() =>
-            handleClick(
-              game.picks.map((p) => ({
-                pickId: p.id,
-                selectedTeamId: game.away.id,
-              })),
-              'away'
-            )
-          }
-          selected={awaySelected}
-        >
-          {pastCutoff && game.away.percentPicked !== null && (
-            <Typography noWrap className={classes.percentPicked}>
-              {game.away.percentPicked}% picked
-            </Typography>
+      <DisabledTooltip disabled={pastCutoff}>
+        <div className={classes.buttonContainer}>
+          {pastCutoff && (
+            <LockOutlinedIcon
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                opacity: 0.7,
+                transform: 'translate(-50%, -50%)',
+                fontSize: '80px',
+                zIndex: '999',
+                color: grey[500],
+              }}
+            />
           )}
-          <Typography variant="h6">{game.away.points}</Typography>
-          {game.winner === 'Away' && <ArrowDropUpIcon />}
-        </PickButton>
-        {game.head2Head && (
-          <SplitButton
+          <PickButton
+            team={game.away}
             disabled={pastCutoff}
-            selected={splitSelected}
+            noWrap={pastCutoff}
             onClick={() =>
               handleClick(
-                [
-                  { pickId: game.picks[0].id, selectedTeamId: game.away.id },
-                  { pickId: game.picks[1].id, selectedTeamId: game.home.id },
-                ],
-                'split'
+                game.picks.map((p) => ({
+                  pickId: p.id,
+                  selectedTeamId: game.away.id,
+                })),
+                'away'
               )
             }
-            teams={[
-              {
-                ...game.away,
-              },
-              {
-                ...game.home,
-              },
-            ]}
-          />
-        )}
-        <PickButton
-          team={game.home}
-          disabled={pastCutoff}
-          noWrap={pastCutoff}
-          onClick={() =>
-            handleClick(
-              game.picks.map((p) => ({
-                pickId: p.id,
-                selectedTeamId: game.home.id,
-              })),
-              'home'
-            )
-          }
-          selected={homeSelected}
-        >
-          {pastCutoff && game.home.percentPicked !== null && (
-            <Typography noWrap className={classes.percentPicked}>
-              {game.home.percentPicked}% picked
-            </Typography>
+            selected={awaySelected}>
+            {pastCutoff && game.away.percentPicked !== null && (
+              <Typography noWrap className={classes.percentPicked}>
+                {game.away.percentPicked}% picked
+              </Typography>
+            )}
+            <Typography variant="h6">{game.away.points}</Typography>
+            {game.winner === 'Away' && <ArrowDropUpIcon />}
+          </PickButton>
+          {game.head2Head && (
+            <SplitButton
+              disabled={pastCutoff}
+              selected={splitSelected}
+              onClick={() =>
+                handleClick(
+                  [
+                    { pickId: game.picks[0].id, selectedTeamId: game.away.id },
+                    { pickId: game.picks[1].id, selectedTeamId: game.home.id },
+                  ],
+                  'split'
+                )
+              }
+              teams={[
+                {
+                  ...game.away,
+                },
+                {
+                  ...game.home,
+                },
+              ]}
+            />
           )}
-          <Typography variant="h6">{game.home.points}</Typography>
-          {game.winner === 'Home' && <ArrowDropUpIcon />}
-        </PickButton>
-      </div>
+          <PickButton
+            team={game.home}
+            disabled={pastCutoff}
+            noWrap={pastCutoff}
+            onClick={() =>
+              handleClick(
+                game.picks.map((p) => ({
+                  pickId: p.id,
+                  selectedTeamId: game.home.id,
+                })),
+                'home'
+              )
+            }
+            selected={homeSelected}>
+            {pastCutoff && game.home.percentPicked !== null && (
+              <Typography noWrap className={classes.percentPicked}>
+                {game.home.percentPicked}% picked
+              </Typography>
+            )}
+            <Typography variant="h6">{game.home.points}</Typography>
+            {game.winner === 'Home' && <ArrowDropUpIcon />}
+          </PickButton>
+        </div>
+      </DisabledTooltip>
       {game.winner === 'Pending' && game.head2Head && <Head2HeadFooter />}
       {}
       {pastCutoff && (

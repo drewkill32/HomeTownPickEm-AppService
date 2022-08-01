@@ -22,7 +22,7 @@ const convertData = (data: any): CalendarItem[] => {
 
 export function useSchedule() {
   const { data: season } = useCurrentSeason();
-  const queryKey = `schedule-${season}`;
+  const queryKey = `schedule-${season?.season}`;
   return useLocalQuery<CalendarItem[]>(
     queryKey,
     () =>

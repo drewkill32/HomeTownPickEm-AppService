@@ -19,7 +19,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
         {
             public int Week { get; set; }
 
-            public string LeagueSlug { get; set; }
+            public int LeagueId { get; set; }
 
             public string Season { get; set; }
         }
@@ -42,7 +42,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                 var userId = (await _accessor.GetCurrentUserAsync()).Id;
 
                 var seasonId = await _context.Season
-                    .Where(s => s.Year == request.Season && s.League.Slug == request.LeagueSlug)
+                    .Where(s => s.Year == request.Season && s.LeagueId == request.LeagueId)
                     .Select(s => s.Id)
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -99,7 +99,9 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
                 foreach (var game in games)
                 {
-                    game.CutoffDate = game.StartDate.AddMinutes(-5);
+                    game.CutoffDate = game.StartDate.AddMinutes(-1);
+                    game.IsPastCutoff = game.StartDate < _date.UtcNow;
+                    game.CurrentDateTime = _date.UtcNow;
                     game.Head2Head = leagueTeamIds.Contains(game.Home.Id) && leagueTeamIds.Contains(game.Away.Id);
                     if (_date.UtcNow > game.CutoffDate && pickTotals.TryGetValue(game.Id, out var totals))
                     {
@@ -199,6 +201,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
         public DateTimeOffset? CutoffDate { get; set; }
         public string Winner { get; set; }
         public bool Head2Head { get; set; }
+        public bool IsPastCutoff { get; set; }
+        public DateTimeOffset CurrentDateTime { get; set; }
     }
 
 

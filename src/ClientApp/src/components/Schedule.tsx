@@ -1,4 +1,4 @@
-import { useWeek } from '../hooks/useWeek';
+import { useWeek } from '../features/SeasonPicks/hooks/useWeek';
 import {
   Card,
   CardContent,
@@ -47,7 +47,7 @@ import { useEffect, useState } from 'react';
 // }));
 
 const Schedule = () => {
-  const [week, setWeek] = useWeek();
+  const { week, setWeek } = useWeek();
   const [curWeek, setCurWeek] = useState<CalendarItem>();
 
   const { data: schedule } = useSchedule();
@@ -88,7 +88,7 @@ const Schedule = () => {
   if (!curWeek) {
     return <Skeleton />;
   }
-  console.log(curWeek);
+
   return (
     <Box
       sx={{

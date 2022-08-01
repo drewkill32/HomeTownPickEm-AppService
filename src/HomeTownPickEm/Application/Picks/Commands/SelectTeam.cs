@@ -107,7 +107,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
 
             private void GuardAgainstPickPastCutoff(Game game)
             {
-                var cutOffDate = game.StartDate.AddMinutes(-5);
+                var cutOffDate = game.StartDate.AddMinutes(-1);
                 var currDate = _date.UtcNow;
                 if (currDate > cutOffDate)
                 {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { useWeek } from '../hooks/useWeek';
+import { useWeek } from '../features/SeasonPicks/hooks/useWeek';
 
 const Callout = () => {
   const week = useWeek();

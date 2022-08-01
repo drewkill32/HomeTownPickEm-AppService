@@ -14,4 +14,13 @@ public static class QueryableSeasonExtensions
                 .FirstOrDefaultAsync(cancellationToken))
             .GuardAgainstNotFound($"There is no season with year {year} and league {slug}");
     }
+
+    public static async Task<int> GetSeason(this IQueryable<Season> season, string year, int leagueId,
+        CancellationToken cancellationToken)
+    {
+        return (await season.Where(s => s.Year == year && s.LeagueId == leagueId)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync(cancellationToken))
+            .GuardAgainstNotFound($"There is no season with year {year} and league {leagueId}");
+    }
 }

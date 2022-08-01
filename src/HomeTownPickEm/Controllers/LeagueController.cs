@@ -93,7 +93,7 @@ namespace HomeTownPickEm.Controllers
             return Ok(league);
         }
 
-        [HttpGet("{LeagueSlug}/{Season}/game/{gameId}")]
+        [HttpGet("{LeagueId}/{Season}/game/{GameId}")]
         public async Task<ActionResult<IEnumerable<UserPickResponse>>> GetMemberGamePicks(
             [FromRoute] GetMemberPicksByGame.Query query)
         {

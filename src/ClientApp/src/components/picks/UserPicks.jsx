@@ -12,6 +12,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import { makeStyles } from '@mui/styles';
+import { useLeague } from '../../features/league';
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -59,8 +60,7 @@ const UserAvatar = ({ pick, direction = 'left' }) => {
         alignItems: 'center',
         gap: '0.5rem',
         flexDirection: direction === 'left' ? 'row' : 'row-reverse',
-      }}
-    >
+      }}>
       <Badge
         anchorOrigin={{ horizontal: direction, vertical: 'top' }}
         color="primary"
@@ -70,8 +70,7 @@ const UserAvatar = ({ pick, direction = 'left' }) => {
             {pick.rank}
             <sup>{getNumberSuffix(pick.rank)}</sup>
           </div>
-        }
-      >
+        }>
         <Avatar className={classes.avatar}>{pick.initials}</Avatar>
       </Badge>
       <Typography align={direction}>{pick.name}</Typography>
@@ -82,12 +81,12 @@ const UserAvatar = ({ pick, direction = 'left' }) => {
 const UserPicks = ({ gameId, homeId, awayId }) => {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
-
+  const [league] = useLeague();
   const { data } = useQuery(
     ['gamePicks', gameId],
     () =>
       axios
-        .get(`/api/league/st-pete-pick-em/game/${gameId}`)
+        .get(`/api/league/${league.id}/${league.season}/game/${gameId}`)
         .then((res) => res.data),
     {
       enabled: expanded,
@@ -118,8 +117,7 @@ const UserPicks = ({ gameId, homeId, awayId }) => {
             alignItems="flex-start"
             direction="column"
             justifyContent="flex-start"
-            className={classes.grid}
-          >
+            className={classes.grid}>
             {awayPicks.map((pick) => (
               <Grid item key={pick.userId}>
                 <UserAvatar pick={pick} direction="left" />
@@ -135,8 +133,7 @@ const UserPicks = ({ gameId, homeId, awayId }) => {
             alignItems="flex-end"
             direction="column"
             justifyContent="flex-start"
-            className={classes.grid}
-          >
+            className={classes.grid}>
             {homePicks.map((pick) => (
               <Grid item key={pick.userId}>
                 <UserAvatar pick={pick} direction="right" />

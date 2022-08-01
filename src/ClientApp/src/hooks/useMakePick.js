@@ -1,15 +1,12 @@
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
-import { useAuth } from '../features/authentication';
-import { useWeek } from './useWeek';
+import { useWeek } from '../features/SeasonPicks/hooks/useWeek';
+import { useLeague } from '../features/league';
 
 export const useMakePick = () => {
   const queryClient = useQueryClient();
-
-  const {
-    user: { id },
-  } = useAuth();
-  const week = useWeek();
+  const { week } = useWeek();
+  const [league] = useLeague();
 
   return useMutation(
     (picks) => {
@@ -17,7 +14,12 @@ export const useMakePick = () => {
     },
     {
       onSettled: () => {
-        queryClient.invalidateQueries(['picks', id, week]);
+        queryClient.invalidateQueries([
+          'picks',
+          league.id,
+          league.season,
+          week,
+        ]);
       },
     }
   );

@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HomeTownPickEm.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +10,9 @@ namespace HomeTownPickEm.Application.Leagues.Queries
         {
             public int GameId { get; set; }
 
-            public string LeagueSlug { get; set; }
+            public int LeagueId { get; set; }
+
+            public string Season { get; set; }
         }
 
         public class QueryCommand : IRequestHandler<Query, IEnumerable<UserPickResponse>>
@@ -32,7 +30,9 @@ namespace HomeTownPickEm.Application.Leagues.Queries
                         join t in _context.Teams on l.TeamId equals t.Id
                         join u in _context.Users on l.UserId equals u.Id
                         join p in _context.Pick on l.UserId equals p.UserId
-                        where l.LeagueSlug == request.LeagueSlug && p.GameId == request.GameId
+                        where l.LeagueId == request.LeagueId
+                              && l.Year == request.Season
+                              && p.GameId == request.GameId
                         select new
                         {
                             u.Id,

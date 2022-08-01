@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { CircularProgress, Container, LinearProgress } from '@mui/material';
+import {
+  CircularProgress,
+  Container,
+  LinearProgress,
+  Typography,
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 import { withStyles } from '@mui/styles';
@@ -8,6 +13,7 @@ import PickLayout from './PickLayout';
 import Schedule from '../Schedule';
 import { getUTCDate } from '../../utils/dates';
 import isAfter from 'date-fns/isAfter';
+import { Box } from '@mui/system';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,45 +67,71 @@ const PicksHome = () => {
         : 0,
     [games]
   );
-  const normalise = useCallback(
+  const normalize = useCallback(
     (value) => ((value - 0) * 100) / (gameCount - 0),
     [gameCount]
   );
 
-  const isPastCutoff = useMemo(() => {
-    if (!games) return false;
-
-    const minCutoff = games.reduce((a, b) =>
-      a.cutoffDate < b.cutoffDate ? a : b
-    ).cutoffDate;
-
-    return isAfter(getUTCDate(), minCutoff);
-  }, [games]);
   if (isLoading) {
     return <CircularProgress />;
   }
   return (
     <div className={classes.root}>
-      <Schedule />
-      <Container maxWidth="sm" className={classes.container}>
-        {games.map((game) => (
-          <PickLayout key={game.id} game={game} />
-        ))}
+      <Container
+        maxWidth="sm"
+        sx={{
+          marginTop: '30px',
+          paddingBottom: '40px',
+        }}>
+        {games.length === 0 ? (
+          <Container>
+            <Typography variant="h6" align="center">
+              There are league games this week
+            </Typography>
+          </Container>
+        ) : (
+          games.map((game) => <PickLayout key={game.id} game={game} />)
+        )}
       </Container>
-      <div className={classes.footer}>
-        <p>
-          {isPastCutoff ? 'All picks are locked' : 'All Changes will autosave'}
-        </p>
-        <div className={classes.progress}>
+      <Box
+        sx={{
+          zIndex: '999',
+          position: 'fixed',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingInline: '2rem',
+          background:
+            'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(235,235,235,1) 85%, #a1a1a1 100%)',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '60px',
+          borderTop: '1px solid #353535',
+        }}>
+        <p>'All Changes will autosave</p>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            width: '140px',
+            '& > *': {
+              padding: 0,
+              marginBottom: '5px',
+            },
+          }}>
           <p>
             {selCount}/{gameCount} Picks Made
           </p>
           <BorderLinearProgress
+            sx={{ width: '100%' }}
             variant="determinate"
-            value={normalise(selCount)}
+            value={normalize(selCount)}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
     </div>
   );
 };
