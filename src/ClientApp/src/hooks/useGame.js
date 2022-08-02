@@ -1,4 +1,3 @@
-import { isAfter } from 'date-fns';
 import { useMemo, useReducer } from 'react';
 
 const ACTIONS = {
@@ -49,7 +48,6 @@ export const useGame = (game) => {
     () => state.picks.every((p) => p.selectedTeamId === state.away.id),
     [state]
   );
-  console.log({ game });
 
   const pastCutoff = game.isPastCutoff;
 

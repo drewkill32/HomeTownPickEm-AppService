@@ -194,7 +194,7 @@ const PickLayout = ({ game: currentGame }) => {
         </div>
       </DisabledTooltip>
       {game.winner === 'Pending' && game.head2Head && <Head2HeadFooter />}
-      {}
+
       {pastCutoff && (
         <UserPicks
           homeId={game.home.id}

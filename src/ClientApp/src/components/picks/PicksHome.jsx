@@ -1,16 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  CircularProgress,
-  Container,
-  LinearProgress,
-  Typography,
-} from '@mui/material';
+import { Container, LinearProgress, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 import { withStyles } from '@mui/styles';
 import useGetPicks from '../../hooks/useGetPicks';
 import PickLayout from './PickLayout';
 import { Box } from '@mui/system';
+import { PickLayoutSkeleton } from './PicksHomeSkeleton';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -69,8 +65,8 @@ const PicksHome = () => {
     [gameCount]
   );
 
-  if (isLoading) {
-    return <CircularProgress />;
+  if (isLoading || !games) {
+    return <PickLayoutSkeleton />;
   }
   return (
     <div className={classes.root}>
