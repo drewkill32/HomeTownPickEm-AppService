@@ -95,12 +95,12 @@ const UserPicks = ({ gameId, homeId, awayId }) => {
 
   const homePicks = useMemo(
     () => (data ? data.filter((pick) => pick.selectedTeamId === homeId) : []),
-    [data]
+    [data, homeId]
   );
 
   const awayPicks = useMemo(
     () => (data ? data.filter((pick) => pick.selectedTeamId === awayId) : []),
-    [data]
+    [data, awayId]
   );
 
   return (

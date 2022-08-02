@@ -10,12 +10,9 @@ import { makeStyles } from '@mui/styles';
 import { withStyles } from '@mui/styles';
 import useGetPicks from '../../hooks/useGetPicks';
 import PickLayout from './PickLayout';
-import Schedule from '../Schedule';
-import { getUTCDate } from '../../utils/dates';
-import isAfter from 'date-fns/isAfter';
 import { Box } from '@mui/system';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     position: 'relative',
   },
@@ -136,7 +133,7 @@ const PicksHome = () => {
   );
 };
 
-const BorderLinearProgress = withStyles((theme) => ({
+const BorderLinearProgress = withStyles(() => ({
   root: {
     height: 6,
     borderRadius: 2,

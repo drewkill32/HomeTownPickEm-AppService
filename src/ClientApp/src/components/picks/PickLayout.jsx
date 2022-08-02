@@ -12,7 +12,6 @@ import { PickButton, SplitButton } from './PickButtons';
 import Head2HeadFooter from './Head2HeadFooter';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import UserPicks from './UserPicks';
-import { useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   root: {
