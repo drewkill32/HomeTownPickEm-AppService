@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode } from 'react';
 import { PickContextProps } from '../types';
 import { useParamState } from '../../../hooks/useParamState';
 

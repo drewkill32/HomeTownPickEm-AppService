@@ -21,6 +21,7 @@ export function useParamState(
       searchParams.delete(key);
       setSearchParams(searchParams);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, value]);
 
   return [value, setValue];
