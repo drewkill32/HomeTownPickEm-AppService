@@ -1,60 +1,37 @@
-import { useState } from 'react';
 import {
-  Alert,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Avatar,
   Badge,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
+  Box,
+  Grid,
   IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Menu,
-  MenuItem,
+  Paper,
   Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { Navigate, useLocation } from 'react-router-dom';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useAuth } from '../../authentication';
 import { useLeagueAdmin } from '../hooks/useLeagueAdmin';
-import { blueGrey } from '@mui/material/colors';
-import { LoadingButton } from '@mui/lab';
+import { blueGrey, red } from '@mui/material/colors';
 import { LeagueAdminMember } from '../types';
-import { useRemoveMember } from '../hooks/useRemoveMember';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useMakeCommissioner } from '../hooks/useMakeCommissioner';
-import { useRemoveCommissioner } from '../hooks/useRemoveCommissioner';
+import { AddNewMemberButton } from '../components/AddNewMemberButton';
+import { AdminMemberMenuButton } from '../components/AdminMemberMenuButton';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DeleteIcon from '@mui/icons-material/Delete';
+import React, { useState } from 'react';
 
 function AdminMemberListItem({ member }: { member: LeagueAdminMember }) {
-  const { user } = useAuth();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [openDialog, setOpenDialog] = useState(false);
-  const { mutateAsync, isLoading } = useRemoveMember();
-  const { mutateAsync: makeCommissioner } = useMakeCommissioner();
-  const { mutateAsync: removeCommissioner } = useRemoveCommissioner();
-
-  const open = Boolean(anchorEl);
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  if (!user) {
-    return null;
-  }
   return (
-    <ListItem
-      secondaryAction={
-        <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
-          <MoreVertIcon />
-        </IconButton>
-      }>
+    <ListItem secondaryAction={<AdminMemberMenuButton member={member} />}>
       <ListItemAvatar>
         <Badge
           badgeContent={
@@ -79,81 +56,60 @@ function AdminMemberListItem({ member }: { member: LeagueAdminMember }) {
         </Badge>
       </ListItemAvatar>
       <ListItemText primary={member.fullName}></ListItemText>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}>
-        {user.claims['admin'] === 'true' && member.isCommissioner ? (
-          <MenuItem
-            onClick={async () => {
-              await removeCommissioner(member.id);
-              handleClose();
-            }}>
-            Remove Commissioner Role
-          </MenuItem>
-        ) : (
-          <MenuItem
-            onClick={async () => {
-              await makeCommissioner(member.id);
-              handleClose();
-            }}>
-            Make Commissioner
-          </MenuItem>
-        )}
-
-        <MenuItem
-          onClick={() => {
-            setOpenDialog(true);
-            handleClose();
-          }}>
-          Remove Member
-        </MenuItem>
-      </Menu>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>
-          {`Delete ${member.fullName} from the league?`}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            <Alert severity="error" icon={false}>
-              <p>
-                {`Are you sure you want to remove ${member.fullName} from the league?`}
-              </p>
-              <p>
-                This will remove the member all of their picks. This action
-                cannot be undone.
-              </p>
-            </Alert>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={() => setOpenDialog(false)}>
-            Cancel
-          </Button>
-          <LoadingButton
-            color="error"
-            loading={isLoading}
-            variant="contained"
-            onClick={async () => {
-              await mutateAsync(member.id);
-              setOpenDialog(false);
-            }}
-            autoFocus>
-            Delete
-          </LoadingButton>
-        </DialogActions>
-      </Dialog>
     </ListItem>
   );
 }
 
+interface AdminMemberListProps {
+  addButton: React.ReactNode;
+  children?: React.ReactNode;
+  title: string;
+}
+
+const AdminList = ({ addButton, children, title }: AdminMemberListProps) => {
+  const theme = useTheme();
+  const xs = useMediaQuery(theme.breakpoints.down('sm'));
+  const [open, setOpen] = useState(false);
+  return (
+    <Paper>
+      <Accordion
+        expanded={open || !xs}
+        onChange={(e) => {
+          //don't do anything if the user clicked on a button in the header
+          if (e.target instanceof Element && e.target.tagName !== 'BUTTON') {
+            setOpen(!open);
+          }
+        }}>
+        <AccordionSummary
+          expandIcon={xs ? <ExpandMoreIcon /> : null}
+          sx={{
+            cursor: 'default',
+            '&.MuiAccordionSummary-root:hover': {
+              cursor: { xs: 'pointer', sm: 'default' },
+            },
+          }}>
+          <Stack sx={{ width: '100%' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+              }}>
+              <Typography>{title}</Typography>
+              {addButton}
+            </Box>
+          </Stack>
+        </AccordionSummary>
+        <AccordionDetails>{children}</AccordionDetails>
+      </Accordion>
+    </Paper>
+  );
+};
+
 export const LeagueAdmin = () => {
   const { user } = useAuth();
-  let location = useLocation();
+  const location = useLocation();
 
   const { data } = useLeagueAdmin();
 
@@ -164,40 +120,55 @@ export const LeagueAdmin = () => {
     return <Navigate to={'/unauthorized'} state={{ from: location }} />;
   }
   return (
-    <Stack spacing={2} justifyContent="center" direction="row">
-      <List sx={{ width: '100%' }}>
-        {data.members.map((member) => (
-          <AdminMemberListItem key={member.id} member={member} />
-        ))}
-      </List>
-      <Divider variant="middle" orientation="vertical" flexItem />
+    <Grid container spacing={2} justifyContent="center" direction="row">
+      <Grid item xs={12} sm={6}>
+        <AdminList
+          title="Members"
+          addButton={
+            <AddNewMemberButton sx={{ marginRight: { xs: 3, sm: 0 } }} />
+          }>
+          <List sx={{ width: '100%' }}>
+            {data.members.map((member) => (
+              <AdminMemberListItem key={member.id} member={member} />
+            ))}
+          </List>
+        </AdminList>
+      </Grid>
 
-      <List sx={{ width: '100%' }}>
-        {data.teams.map((team) => (
-          <ListItem
-            key={team.id}
-            secondaryAction={
-              <IconButton>
-                <MoreVertIcon />
-              </IconButton>
-            }>
-            <ListItemAvatar>
-              <Avatar
-                sx={{
-                  bgcolor: team.altColor || blueGrey[500],
-                  '& img': {
-                    width: '25px',
-                    height: '25px',
-                  },
-                }}
-                src={team.logo}
-                alt={team.name}
-              />
-            </ListItemAvatar>
-            <ListItemText primary={team.name}></ListItemText>
-          </ListItem>
-        ))}
-      </List>
-    </Stack>
+      <Grid item xs={12} sm={6}>
+        <AdminList
+          title="Teams"
+          addButton={
+            <AddNewMemberButton sx={{ marginRight: { xs: 3, sm: 0 } }} />
+          }>
+          <List sx={{ width: '100%' }}>
+            {data.teams.map((team) => (
+              <ListItem
+                key={team.id}
+                secondaryAction={
+                  <IconButton>
+                    <DeleteIcon sx={{ color: red[500] }} />
+                  </IconButton>
+                }>
+                <ListItemAvatar>
+                  <Avatar
+                    sx={{
+                      bgcolor: team.altColor || blueGrey[500],
+                      '& img': {
+                        width: '25px',
+                        height: '25px',
+                      },
+                    }}
+                    src={team.logo}
+                    alt={team.name}
+                  />
+                </ListItemAvatar>
+                <ListItemText primary={team.name}></ListItemText>
+              </ListItem>
+            ))}
+          </List>
+        </AdminList>
+      </Grid>
+    </Grid>
   );
 };

@@ -101,14 +101,11 @@ namespace HomeTownPickEm.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{id}/availableteams")]
+        [HttpGet("{LeagueId}/{Season}/availableteams")]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<TeamDto>>> GetNotInLeague(int id)
+        public async Task<ActionResult<IEnumerable<TeamDto>>> GetNotInLeague([FromRoute] TeamsNotInLeague.Query query)
         {
-            var query = new TeamsNotInLeague.Query
-            {
-                LeagueId = id
-            };
+          
             var teams = await Mediator.Send(query);
             return Ok(teams);
         }

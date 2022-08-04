@@ -12,6 +12,6 @@ const HomeSelection = () => {
   if (league) {
     return <Navigate to={`/league/${league.slug}/${league.season}`} />;
   }
-  return <Navigate to={`/home`} />;
+  return <Navigate to={`/leagues`} />;
 };
 export default HomeSelection;

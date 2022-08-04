@@ -45,13 +45,15 @@ namespace HomeTownPickEm.Application.Users
         public string Id { get; set; }
         public string Email { get; set; }
         
-        public TeamDto Team { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
 
-        public IEnumerable<UserLeagueDto> Leagues { get; set; }
+
+        public TeamDto Team { get; set; }
 
         public Dictionary<string, string> Claims { get; set; }
+
+
 
 
         public virtual void Mapping(Profile profile)
@@ -63,8 +65,7 @@ namespace HomeTownPickEm.Application.Users
         protected void MapProperties<T>(IMappingExpression<ApplicationUser, T> exp) where T : UserDto
         {
             exp.ForMember(x => x.FirstName, exp => exp.MapFrom(s => s.Name.First))
-                .ForMember(x => x.LastName, exp => exp.MapFrom(s => s.Name.Last))
-                .ForMember(x => x.Leagues, exp => exp.MapFrom(s => s.Seasons.Select(x => x.League)));
+                .ForMember(x => x.LastName, exp => exp.MapFrom(s => s.Name.Last));
         }
         
     }

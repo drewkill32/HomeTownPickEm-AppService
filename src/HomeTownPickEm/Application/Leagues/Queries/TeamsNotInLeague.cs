@@ -11,22 +11,22 @@ namespace HomeTownPickEm.Application.Leagues.Queries
         public class Query : IRequest<IEnumerable<TeamDto>>
         {
             public int LeagueId { get; set; }
+            public string Season { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, IEnumerable<TeamDto>>
         {
             private readonly ApplicationDbContext _context;
-            private readonly GameTeamRepository _repository;
 
             public QueryHandler(ApplicationDbContext context, GameTeamRepository repository)
             {
                 _context = context;
-                _repository = repository;
             }
 
             public async Task<IEnumerable<TeamDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var teamIds = await _context.Season
+                    .Where(s => s.LeagueId == request.LeagueId && s.Year == request.Season)
                     .Include(x => x.Teams)
                     .SelectMany(x => x.Teams, (_, team) => team.Id)
                     .ToArrayAsync(cancellationToken);

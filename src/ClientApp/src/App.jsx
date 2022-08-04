@@ -22,6 +22,7 @@ import {
 import WeeklyStats from './components/WeeklyStats';
 import { ProfilePage } from './features/profile';
 import { PickProvider } from './features/SeasonPicks/contexts/PickContext';
+import HomeSelection from './pages/HomeSelection';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,8 +39,9 @@ const App = () => {
         <LeagueProvider>
           <Routes>
             <Route path="/" element={<Home />}>
-              <Route index element={<LeagueHome />} />
+              <Route index element={<HomeSelection />} />
               <Route path="profile" element={<ProfilePage />} />
+              <Route path="leagues" element={<LeagueHome />} />
               <Route path="league/:league/:season" element={<LeagueIndex />}>
                 <Route index element={<Leaderboard />}></Route>
                 <Route

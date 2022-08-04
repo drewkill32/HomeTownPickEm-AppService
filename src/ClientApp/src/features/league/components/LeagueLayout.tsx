@@ -10,7 +10,7 @@ const LeagueLayout = ({ children }: { children: JSX.Element }) => {
   const [l] = useLeague();
 
   const pages = [
-    { name: 'Leagues', path: '/' },
+    { name: 'Leagues', path: '/leagues' },
     { name: 'Leaderboard', path: `/league/${league}/${season}` },
     { name: 'Picks', path: `/league/${league}/${season}/weekly-stats` },
   ];

@@ -187,7 +187,7 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
                       height: '25px',
                     },
                   }}
-                  alt={`${user?.team.school} ${user?.team.mascot}`}
+                  alt={user?.lastName}
                   src={user?.team.logo}
                 />
               </IconButton>

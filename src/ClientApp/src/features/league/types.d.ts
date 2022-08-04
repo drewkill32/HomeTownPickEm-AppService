@@ -22,6 +22,15 @@ export interface MakeCommissionerData {
   memberId: string;
 }
 
+export interface AddMemberData {
+  email: string;
+  lastName: string;
+  firstName: string;
+  leagueId: number;
+  season: string;
+  teamId?: number | null;
+}
+
 export interface RemoveCommissionerData extends MakeCommissionerData {}
 
 export interface LeagueAdminMember {
@@ -34,6 +43,12 @@ export interface LeagueAdminMember {
   initials: string;
   color: string;
   isCommissioner: boolean;
+}
+
+export interface AvailableTeamsResult {
+  id: number;
+  name: string;
+  logo: string;
 }
 
 export interface LeagueAdminTeam {

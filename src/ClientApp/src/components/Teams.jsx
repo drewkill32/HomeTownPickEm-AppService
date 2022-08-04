@@ -17,9 +17,7 @@ const TeamsTable = ({ teams }) => {
           <tr key={team.id}>
             <td>
               <img
-                onError={(e) =>
-                  (e.target.src = 'https://placehold.jp/50x50.png')
-                }
+                onError={(e) => (e.target.src = '/img/helmet.png')}
                 loading={index < 15 ? 'eager' : 'lazy'}
                 src={team.logo}
                 alt={team.name}

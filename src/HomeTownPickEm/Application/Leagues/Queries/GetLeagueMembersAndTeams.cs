@@ -57,12 +57,52 @@ public class GetLeagueMembersAndTeams
 
             await AssignCommissioner(league.Members, request.Id.ToString(), cancellationToken);
 
+            var (pendingMembers, pendingTeams) =
+                await GetPendingInvites(request, cancellationToken);
 
+            
+            
             return new
             {
                 Members = league.Members.OrderBy(m => m.FullName).ToArray(),
-                Teams = league.Teams.OrderBy(t => t.Name).ToArray()
+                Teams = league.Teams.OrderBy(t => t.Name).ToArray(),
+                PendingMembers = pendingMembers,
+                PendingTeams = pendingTeams
             };
+        }
+
+        private async Task<(IEnumerable<object> Members, IEnumerable<object> Teams)> GetPendingInvites(Query request,
+            CancellationToken cancellationToken)
+        {
+            var invites = await _context.PendingInvites
+                .Where(i => i.LeagueId == request.Id && i.Season == request.Season)
+                .ToArrayAsync(cancellationToken);
+
+            var memberIds = invites.Select(x => x.UserId).ToArray();
+            var teamIds = invites.Select(x => x.TeamId).ToArray();
+            var pendingMembers = await _context.Users.Where(x => memberIds.Contains(x.Id))
+                .Select(m => new LeagueMember(m.Name.First,
+                    m.Name.Last,
+                    m.Name.Initials,
+                    m.Name.Full,
+                    m.ProfileImg,
+                    m.Id,
+                    m.Email,
+                    false,
+                    m.Team != null ? m.Team.AltColor : "")).ToArrayAsync(cancellationToken);
+
+            var pendingTeams = await _context.Teams.Where(t => teamIds.Contains(t.Id))
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Color,
+                    t.AltColor,
+                    Logo = t.Logos,
+                    t.School,
+                    t.Mascot,
+                    Name = t.School + " " + t.Mascot
+                }).ToArrayAsync(cancellationToken);
+            return (pendingMembers.OrderBy(m => m.FullName).ToArray(), pendingTeams.OrderBy(t => t.Name).ToArray());
         }
 
         private async Task AssignCommissioner(IEnumerable<LeagueMember> members,
@@ -76,6 +116,7 @@ public class GetLeagueMembersAndTeams
                 .ToArrayAsync(cancellationToken);
 
             var commissioners = claims.Select(x => x.UserId).ToArray();
+            
             var commissionersMembers = members.Where(x => commissioners.Contains(x.Id)).ToArray();
             foreach (var commish in commissionersMembers)
             {

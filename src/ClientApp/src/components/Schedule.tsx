@@ -4,47 +4,15 @@ import {
   CardContent,
   Divider,
   IconButton,
+  Skeleton,
+  Box,
   Typography,
 } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import format from 'date-fns/format';
 import { useSchedule, CalendarItem } from '../hooks/useSchedule';
-import { Skeleton } from '@mui/lab';
-import { Box } from '@mui/system';
 import { useEffect, useState } from 'react';
-//
-// const useStyles = makeStyles((theme) => ({
-//   root: {
-//     display: 'flex',
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: theme.spacing(1),
-//     backgroundColor: '#fafafa',
-//     position: 'sticky',
-//     top: 0,
-//     zIndex: 50,
-//     paddingBottom: theme.spacing(1),
-//     paddingTop: theme.spacing(2),
-//   },
-//   card: {
-//     minWidth: 'clamp( 150px, 450px, 70vw)',
-//     minHeight: 'max( 50px, 7vmin)',
-//     display: 'flex',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     flexDirection: 'column',
-//     '& > h6': {
-//       fontSize: 'clamp(0.7rem, 1rem + 6vmin,1rem)',
-//     },
-//   },
-//
-//   weekRange: {
-//     paddingInline: theme.spacing(2),
-//     marginBottom: theme.spacing(0.7),
-//   },
-// }));
 
 const Schedule = () => {
   const { week, setWeek } = useWeek();
