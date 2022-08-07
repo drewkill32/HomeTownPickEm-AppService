@@ -9,6 +9,8 @@ export interface League {
 export interface LeagueAdminResult {
   members: LeagueAdminMember[];
   teams: LeagueAdminTeam[];
+  pendingMembers: LeagueAdminMember[];
+  pendingTeams: LeagueAdminTeam[];
 }
 
 export interface RemoveMemberData {
@@ -30,6 +32,14 @@ export interface AddMemberData {
   season: string;
   teamId?: number | null;
 }
+
+export interface AddTeamData {
+  leagueId: number;
+  season: string;
+  teamId?: number | null;
+}
+
+export interface RemoveTeamData extends AddTeamData {}
 
 export interface RemoveCommissionerData extends MakeCommissionerData {}
 

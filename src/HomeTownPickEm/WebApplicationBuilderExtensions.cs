@@ -147,6 +147,7 @@ public static class WebApplicationBuilderExtensions
 
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LeagueCommissionerBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
         builder.Services.AddScoped<GameTeamRepository>();
         builder.Services.AddSingleton(BackgroundWorkerQueue.Instance);

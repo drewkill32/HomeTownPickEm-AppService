@@ -31,8 +31,14 @@ namespace HomeTownPickEm.Application.Leagues.Queries
                     .SelectMany(x => x.Teams, (_, team) => team.Id)
                     .ToArrayAsync(cancellationToken);
 
+                var pendingTeamIds = await _context.PendingInvites
+                    .Where(p => p.LeagueId == request.LeagueId && p.Season == request.Season && p.TeamId != null)
+                    .Select(x => x.TeamId.Value)
+                    .ToArrayAsync(cancellationToken);
+
+                var teamIdsToRemove = teamIds.Concat(pendingTeamIds).ToArray();
                 var teams = await _context.Teams
-                    .Where(x => !teamIds.Contains(x.Id))
+                    .Where(x => !teamIdsToRemove.Contains(x.Id))
                     .Where(x => !string.IsNullOrEmpty(x.Conference))
                     .ToArrayAsync(cancellationToken);
 

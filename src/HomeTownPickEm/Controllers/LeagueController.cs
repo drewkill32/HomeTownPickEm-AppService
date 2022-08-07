@@ -52,8 +52,37 @@ namespace HomeTownPickEm.Controllers
             return new StatusCodeResult(StatusCodes.Status204NoContent);
         }
 
+        [HttpPost("add-team")]
+        public async Task<IActionResult> AddTeam(AddNewTeam.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
+
+        [HttpPost("remove-team")]
+        public async Task<IActionResult> RemoveTeam(RemoveTeam.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
         [HttpPost("remove-member")]
         public async Task<IActionResult> RemoveMember(RemoveMember.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
+        [HttpPost("remove-pending-team")]
+        public async Task<IActionResult> RemovePendingTeam(RemovePendingTeam.Command command)
+        {
+            await Mediator.Send(command);
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
+        }
+
+        [HttpPost("remove-pending-member")]
+        public async Task<IActionResult> RemovePendingMember(RemovePendingMember.Command command)
         {
             await Mediator.Send(command);
             return new StatusCodeResult(StatusCodes.Status204NoContent);

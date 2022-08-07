@@ -1,11 +1,12 @@
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Security;
-using MediatR.Pipeline;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 
 namespace HomeTownPickEm.Application.Common.Behaviors;
 
-public class LeagueCommissionerBehavior<TRequest> : IRequestPreProcessor<TRequest>
+public class LeagueCommissionerBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
 {
     private readonly IAuthorizationService _authService;
     private readonly IHttpContextAccessor _contextAccessor;
@@ -17,7 +18,9 @@ public class LeagueCommissionerBehavior<TRequest> : IRequestPreProcessor<TReques
         _contextAccessor = contextAccessor;
     }
 
-    public async Task Process(TRequest request, CancellationToken cancellationToken)
+
+    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken,
+        RequestHandlerDelegate<TResponse> next)
     {
         if (request is ILeagueCommissionerRequest leagueCommissionerRequest)
         {
@@ -28,5 +31,7 @@ public class LeagueCommissionerBehavior<TRequest> : IRequestPreProcessor<TReques
                 throw new ForbiddenAccessException("You are not authorized to access this resource");
             }
         }
+
+        return await next();
     }
 }

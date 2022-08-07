@@ -1,12 +1,14 @@
 import axios, { AxiosResponse } from 'axios';
 import {
   AddMemberData,
+  AddTeamData,
   AvailableTeamsResult,
   League,
   LeagueAdminResult,
   MakeCommissionerData,
   RemoveCommissionerData,
   RemoveMemberData,
+  RemoveTeamData,
 } from '../types';
 
 const removeMember = async (data: RemoveMemberData) => {
@@ -26,6 +28,22 @@ const availableTeams = async (league: League | null) => {
 const addMember = async (data: AddMemberData) => {
   await axios.post('/api/user/invite', data);
 };
+
+const addTeam = async (data: AddTeamData) => {
+  await axios.post('/api/league/add-team', data);
+};
+
+const removeTeam = async (data: RemoveTeamData) => {
+  await axios.post('/api/league/remove-team', data);
+};
+
+const removePendingTeam = async (data: RemoveTeamData) => {
+  await axios.post('/api/league/remove-pending-team', data);
+};
+
+const removePendingMember = async (data: RemoveMemberData) => {
+  await axios.post('/api/league/remove-pending-member', data);
+};
 const removeCommissioner = async (data: RemoveCommissionerData) => {
   await axios.post('/api/league/remove-commissioner', data);
 };
@@ -41,6 +59,10 @@ export const leagueAgent = {
   removeCommissioner,
   makeCommissioner,
   addMember,
+  removePendingTeam,
+  removePendingMember,
   availableTeams,
+  addTeam,
+  removeTeam,
   admin,
 };
