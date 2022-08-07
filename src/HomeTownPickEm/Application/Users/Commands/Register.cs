@@ -114,7 +114,9 @@ namespace HomeTownPickEm.Application.Users.Commands
                         .FirstOrDefaultAsync(token)
                         .GuardAgainstNotFound($"Team {invite.TeamId} not found.");
 
-                    var games = await _context.Games.AsTracking().WhereTeamIsPlaying(team).ToArrayAsync(token);
+                    var games = await _context.Games.AsTracking()
+                        .Where(g => g.Season == invite.Season)
+                        .WhereTeamIsPlaying(team).ToArrayAsync(token);
                     user.ProfileImg = team.Logos;
                     user.TeamId = team.Id;
                     season.AddTeam(team, games);

@@ -1,6 +1,7 @@
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
+using HomeTownPickEm.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,7 +34,10 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                     .Include(x => x.Teams)
                     .Include(x => x.Members)
                     .AsTracking()
-                    .FirstOrDefaultAsync(cancellationToken);
+                    .FirstOrDefaultAsync(cancellationToken)
+                    .GuardAgainstNotFound(
+                        $"There is no season with for {request.Season} and LeagueId {request.LeagueId}");
+                ;
 
                 var team = await _context.Teams
                     .AsTracking()
@@ -41,6 +45,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                     .FirstOrDefaultAsync(cancellationToken);
 
                 var games = await _context.Games.WhereTeamIsPlaying(team)
+                    .Where(g => g.Season == request.Season)
                     .AsTracking()
                     .ToArrayAsync(cancellationToken);
 

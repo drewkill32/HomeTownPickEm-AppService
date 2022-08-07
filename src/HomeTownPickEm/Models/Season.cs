@@ -129,7 +129,9 @@ public class Season
 
     private void AssignPicks(ApplicationUser member, IEnumerable<Game> games)
     {
-        var newPicks = games.Select(x => new Pick
+        var newPicks = games
+            .Where(g => g.Season == Year)
+            .Select(x => new Pick
         {
             Points = 0,
             GameId = x.Id,

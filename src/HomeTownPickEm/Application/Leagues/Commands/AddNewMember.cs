@@ -49,6 +49,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 //get the games to add
                 var teamIds = season.Teams.Select(x => x.Id).ToArray();
                 var games = await _context.Games.WhereTeamsArePlaying(teamIds)
+                    .Where(g => g.Season == request.Season)
                     .AsTracking()
                     .ToArrayAsync(cancellationToken);
 
