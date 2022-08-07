@@ -6,7 +6,12 @@ name: Build and deploy ASP.Net Core app to Azure Web App - hometown-pickem
 on:
   push:
     branches:
-      - master
+      - master 
+    paths: 
+      - './src/HomeTownPickEm'
+      - './HomeTownPickEm.sln'
+      - './.github/workflows/master_hometown_pickem.yml'
+      
   workflow_dispatch:
 
 jobs:
