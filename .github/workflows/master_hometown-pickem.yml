@@ -11,6 +11,8 @@ on:
       - './src/HomeTownPickEm'
       - './HomeTownPickEm.sln'
       - './.github/workflows/master_hometown_pickem.yml'
+  workflow_dispatch:
+    
       
 
 jobs:
