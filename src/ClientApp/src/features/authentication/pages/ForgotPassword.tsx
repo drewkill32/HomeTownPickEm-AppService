@@ -59,21 +59,14 @@ const ForgotPassword = () => {
           spacing={1}
           alignItems="center"
           justifyContent="center"
-          sx={{ textAlign: 'center' }}
-        >
-          <Grid item xs={12} sm={6}>
+          sx={{ textAlign: 'center' }}>
+          <Grid item xs={12}>
             <Typography component={RouterLink} to="/login">
               Login
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography component={RouterLink} to="/register">
-              Create an account
-            </Typography>
-          </Grid>
         </Grid>
-      }
-    >
+      }>
       <Box
         component="form"
         onSubmit={formik.handleSubmit}
@@ -87,8 +80,7 @@ const ForgotPassword = () => {
           width: '100%',
           overflow: 'hidden',
           minHeight: '172px',
-        }}
-      >
+        }}>
         <SwitchTransition>
           <Slide
             // @ts-ignore - typescript doesn't know about SwitchTransition key
@@ -100,8 +92,7 @@ const ForgotPassword = () => {
             container={containerRef.current}
             addEndListener={(node, done) => {
               node.addEventListener('transitionend', done, false);
-            }}
-          >
+            }}>
             {submitted ? (
               <Alert severity="success" icon={false} sx={{ width: '100%' }}>
                 <p>{`Email sent to ${formik.values.email}.`}</p>
@@ -122,8 +113,7 @@ const ForgotPassword = () => {
                   gap: 2,
                   mt: 2,
                   justifyContent: 'center',
-                }}
-              >
+                }}>
                 <TextField
                   fullWidth
                   id="email"
@@ -142,8 +132,7 @@ const ForgotPassword = () => {
                   color="primary"
                   variant="contained"
                   fullWidth
-                  type="submit"
-                >
+                  type="submit">
                   Submit
                 </Button>
               </Box>

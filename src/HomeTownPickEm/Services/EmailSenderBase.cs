@@ -52,7 +52,7 @@ public abstract class EmailSenderBase : IEmailSender
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var webCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var url =
-                    $"{origin}/new-user?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}";
+                    $"{origin}/new-user?code={webCode}&email={HttpUtility.UrlEncode(user.Email)}&firstName={user.Name.First}&lastName={user.Name.Last}";
 
                 var htmlMessage =
                     $"Click <a href=\"{url}\">here</a> to confirm your email and join the league. If you did not generate this request ignore this email.";

@@ -36,7 +36,9 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const code = searchParams.get('code');
-  const { register } = useAuth();
+  const firstName = searchParams.get('firstName');
+  const lastName = searchParams.get('lastName');
+  const { register, signOut, isAuthenticated } = useAuth();
   const [submitError, setSubmitError] = useState('');
 
   const formik = useFormik({
@@ -44,12 +46,15 @@ const Register = () => {
       email: email || process.env.REACT_APP_USERNAME || '',
       password: process.env.REACT_APP_PASSWORD || '',
       confirmPassword: process.env.REACT_APP_PASSWORD || '',
-      firstName: '',
-      lastName: '',
+      firstName: firstName || '',
+      lastName: lastName || '',
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
+        if (isAuthenticated) {
+          await signOut();
+        }
         await register({
           email: values.email,
           password: values.password,

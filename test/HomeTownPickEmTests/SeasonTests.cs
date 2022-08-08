@@ -27,7 +27,7 @@ public class SeasonTests
         {
             var season = new Season
             {
-                Year = "2022",
+                Year = "2021",
                 LeagueId = leagueId
             };
             //we need to fetch the entity from the database to get the id
@@ -52,6 +52,56 @@ public class SeasonTests
     }
 
     [Fact]
+    public void AddTeam_Should_Not_Add_Games_From_Another_Season()
+    {
+        var userId = Database.CreateUser().Id;
+
+        int seasonId;
+        var leagueId = Database.CreateLeague().Id;
+        var gameIds = Array.Empty<int>();
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = new Season
+            {
+                Year = "2021",
+                LeagueId = leagueId
+            };
+            //we need to fetch the entity from the database to get the id
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            var team = context.Teams.FirstOrDefault(x => x.Id == MichTeamId);
+            season.AddTeam(team);
+            var games = context.Games.WhereTeamIsPlaying(team).ToArray();
+            var prevSeasonGames = games.Select(g => new Game
+            {
+                Id = g.Id + 100000,
+                Season = "2020",
+                Week = g.Week,
+                AwayId = g.AwayId,
+                HomeId = g.HomeId,
+                AwayPoints = g.AwayPoints,
+                HomePoints = g.HomePoints,
+                SeasonType = g.SeasonType,
+                StartDate = g.StartDate.AddYears(-1),
+                StartTimeTbd = g.StartTimeTbd
+            }).ToArray();
+            var allGames = games.Concat(prevSeasonGames).ToArray();
+            gameIds = games.Select(x => x.Id).ToArray();
+            season.AddMember(user, allGames);
+            context.Season.Add(season);
+            context.SaveChanges();
+            seasonId = season.Id;
+        }
+
+        var dbSeason = GetSeasonFromDatabase(seasonId);
+
+
+        dbSeason.Members.Should().ContainSingle(x => x.Id == userId);
+        dbSeason.Teams.Should().ContainSingle(x => x.Id == MichTeamId);
+        dbSeason.Picks.Select(x => x.GameId).Should()
+            .BeEquivalentTo(gameIds);
+    }
+
+    [Fact]
     public void AddTeam_WithoutMembers_Should_AddTeamToLeague_ButNotPicks()
     {
         int seasonId;
@@ -61,7 +111,7 @@ public class SeasonTests
         {
             var season = new Season
             {
-                Year = "2022",
+                Year = "2021",
                 LeagueId = leagueId
             };
             var team = context.Teams.FirstOrDefault(x => x.Id == MichTeamId);
@@ -96,7 +146,7 @@ public class SeasonTests
         {
             var season = new Season
             {
-                Year = "2022",
+                Year = "2021",
                 LeagueId = leagueId
             };
 
@@ -210,7 +260,7 @@ public class SeasonTests
         using var context = Database.CreateTrackingDbContext();
         var season = new Season
         {
-            Year = "2022",
+            Year = "2021",
             LeagueId = leagueId
         };
 

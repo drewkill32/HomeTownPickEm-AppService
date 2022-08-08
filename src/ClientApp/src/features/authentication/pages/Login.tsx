@@ -86,7 +86,7 @@ const Login = () => {
           alignItems="center"
           justifyContent="center"
           sx={{ textAlign: 'center' }}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <Typography
               component={RouterLink}
               sx={{
@@ -94,16 +94,6 @@ const Login = () => {
               }}
               to="/forgot-password">
               Forgot your password?
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography
-              component={RouterLink}
-              to="/register"
-              sx={{
-                pointerEvents: formik.isSubmitting ? 'none' : 'auto',
-              }}>
-              Create an account
             </Typography>
           </Grid>
         </Grid>
