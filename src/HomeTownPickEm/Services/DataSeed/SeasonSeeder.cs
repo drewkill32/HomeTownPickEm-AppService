@@ -23,10 +23,10 @@ public class SeasonSeeder : ISeeder
 
         foreach (var season in seasons)
         {
-            var gamesToRemove = season.Picks.Select(p => p.Game)
-                .Where(g => g.Season != season.Year)
+            var picksToRemove = season.Picks
+                .Where(p => p.Game.Season != season.Year)
                 .ToArray();
-            _context.Games.RemoveRange(gamesToRemove);
+            _context.Pick.RemoveRange(picksToRemove);
         }
 
         await _context.SaveChangesAsync(cancellationToken);
