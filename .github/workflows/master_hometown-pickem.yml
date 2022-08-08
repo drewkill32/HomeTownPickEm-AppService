@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: linux-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -41,7 +41,7 @@ jobs:
           path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
-    runs-on: linux-latest
+    runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
