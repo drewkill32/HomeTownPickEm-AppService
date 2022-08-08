@@ -8,9 +8,9 @@ on:
     branches:
       - master 
     paths: 
-      - './src/HomeTownPickEm/**'
-      - './HomeTownPickEm.sln'
-      - './.github/workflows/master_hometown_pickem.yml'
+      - 'src/HomeTownPickEm/**'
+      - 'HomeTownPickEm.sln'
+      - '.github/workflows/*.yml'
   workflow_dispatch:
     
       
