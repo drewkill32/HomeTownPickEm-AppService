@@ -22,7 +22,7 @@ import { TeamAutoComplete } from './TeamAutoComplete';
 export const AddNewTeamButton = ({ sx }: { sx?: SxProps }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [team, setTeam] = useState<AvailableTeamsResult | null>(null);
-  const [league] = useLeague();
+  const league = useLeague();
   const queryClient = useQueryClient();
 
   const { data } = useQuery(

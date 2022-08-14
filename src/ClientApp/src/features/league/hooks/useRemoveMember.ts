@@ -5,7 +5,7 @@ import { LeagueKeys } from '../utils/queryKeys';
 
 export const useRemoveMember = () => {
   const queryClient = useQueryClient();
-  const [league] = useLeague();
+  const league = useLeague();
 
   if (!league) {
     throw new Error('Unable to remove member. League not found');

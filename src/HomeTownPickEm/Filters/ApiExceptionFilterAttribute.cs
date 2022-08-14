@@ -1,3 +1,4 @@
+using FluentValidation;
 using HomeTownPickEm.Application.Exceptions;
 using HomeTownPickEm.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace HomeTownPickEm.Filters
             // Register known exception types and handlers.
             _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
             {
-                //{ typeof(ValidationException), HandleValidationException },
+                { typeof(ValidationException), HandleValidationException },
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(BadRequestException), HandleBadRequestException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
@@ -61,6 +62,41 @@ namespace HomeTownPickEm.Filters
             }
 
             HandleUnknownException(context);
+        }
+
+        private void HandleValidationException(ExceptionContext context)
+        {
+            var exception = (ValidationException)context.Exception;
+
+            var errors = BuildErrorDictionary(exception);
+
+            var details = new ValidationProblemDetails(errors)
+            {
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+            };
+
+            context.Result = new BadRequestObjectResult(details);
+
+            context.ExceptionHandled = true;
+        }
+
+        private static Dictionary<string, string[]> BuildErrorDictionary(ValidationException exception)
+        {
+            var errors = new Dictionary<string, string[]>();
+            foreach (var failure in exception.Errors)
+            {
+                if (errors.ContainsKey(failure.PropertyName))
+                {
+                    errors[failure.PropertyName] =
+                        errors[failure.PropertyName].Concat(new[] { failure.ErrorMessage }).ToArray();
+                }
+                else
+                {
+                    errors.Add(failure.PropertyName, new[] { failure.ErrorMessage });
+                }
+            }
+
+            return errors;
         }
 
         private void HandleForbiddenAccessException(ExceptionContext context)

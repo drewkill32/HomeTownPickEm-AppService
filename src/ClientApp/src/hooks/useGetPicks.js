@@ -5,8 +5,7 @@ import { useLeague } from '../features/league';
 
 export default function useGetPicks() {
   const { week } = useWeek();
-  const [league] = useLeague();
-
+  const league = useLeague();
   return useQuery(
     ['picks', league.id, league.season, week],
     () =>

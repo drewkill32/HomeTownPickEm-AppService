@@ -109,15 +109,10 @@ namespace HomeTownPickEm.Controllers
             return Ok(await Mediator.Send(query));
         }
 
-        [HttpGet("{slug}/{season}", Name = "GetLeague")]
-        public async Task<ActionResult<LeagueDto>> GetLeague(string slug, string season, [FromQuery] bool picks)
+        [HttpGet("{LeagueSlug}/{Season}", Name = "GetLeague")]
+        public async Task<ActionResult<LeagueDto>> GetLeague([FromRoute] GetLeague.Query query)
         {
-            var league = await Mediator.Send(new GetLeague.Query
-            {
-                LeagueSlug = slug,
-                Year = season,
-                IncludePicks = picks
-            });
+            var league = await Mediator.Send(query);
 
             return Ok(league);
         }

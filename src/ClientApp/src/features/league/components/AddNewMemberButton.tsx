@@ -1,7 +1,6 @@
 import * as yup from 'yup';
 import { useState } from 'react';
 import { AddMemberData, AvailableTeamsResult } from '../types';
-import { useLeague } from '../contexts/LeagueProvider';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { LeagueKeys } from '../utils/queryKeys';
 import { leagueAgent } from '../utils/leagueAgent';
@@ -21,6 +20,7 @@ import { green } from '@mui/material/colors';
 import { LoadingButton } from '@mui/lab';
 import { TeamAutoComplete } from './TeamAutoComplete';
 import SendIcon from '@mui/icons-material/Send';
+import { useLeague } from '../contexts/LeagueProvider';
 
 const validationSchema = yup.object({
   email: yup
@@ -35,7 +35,7 @@ const validationSchema = yup.object({
 export const AddNewMemberButton = ({ sx }: { sx?: SxProps }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [team, setTeam] = useState<AvailableTeamsResult | null>(null);
-  const [league] = useLeague();
+  const league = useLeague();
   const queryClient = useQueryClient();
 
   const { data } = useQuery(

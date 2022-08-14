@@ -29,6 +29,12 @@ const addMember = async (data: AddMemberData) => {
   await axios.post('/api/user/invite', data);
 };
 
+const getLeague = async (slug: string, season: string) => {
+  return await axios
+    .get(`/api/league/${slug}/${season}`)
+    .then((res: AxiosResponse<League>) => res.data);
+};
+
 const addTeam = async (data: AddTeamData) => {
   await axios.post('/api/league/add-team', data);
 };
@@ -63,6 +69,7 @@ export const leagueAgent = {
   removePendingMember,
   availableTeams,
   addTeam,
+  getLeague,
   removeTeam,
   admin,
 };

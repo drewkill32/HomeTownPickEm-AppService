@@ -21,7 +21,7 @@ import { LoadingButton } from '@mui/lab';
 export function DeleteTeamButton({ team }: { team: LeagueAdminTeam }) {
   const [openDialog, setOpenDialog] = useState(false);
   const queryClient = useQueryClient();
-  const [league] = useLeague();
+  const league = useLeague();
 
   const { mutateAsync, isLoading } = useMutation(
     (team: LeagueAdminTeam) => {

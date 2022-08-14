@@ -18,7 +18,6 @@ import {
 import NewSeasonConfirmDialog from './NewSeasonConfirmDialog';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Box } from '@mui/system';
-import { useLeague } from '../contexts/LeagueProvider';
 import { League } from '../types';
 
 interface LeagueCardParams {
@@ -35,7 +34,6 @@ interface PastYearsMenuParams {
 const PastYearsMenu = ({ pastSeasons, league }: PastYearsMenuParams) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [, setLeague] = useLeague();
   const navigate = useNavigate();
 
   return (
@@ -50,13 +48,6 @@ const PastYearsMenu = ({ pastSeasons, league }: PastYearsMenuParams) => {
           <MenuItem
             key={year}
             onClick={() => {
-              setLeague({
-                id: league.id,
-                name: league.name,
-                slug: league.slug,
-                imageUrl: league.imageUrl,
-                season: year,
-              });
               navigate(`/league/${league.slug}/${year}`);
             }}>
             {year}
@@ -70,7 +61,6 @@ const PastYearsMenu = ({ pastSeasons, league }: PastYearsMenuParams) => {
 export function LeagueCard({ league, season, user }: LeagueCardParams) {
   const [newLeague, setNewLeague] = useState<UserLeague>();
   const navigate = useNavigate();
-  const [, setLeague] = useLeague();
 
   const pastYears = (league?.years || []).filter((x) => x !== season);
   const handleNewSeason = (league: UserLeague) => {
@@ -90,13 +80,6 @@ export function LeagueCard({ league, season, user }: LeagueCardParams) {
             {league.years.includes(season) ? (
               <Button
                 onClick={() => {
-                  setLeague({
-                    id: league.id,
-                    name: league.name,
-                    slug: league.slug,
-                    imageUrl: league.imageUrl,
-                    season: season,
-                  });
                   navigate(`/league/${league.slug}/${season}`);
                 }}>
                 {`${season} Season`}

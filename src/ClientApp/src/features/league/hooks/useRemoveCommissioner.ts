@@ -5,7 +5,7 @@ import { LeagueKeys } from '../utils/queryKeys';
 
 export const useRemoveCommissioner = () => {
   const queryClient = useQueryClient();
-  const [league] = useLeague();
+  const league = useLeague();
 
   if (!league) {
     throw new Error('Unable to make member a commissioner. League not found');

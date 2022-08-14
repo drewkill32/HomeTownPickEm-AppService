@@ -81,7 +81,7 @@ const UserAvatar = ({ pick, direction = 'left' }) => {
 const UserPicks = ({ gameId, homeId, awayId }) => {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
-  const [league] = useLeague();
+  const league = useLeague();
   const { data } = useQuery(
     ['gamePicks', gameId],
     () =>

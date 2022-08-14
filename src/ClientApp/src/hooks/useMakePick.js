@@ -6,7 +6,7 @@ import { useLeague } from '../features/league';
 export const useMakePick = () => {
   const queryClient = useQueryClient();
   const { week } = useWeek();
-  const [league] = useLeague();
+  const league = useLeague();
 
   return useMutation(
     (picks) => {

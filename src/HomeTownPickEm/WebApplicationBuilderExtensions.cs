@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using FluentValidation;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Application.Common.Behaviors;
@@ -147,8 +148,10 @@ public static class WebApplicationBuilderExtensions
 
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LeagueCommissionerBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         builder.Services.AddScoped<GameTeamRepository>();
         builder.Services.AddSingleton(BackgroundWorkerQueue.Instance);
         builder.Services.AddHostedService<BackgroundWorker>();

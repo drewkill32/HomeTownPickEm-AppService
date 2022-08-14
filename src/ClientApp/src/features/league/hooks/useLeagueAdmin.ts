@@ -6,7 +6,7 @@ import { LeagueAdminResult } from '../types';
 import { LeagueKeys } from '../utils/queryKeys';
 
 export const useLeagueAdmin = () => {
-  const [league] = useLeague();
+  const league = useLeague();
   return useQuery<LeagueAdminResult, RequestErrorType>(
     LeagueKeys.LeagueAdmin,
     () => leagueAgent.admin(league),

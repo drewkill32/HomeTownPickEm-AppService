@@ -1,17 +1,12 @@
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../features/authentication';
-import { useLeague } from '../features/league';
+import { LeagueHome } from '../features/league';
 
 const HomeSelection = () => {
   const { user } = useAuth();
-  const [league] = useLeague();
 
   if (!user) {
     return null;
   }
-  if (league) {
-    return <Navigate to={`/league/${league.slug}/${league.season}`} />;
-  }
-  return <Navigate to={`/leagues`} />;
+  return <LeagueHome />;
 };
 export default HomeSelection;

@@ -1,5 +1,3 @@
-#region
-
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
@@ -8,8 +6,6 @@ using HomeTownPickEm.Security;
 using HomeTownPickEm.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-
-#endregion
 
 namespace HomeTownPickEm.Application.Picks.Queries
 {

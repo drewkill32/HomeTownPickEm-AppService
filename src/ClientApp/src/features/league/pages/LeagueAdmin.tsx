@@ -19,7 +19,7 @@ import { LeagueKeys } from '../utils/queryKeys';
 
 function DeletePendingMember({ memberId }: { memberId: string }) {
   const queryClient = useQueryClient();
-  const [league] = useLeague();
+  const league = useLeague();
   const { mutateAsync } = useMutation(
     () =>
       leagueAgent.removePendingMember({
@@ -43,7 +43,7 @@ function DeletePendingMember({ memberId }: { memberId: string }) {
 
 function DeletePendingTeam({ teamId }: { teamId: number }) {
   const queryClient = useQueryClient();
-  const [league] = useLeague();
+  const league = useLeague();
   const { mutateAsync } = useMutation(
     () =>
       leagueAgent.removePendingTeam({

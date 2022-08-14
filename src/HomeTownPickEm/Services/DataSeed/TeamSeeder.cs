@@ -39,7 +39,7 @@ namespace HomeTownPickEm.Services.DataSeed
             }
 
             var logoTeams = await _context.Teams
-                .Where(x => x.Logos.Contains(";"))
+                .Where(x => x.Logos.Contains(";") || x.Logos.Contains("http://"))
                 .AsTracking()
                 .ToArrayAsync(cancellationToken);
             if (logoTeams.Any())

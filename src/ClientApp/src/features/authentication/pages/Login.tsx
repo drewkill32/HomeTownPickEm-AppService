@@ -8,7 +8,7 @@ import * as yup from 'yup';
 import AuthLayout from '../components/AuthLayout';
 import { RequestError, LocationState } from '../../../zod';
 import { LoadingButton } from '@mui/lab';
-import { useLeague } from '../../league';
+import { League } from '../../league/types';
 
 export const validationSchema = yup.object({
   email: yup
@@ -24,10 +24,16 @@ export const validationSchema = yup.object({
     .required('Password is required'),
 });
 
+const getLeague = (): League | undefined => {
+  const json = localStorage.getItem('current-league');
+  if (json) {
+    return JSON.parse(json) as League;
+  }
+};
+
 const Login = () => {
   const { signIn } = useAuth();
-  const [league] = useLeague();
-
+  const league = getLeague();
   const { state } = useLocation();
   const navigate = useNavigate();
   const [submitError, setSubmitError] = React.useState('');
@@ -46,6 +52,7 @@ const Login = () => {
         navigate(from);
         return;
       }
+
       if (league) {
         navigate(`/league/${league.slug}/${league.season}`);
         return;

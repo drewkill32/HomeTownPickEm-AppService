@@ -15,7 +15,6 @@ import NotFound from './components/NotFound';
 import {
   Leaderboard,
   LeagueIndex,
-  LeagueProvider,
   LeagueHome,
   LeagueAdmin,
 } from './features/league';
@@ -36,37 +35,35 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <LeagueProvider>
-          <Routes>
-            <Route path="/" element={<Home />}>
-              <Route index element={<HomeSelection />} />
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="leagues" element={<LeagueHome />} />
-              <Route path="league/:league/:season" element={<LeagueIndex />}>
-                <Route index element={<Leaderboard />}></Route>
-                <Route
-                  path="weekly-stats"
-                  element={
-                    <PickProvider>
-                      <WeeklyStats />
-                    </PickProvider>
-                  }
-                />
-                <Route path="admin" element={<LeagueAdmin />} />
-              </Route>
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route index element={<HomeSelection />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="leagues" element={<LeagueHome />} />
+            <Route path="league/:league/:season" element={<LeagueIndex />}>
+              <Route index element={<Leaderboard />}></Route>
+              <Route
+                path="weekly-stats"
+                element={
+                  <PickProvider>
+                    <WeeklyStats />
+                  </PickProvider>
+                }
+              />
+              <Route path="admin" element={<LeagueAdmin />} />
             </Route>
-            <Route path="/new-user" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route
-              path="/confirm-reset-password"
-              element={<ConfirmPasswordReset />}
-            />
+          </Route>
+          <Route path="/new-user" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/confirm-reset-password"
+            element={<ConfirmPasswordReset />}
+          />
 
-            <Route path="*" component={NotFound} />
-          </Routes>
-          <ReactQueryDevtools />
-        </LeagueProvider>
+          <Route path="*" component={NotFound} />
+        </Routes>
+        <ReactQueryDevtools />
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -7,10 +7,12 @@ import { Paper } from '@mui/material';
 const Leaderboard = () => {
   const { league, season } = useParams();
 
-  const { isLoading, data, isSuccess } = useQuery('leaderboard', () =>
-    axios
-      .get(`/api/league/${league}/${season}/leaderboard`)
-      .then((res) => res.data)
+  const { isLoading, data, isSuccess } = useQuery(
+    ['leaderboard', league, season],
+    () =>
+      axios
+        .get(`/api/league/${league}/${season}/leaderboard`)
+        .then((res) => res.data)
   );
   if (isLoading)
     return (
