@@ -21,6 +21,13 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          overflowY: 'hidden',
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -49,13 +56,18 @@ export const styles = (theme: Theme) => {
       height: '0.6rem',
     },
     '*::-webkit-scrollbar-track': {
-      background: theme.palette.grey[300],
+      background: theme.palette.grey[100],
       margin: 3,
     },
     '*::-webkit-scrollbar-thumb': {
       borderRadius: '10px',
       background:
         mode === 'dark' ? theme.palette.grey[500] : theme.palette.primary.main,
+    },
+    '*::-webkit-scrollbar-thumb:hover': {
+      borderRadius: '10px',
+      background:
+        mode === 'dark' ? theme.palette.grey[300] : theme.palette.primary.light,
     },
   };
 };

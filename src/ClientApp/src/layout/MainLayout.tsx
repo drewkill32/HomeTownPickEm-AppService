@@ -84,7 +84,7 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
 
   return (
     <>
-      <AppBar position="fixed">
+      <AppBar position="fixed" sx={{ overflowY: 'hidden', height: '64px' }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <SportsFootballIcon
@@ -226,14 +226,21 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container
-        maxWidth="md"
+      <Box
         sx={{
-          mt: '90px',
-          mb: '15px',
+          overflowY: 'auto',
+          height: 'calc(100vh - 64px)',
+          mt: '64px',
         }}>
-        {children}
-      </Container>
+        <Container
+          maxWidth="md"
+          sx={{
+            pt: 3,
+            mb: '15px',
+          }}>
+          {children}
+        </Container>
+      </Box>
     </>
   );
 };
