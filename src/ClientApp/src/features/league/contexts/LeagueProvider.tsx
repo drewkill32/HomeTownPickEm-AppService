@@ -26,6 +26,8 @@ export function LeagueProvider({ children }: Props) {
 
   useEffect(() => {
     queryClient.invalidateQueries('current-league');
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, season]);
   const query = useLocalQuery<League>(
     `current-league`,
