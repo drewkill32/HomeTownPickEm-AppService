@@ -1,4 +1,4 @@
-import { Divider, Paper, Tooltip, Typography } from '@mui/material';
+import { Box, Divider, Paper, Tooltip, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import format from 'date-fns/format';
@@ -183,13 +183,17 @@ const PickLayout = ({ game: currentGame }) => {
               )
             }
             selected={homeSelected}>
-            {pastCutoff && game.home.percentPicked !== null && (
-              <Typography noWrap className={classes.percentPicked}>
-                {game.home.percentPicked}% picked
+            <Box sx={{ mb: 0.5 }}>
+              {pastCutoff && game.home.percentPicked !== null && (
+                <Typography noWrap className={classes.percentPicked}>
+                  {game.home.percentPicked}% picked
+                </Typography>
+              )}
+              <Typography variant="h6" gutterBottom>
+                {game.home.points}
               </Typography>
-            )}
-            <Typography variant="h6">{game.home.points}</Typography>
-            {game.winner === 'Home' && <ArrowDropUpIcon />}
+              {game.winner === 'Home' && <ArrowDropUpIcon />}
+            </Box>
           </PickButton>
         </div>
       </DisabledTooltip>

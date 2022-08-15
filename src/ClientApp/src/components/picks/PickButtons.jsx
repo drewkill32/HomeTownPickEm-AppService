@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     [theme.breakpoints.down('md')]: {
       width: '40vmin',
-      height: '125px',
+      minHeight: '130px',
     },
     width: '40vmin',
-    height: '180px',
+    minHeight: '180px',
     borderRadius: '10px',
     boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.5)',
     '& > div': {
@@ -95,8 +95,7 @@ export const SplitButton = ({
       onClick={onClick}
       disabled={disabled}
       className={clsx(classes.teamButton, { [classes.selected]: selected })}
-      {...rest}
-    >
+      {...rest}>
       <Paper>
         <div className={classes.teamButtonBg}>
           <img
@@ -136,9 +135,8 @@ export const PickButton = ({
       onClick={onClick}
       disabled={disabled}
       {...rest}
-      className={clsx(classes.teamButton, { [classes.selected]: selected })}
-    >
-      <Paper elevation={3}>
+      className={clsx(classes.teamButton, { [classes.selected]: selected })}>
+      <Paper elevation={3} sx={{ mb: 6 }}>
         <div className={classes.teamButtonBg}>
           <img className={classes.logo} src={team.logo} alt={team.name} />
         </div>
