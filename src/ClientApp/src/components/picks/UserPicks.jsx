@@ -107,7 +107,12 @@ const UserPicks = ({ gameId, homeId, awayId }) => {
     <Accordion onChange={(_, exp) => setExpanded(exp)} expanded={expanded}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>Picks</AccordionSummary>
       <AccordionDetails className={classes.details}>
-        <Grid container>
+        <Grid
+          container
+          sx={{
+            pr: 5,
+            pl: 2,
+          }}>
           <Grid
             container
             item

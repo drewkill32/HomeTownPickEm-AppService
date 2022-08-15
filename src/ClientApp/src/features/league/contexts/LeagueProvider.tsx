@@ -1,9 +1,10 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { League } from '../types';
 import { useParams } from 'react-router-dom';
 import { useLocalQuery } from '../../../hooks/useLocalQuery';
 import { leagueAgent } from '../utils/leagueAgent';
 import { Paper } from '@mui/material';
+import { useQueryClient } from 'react-query';
 
 const LeagueContext = createContext<League>({} as League);
 
@@ -21,6 +22,11 @@ export function LeagueProvider({ children }: Props) {
     throw new Error('LeagueProvider requires league and season');
   }
 
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.invalidateQueries('current-league');
+  }, [slug, season]);
   const query = useLocalQuery<League>(
     `current-league`,
     () => {
@@ -34,7 +40,6 @@ export function LeagueProvider({ children }: Props) {
     return <Paper>Loading...</Paper>;
   }
   if (query.data) {
-    console.log({ data: query.data });
     return (
       <LeagueContext.Provider value={query.data}>
         {children}
