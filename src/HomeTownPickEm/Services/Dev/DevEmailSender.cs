@@ -19,6 +19,7 @@ public class DevEmailSender : EmailSenderBase
         var file = $"{Path.GetTempFileName()}.html";
         File.WriteAllText(file, htmlMessage);
         _logger.LogInformation("Sending email to: {Email}. {Subject}, {Path}", email, subject, file);
+        _logger.LogInformation("To: {Email}. {Message}", email, htmlMessage);
         return Task.CompletedTask;
     }
 }

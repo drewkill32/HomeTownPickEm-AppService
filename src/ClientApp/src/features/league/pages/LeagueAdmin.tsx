@@ -68,13 +68,15 @@ function DeletePendingTeam({ teamId }: { teamId: number }) {
 export const LeagueAdmin = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const league = useLeague();
 
   const { data } = useLeagueAdmin();
 
   if (!user || !data) {
     return null;
   }
-  if (user.claims['admin'] !== 'true') {
+
+  if (user.claims['commissioner'] !== league.id.toString()) {
     return <Navigate to={'/unauthorized'} state={{ from: location }} />;
   }
 

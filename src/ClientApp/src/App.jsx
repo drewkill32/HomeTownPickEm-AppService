@@ -21,6 +21,7 @@ import {
 import WeeklyStats from './components/WeeklyStats';
 import { ProfilePage } from './features/profile';
 import { PickProvider } from './features/SeasonPicks/contexts/PickContext';
+import { Unauthorized } from './pages/Unauthorized';
 import HomeSelection from './pages/HomeSelection';
 
 const queryClient = new QueryClient({
@@ -40,6 +41,7 @@ const App = () => {
             <Route index element={<HomeSelection />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="leagues" element={<LeagueHome />} />
+            <Route path="unauthorized" element={<Unauthorized />} />
             <Route path="league/:league/:season" element={<LeagueIndex />}>
               <Route index element={<Leaderboard />}></Route>
               <Route
