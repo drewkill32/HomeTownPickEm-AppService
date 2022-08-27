@@ -74,7 +74,7 @@ export function HeartbeatWrapper({ children }: HeartbeatWrapperProps) {
 
   useEffect(() => {
     queryClient.invalidateQueries('heartbeat');
-  }, [location]);
+  }, [location, queryClient]);
 
   if (isLoading) {
     return (

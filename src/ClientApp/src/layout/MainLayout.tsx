@@ -80,6 +80,7 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
     if (page.path) {
       navigate(page.path);
     }
+    handleCloseNavMenu();
   };
 
   return (
@@ -217,6 +218,7 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
                       if (typeof setting.onClick === 'function') {
                         setting.onClick();
                       }
+                      handleCloseUserMenu();
                     }}>
                     <Typography textAlign="center">{setting.name}</Typography>
                   </MenuItem>

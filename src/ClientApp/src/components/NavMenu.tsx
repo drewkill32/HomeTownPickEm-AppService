@@ -1,25 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   AppBar,
   Box,
   Toolbar,
-  Link,
   Typography,
-  Theme,
   IconButton,
   Button,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link as RouterLink } from 'react-router-dom';
-import LoginMenu from './auth/LoginMenu';
 
 const NavMenu = () => {
-  const [collapsed, setCollapsed] = useState(true);
-
-  const toggleNavbar = () => {
-    setCollapsed((c) => !c);
-  };
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -28,8 +18,7 @@ const NavMenu = () => {
             edge="start"
             sx={{ mr: 2 }}
             color="inherit"
-            aria-label="menu"
-          >
+            aria-label="menu">
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
