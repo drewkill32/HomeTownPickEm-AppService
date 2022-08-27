@@ -239,6 +239,7 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
           sx={{
             pt: 3,
             mb: '15px',
+            pb: '50px',
           }}>
           {children}
         </Container>
