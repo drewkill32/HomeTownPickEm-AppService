@@ -1,4 +1,4 @@
-﻿using HomeTownPickEm.Application.Common;
+﻿using HomeTownPickEm.Application.Seasons.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeTownPickEm.Controllers;
@@ -6,9 +6,9 @@ namespace HomeTownPickEm.Controllers;
 public class SeasonController : ApiControllerBase
 {
     [HttpGet("current")]
-    public IActionResult GetCurrentSeason()
+    public async Task<IActionResult> GetCurrentSeason()
     {
-        var date = HttpContext.RequestServices.GetRequiredService<ISystemDate>();
-        return Ok(new { Season = date.Now.Year.ToString() });
+        var result = await Mediator.Send(new CurrentSeason.Query());
+        return Ok(result);
     }
 }

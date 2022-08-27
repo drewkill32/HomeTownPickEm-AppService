@@ -1,23 +1,5 @@
-﻿using HomeTownPickEm.Application.Leagues;
-using HomeTownPickEm.Application.Picks;
-using HomeTownPickEm.Application.Teams;
+﻿namespace HomeTownPickEm.Models;
 
-namespace HomeTownPickEm.Models;
-
-public static class SeasonExtenstions
-{
-    public static LeagueDto ToLeagueDto(this Season season)
-    {
-        return new LeagueDto
-        {
-            Id = season.Id,
-            Name = season.League.Name,
-            Year = season.Year,
-            Teams = season.Teams?.Select(x => x.ToTeamDto()),
-            Picks = season.Picks?.Select(x => x.ToPickDto())
-        };
-    }
-}
 
 public class Season
 {
@@ -119,6 +101,19 @@ public class Season
         return teamIds.Contains(game.AwayId) && teamIds.Contains(game.HomeId);
     }
 
+    public void UpdatePicks(Game[] games)
+    {
+        var gamesDict = games.ToHashSet(ModelEquality<Game>.IdComparer).ToDictionary(x => x.Id, x => x);
+        var picks = Picks.Where(p => gamesDict.Keys.Contains(p.GameId)).ToArray();
+        foreach (var pick in picks)
+        {
+            var game = gamesDict[pick.GameId];
+            if (game.GameFinal && game.WinnerId == pick.SelectedTeamId)
+            {
+                pick.Points = 1;
+            }
+        }
+    }
 
     public void AddMember(ApplicationUser member, IEnumerable<Game> games)
     {
@@ -165,4 +160,6 @@ public class Season
             }
         }
     }
+
+
 }

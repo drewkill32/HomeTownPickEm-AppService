@@ -149,6 +149,14 @@ namespace HomeTownPickEm.Controllers
 
             return Ok(user);
         }
+
+        [HttpDelete("{UserId}")]
+        public async Task<ActionResult<UserDto>> DeleteUser([FromRoute] RemoveUser.Command command)
+        {
+            await Mediator.Send(command);
+
+            return Ok();
+        }
         
     }
 }

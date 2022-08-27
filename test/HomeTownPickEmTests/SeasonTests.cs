@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using FluentAssertions;
+using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
 using HomeTownPickEm.Models;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,163 @@ public class SeasonTests
         dbSeason.Teams.Should().ContainSingle(x => x.Id == MichTeamId);
         dbSeason.Picks.Select(x => x.GameId).Should()
             .BeEquivalentTo(gameIds);
+    }
+
+    [Fact]
+    public void UpdatePicks_Should_GrantPoints()
+    {
+        var userId = Database.CreateUser().Id;
+        var leagueId = Database.CreateLeague().Id;
+        var seasonId = CreateSeason(leagueId, userId).Id;
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = GetSeasonFromDatabase(seasonId, context);
+            // pick the home team for every game
+            foreach (var pick in season.Picks)
+            {
+                if (pick.Game.TeamIsPlaying(MichTeamId))
+                {
+                    pick.SelectedTeamId = MichTeamId;
+                }
+                else
+                {
+                    pick.SelectedTeamId = MSUTeamId;
+                }
+            }
+
+            context.SaveChanges();
+        }
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = GetSeasonFromDatabase(seasonId, context);
+            var games = season.Picks.Select(x => x.Game).Where(x => x.Week == 1).ToArray();
+            season.UpdatePicks(games);
+            context.SaveChanges();
+        }
+
+        var dbSeason = GetSeasonFromDatabase(seasonId);
+
+        var firstWeekPicks = dbSeason.Picks.Where(p => p.Game.Week == 1).ToArray();
+        //both MSU and Mich won their first games
+        firstWeekPicks.Should()
+            .Contain(p => p.Game.TeamIsPlaying(MichTeamId) && p.Points == 1)
+            .And
+            .Contain(p => p.Game.TeamIsPlaying(MSUTeamId) && p.Points == 1);
+    }
+
+    [Fact]
+    public void UpdatePicks_Should_GrantTwoPoints_IfHead2Head()
+    {
+        var userId = Database.CreateUser().Id;
+        var leagueId = Database.CreateLeague().Id;
+        var seasonId = CreateSeason(leagueId, userId).Id;
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = GetSeasonFromDatabase(seasonId, context);
+            // pick the home team for every game
+
+            // pick the Mich vs MSU game for 2021
+            foreach (var pick in season.Picks.Where(p =>
+                         p.Game.TeamIsPlaying(MichTeamId) && p.Game.TeamIsPlaying(MSUTeamId)))
+            {
+                pick.Game.AwayPoints = 100; //Mich won 100 - 0 😊 
+                pick.Game.HomePoints = 0;
+
+                pick.SelectedTeamId = MichTeamId;
+            }
+
+            context.SaveChanges();
+        }
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = GetSeasonFromDatabase(seasonId, context);
+            var games = season.Picks.Select(x => x.Game)
+                .Where(x => x.TeamIsPlaying(MichTeamId) && x.TeamIsPlaying(MSUTeamId)).ToArray();
+            season.UpdatePicks(games);
+            context.SaveChanges();
+        }
+
+        var dbSeason = GetSeasonFromDatabase(seasonId);
+
+        var h2hPicks = dbSeason.Picks.Where(p => p.Game.TeamIsPlaying(MichTeamId) && p.Game.TeamIsPlaying(MSUTeamId))
+            .ToArray();
+        //all points should be 1
+        h2hPicks.Should().NotContain(p => p.Points == 0);
+    }
+
+    [Fact]
+    public void UpdatePicks_Should_GrantOnePoint_IfSplitHead2Head()
+    {
+        var userId = Database.CreateUser().Id;
+        var leagueId = Database.CreateLeague().Id;
+        var seasonId = CreateSeason(leagueId, userId).Id;
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = GetSeasonFromDatabase(seasonId, context);
+            // pick the home team for every game
+
+            // pick the Mich vs MSU game for 2021
+            var picks = season.Picks.Where(p =>
+                p.Game.TeamIsPlaying(MichTeamId) && p.Game.TeamIsPlaying(MSUTeamId)).ToArray();
+            for (var i = 0; i < picks.Length; i++)
+            {
+                var pick = picks[i];
+                pick.Game.AwayPoints = 100; //Mich won 100 - 0 😊 
+                pick.Game.HomePoints = 0;
+                pick.SelectedTeamId = i % 2 == 0 ? MichTeamId : MSUTeamId;
+            }
+
+
+            context.SaveChanges();
+        }
+
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = GetSeasonFromDatabase(seasonId, context);
+            var games = season.Picks.Select(x => x.Game)
+                .Where(x => x.TeamIsPlaying(MichTeamId) && x.TeamIsPlaying(MSUTeamId)).ToArray();
+            season.UpdatePicks(games);
+            context.SaveChanges();
+        }
+
+        var dbSeason = GetSeasonFromDatabase(seasonId);
+
+        var h2hPicks = dbSeason.Picks.Where(p => p.Game.TeamIsPlaying(MichTeamId) && p.Game.TeamIsPlaying(MSUTeamId))
+            .ToArray();
+        //all points should be 1
+        h2hPicks.Should()
+            .Contain(p => p.Points == 1)
+            .And
+            .Contain(p => p.Points == 0);
+    }
+
+    private Season CreateSeason(int leagueId, string userId)
+    {
+        using (var context = Database.CreateTrackingDbContext())
+        {
+            var season = new Season
+            {
+                Year = "2021",
+                LeagueId = leagueId
+            };
+            //we need to fetch the entity from the database to get the id
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            var michTeam = context.Teams.FirstOrDefault(x => x.Id == MichTeamId);
+            var msuTeam = context.Teams.FirstOrDefault(x => x.Id == MSUTeamId);
+            season.AddTeam(michTeam);
+            season.AddTeam(msuTeam);
+            var games = context.Games.WhereTeamsArePlaying(new[] { michTeam, msuTeam }).ToArray();
+
+            season.AddMember(user, games);
+            context.Season.Add(season);
+            context.SaveChanges();
+            return season;
+        }
     }
 
     [Fact]
@@ -285,15 +443,29 @@ public class SeasonTests
         return season;
     }
 
-    private Season GetSeasonFromDatabase(int seasonId)
+    private Season GetSeasonFromDatabase(int seasonId, ApplicationDbContext context = null)
     {
-        using var ctx = Database.CreateDbContext();
-        return ctx.Season.Where(x => x.Id == seasonId)
+        var disposeContext = false;
+        if (context == null)
+        {
+            context = Database.CreateDbContext();
+            disposeContext = true;
+        }
+
+        var season = context.Season.Where(x => x.Id == seasonId)
             .Include(x => x.Teams)
             .Include(x => x.Picks)
             .ThenInclude(p => p.Game)
             .Include(x => x.Members)
             .Include(x => x.League)
             .FirstOrDefault();
+
+        if (disposeContext)
+        {
+            context.Dispose();
+        }
+
+        return season;
+        
     }
 }

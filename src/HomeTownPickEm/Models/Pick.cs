@@ -22,6 +22,8 @@ namespace HomeTownPickEm.Models
 
         public int? SelectedTeamId { get; set; }
         
+        
+        
 
     }
 }

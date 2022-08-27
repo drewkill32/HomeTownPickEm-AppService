@@ -89,6 +89,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                     await AddInvite(invite, user, cancellationToken);
                 }
 
+                _context.PendingInvites.RemoveRange(pendingInvites);
                 
                 await _context.SaveChangesAsync(cancellationToken);
                 return Unit.Value;
