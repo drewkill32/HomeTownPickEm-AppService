@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Container, LinearProgress, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
@@ -7,6 +7,7 @@ import useGetPicks from '../../hooks/useGetPicks';
 import PickLayout from './PickLayout';
 import { Box } from '@mui/system';
 import { PickLayoutSkeleton } from './PicksHomeSkeleton';
+import { useLayout } from '../../layout/LayoutContext';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -46,7 +47,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 const PicksHome = () => {
+  const { setPaddingBottom } = useLayout();
   const classes = useStyles();
+
+  useEffect(() => {
+    setPaddingBottom('60px');
+    return () => setPaddingBottom(0);
+  }, []);
 
   const { isLoading, data: games } = useGetPicks();
 
@@ -102,7 +109,7 @@ const PicksHome = () => {
           height: '60px',
           borderTop: '1px solid #353535',
         }}>
-        <p>'All Changes will autosave</p>
+        <Typography>All Changes will autosave</Typography>
         <Box
           sx={{
             display: 'flex',
@@ -115,9 +122,9 @@ const PicksHome = () => {
               marginBottom: '5px',
             },
           }}>
-          <p>
+          <Typography noWrap>
             {selCount}/{gameCount} Picks Made
-          </p>
+          </Typography>
           <BorderLinearProgress
             sx={{ width: '100%' }}
             variant="determinate"

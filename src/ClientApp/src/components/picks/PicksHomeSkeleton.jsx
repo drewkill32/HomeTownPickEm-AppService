@@ -10,7 +10,7 @@ const StyledSkeleton = styled(Skeleton)(() => ({
 }));
 
 export const PickLayoutSkeleton = () => {
-  const items = [1, 2, 3, 4];
+  const items = [1, 2, 3];
   return (
     <Container
       maxWidth="xs"

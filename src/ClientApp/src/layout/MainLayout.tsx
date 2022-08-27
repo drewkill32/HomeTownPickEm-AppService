@@ -14,6 +14,8 @@ import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import { useAuth } from '../features/authentication';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import { useState } from 'react';
+import { LayoutContextProvider } from './LayoutContext';
 
 const PageRoot = z.object({
   name: z.string(),
@@ -39,6 +41,7 @@ export interface MainLayoutProps {
 
 const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
   const { user, signOut } = useAuth();
+  const [paddingBottom, setPaddingBottom] = useState<string | number>(0);
   const navigate = useNavigate();
 
   const settings = [
@@ -228,22 +231,25 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Box
-        sx={{
-          overflowY: 'auto',
-          height: 'calc(100vh - 64px)',
-          mt: '64px',
-        }}>
-        <Container
-          maxWidth="md"
+      <LayoutContextProvider
+        paddingBottom={paddingBottom}
+        setPaddingBottom={setPaddingBottom}>
+        <Box
           sx={{
-            pt: 3,
-            mb: '15px',
-            pb: '50px',
+            overflowY: 'auto',
+            height: `calc(100vh - 64px - ${paddingBottom})`,
+            mt: '64px',
           }}>
-          {children}
-        </Container>
-      </Box>
+          <Container
+            maxWidth="md"
+            sx={{
+              pt: 3,
+              mb: '15px',
+            }}>
+            {children}
+          </Container>
+        </Box>
+      </LayoutContextProvider>
     </>
   );
 };

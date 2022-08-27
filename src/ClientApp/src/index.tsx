@@ -21,13 +21,6 @@ const theme = createTheme({
     },
   },
   components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          overflowY: 'hidden',
-        },
-      },
-    },
     MuiTextField: {
       styleOverrides: {
         root: {
