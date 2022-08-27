@@ -43,21 +43,7 @@ public class RemovePendingMember
             }
 
             await _context.SaveChangesAsync(cancellationToken);
-
-            var user = await _userManager.FindByIdAsync(request.MemberId);
-
-            if (user == null)
-            {
-                throw new BadRequestException($"no user found with Id: '{request.MemberId}'.");
-            }
-
-            var result = await _userManager.DeleteAsync(user);
-
-            if (!result.Succeeded)
-            {
-                throw new Exception(
-                    $"Unknown error occurred while removing user. {string.Join(", ", result.Errors.Select(x => x.Description).ToArray())}");
-            }
+            
 
             return Unit.Value;
         }
