@@ -23,6 +23,7 @@ import { ProfilePage } from './features/profile';
 import { PickProvider } from './features/SeasonPicks/contexts/PickContext';
 import { Unauthorized } from './pages/Unauthorized';
 import HomeSelection from './pages/HomeSelection';
+import { HeartbeatWrapper } from './components/HeartbeatWrapper';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,38 +36,40 @@ const queryClient = new QueryClient({
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<HomeSelection />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="leagues" element={<LeagueHome />} />
-            <Route path="unauthorized" element={<Unauthorized />} />
-            <Route path="league/:league/:season" element={<LeagueIndex />}>
-              <Route index element={<Leaderboard />}></Route>
-              <Route
-                path="weekly-stats"
-                element={
-                  <PickProvider>
-                    <WeeklyStats />
-                  </PickProvider>
-                }
-              />
-              <Route path="admin" element={<LeagueAdmin />} />
+      <HeartbeatWrapper>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Home />}>
+              <Route index element={<HomeSelection />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="leagues" element={<LeagueHome />} />
+              <Route path="unauthorized" element={<Unauthorized />} />
+              <Route path="league/:league/:season" element={<LeagueIndex />}>
+                <Route index element={<Leaderboard />}></Route>
+                <Route
+                  path="weekly-stats"
+                  element={
+                    <PickProvider>
+                      <WeeklyStats />
+                    </PickProvider>
+                  }
+                />
+                <Route path="admin" element={<LeagueAdmin />} />
+              </Route>
             </Route>
-          </Route>
-          <Route path="/new-user" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route
-            path="/confirm-reset-password"
-            element={<ConfirmPasswordReset />}
-          />
+            <Route path="/new-user" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/confirm-reset-password"
+              element={<ConfirmPasswordReset />}
+            />
 
-          <Route path="*" component={NotFound} />
-        </Routes>
-        <ReactQueryDevtools />
-      </AuthProvider>
+            <Route path="*" component={NotFound} />
+          </Routes>
+          <ReactQueryDevtools />
+        </AuthProvider>
+      </HeartbeatWrapper>
     </QueryClientProvider>
   );
 };
