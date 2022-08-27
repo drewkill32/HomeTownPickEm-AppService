@@ -2,8 +2,10 @@
 using HomeTownPickEm.Application.Games;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
+using HomeTownPickEm.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace HomeTownPickEm.Application.Leagues.Notifications;
 
@@ -11,12 +13,14 @@ public class UpdateLeagues : INotificationHandler<GamesUpdatedNotification>
 {
     private readonly ApplicationDbContext _context;
     private readonly ISystemDate _date;
+    private readonly ILogger<UpdateLeagues> _logger;
 
 
-    public UpdateLeagues(ApplicationDbContext context, ISystemDate date)
+    public UpdateLeagues(ApplicationDbContext context, ISystemDate date, ILogger<UpdateLeagues> logger)
     {
         _context = context;
         _date = date;
+        _logger = logger;
     }
 
 
@@ -54,10 +58,14 @@ public class UpdateLeagues : INotificationHandler<GamesUpdatedNotification>
             .AsTracking()
             .ToArrayAsync(cancellationToken);
 
+        var updatedPicks = new List<EntityEntry<Pick>>();
         foreach (var season in seasons)
         {
             var games = await gamesQuery
                 .WhereTeamsArePlaying(season.Teams)
+                .Include(g => g.Away)
+                .Include(g => g.Home)
+                .AsTracking()
                 .ToArrayAsync(cancellationToken);
             var gameIds = games.Select(g => g.Id).ToArray();
 
@@ -67,10 +75,20 @@ public class UpdateLeagues : INotificationHandler<GamesUpdatedNotification>
                 .AsTracking()
                 .ToArrayAsync(cancellationToken);
 
+            var updated = _context.ChangeTracker.Entries<Pick>()
+                .Where(p => p.State == EntityState.Modified).ToArray();
+            updatedPicks.AddRange(updated);
             season.UpdatePicks(games);
         }
 
 
         await _context.SaveChangesAsync(cancellationToken);
+        foreach (var pick in updatedPicks)
+        {
+            var game = pick.Entity.Game;
+            _logger.LogInformation("Updated Game {Home} Score {HomeScore} {Away} {AwayScore}",
+                game.Home.School + " " + game.Home.Mascot, game.HomePoints, game.Away.School + " " + game.Away.Mascot,
+                game.AwayPoints);
+        }
     }
 }
