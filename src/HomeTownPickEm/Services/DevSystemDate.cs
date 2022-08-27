@@ -14,4 +14,5 @@ public class DevSystemDate : ISystemDate
     public DateTimeOffset Now => _now ?? DateTimeOffset.Now;
 
     public DateTimeOffset UtcNow => _now ?? DateTimeOffset.UtcNow;
+    public string Year => _now.HasValue ? _now.Value.Year.ToString() : DateTimeOffset.Now.Year.ToString();
 }

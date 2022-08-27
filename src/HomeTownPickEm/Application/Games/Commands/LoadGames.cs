@@ -16,12 +16,14 @@ namespace HomeTownPickEm.Application.Games.Commands
         public class Handler : IRequestHandler<Command>
         {
             private readonly ApplicationDbContext _context;
+            private readonly IPublisher _publisher;
             private readonly ICfbdHttpClient _httpClient;
 
 
-            public Handler(ICfbdHttpClient httpClient, ApplicationDbContext context)
+            public Handler(ICfbdHttpClient httpClient, ApplicationDbContext context, IPublisher publisher)
             {
                 _context = context;
+                _publisher = publisher;
                 _httpClient = httpClient;
             }
 
@@ -38,12 +40,15 @@ namespace HomeTownPickEm.Application.Games.Commands
                         .WhereWeekIs(request.Week));
 
                 await _context.SaveChangesAsync(cancellationToken);
+                await _publisher.Publish(new GamesUpdatedNotification
+                {
+                    Week = request.Week,
+                    Year = request.Year
+                }, cancellationToken);
                 return Unit.Value;
                 
             }
             
         }
     }
-
-  
 }

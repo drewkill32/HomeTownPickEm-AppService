@@ -6,6 +6,7 @@ import { JwtTokenType, User, UserTokenType } from '../../../models';
 import { JwtToken } from '../../../zod';
 import { getUnixTime } from 'date-fns';
 import jwt_decode from 'jwt-decode';
+import { fetchNewRefreshToken } from '../../../utils/agent';
 
 interface ForgotPasswordProps {
   email: string;
@@ -30,6 +31,7 @@ export interface AuthContextProps {
   resetPassword: (email: ForgotPasswordProps) => Promise<void>;
   token: { token: string; decoded: JwtTokenType } | null;
   isAuthenticated: boolean;
+  refreshToken: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -41,6 +43,7 @@ const AuthContext = createContext<AuthContextProps>({
   resetPassword: () => Promise.resolve(),
   token: null,
   isAuthenticated: false,
+  refreshToken: () => Promise.resolve(),
 });
 
 export const useAuth = () => {
@@ -57,7 +60,7 @@ const forgotPassword = async (email: string) => {
 };
 
 const resetPassword = async (values: ForgotPasswordProps) => {
-  var res = await axios.post('api/user/verifyresetpassword', values);
+  const res = await axios.post('api/user/verifyresetpassword', values);
   return res.data;
 };
 
@@ -68,11 +71,11 @@ const useProviderAuth = (): AuthContextProps => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      var res = await axios.post('api/user/login', {
+      const res = await axios.post('api/user/login', {
         email: email,
         password: password,
       });
-      var t = res.data as UserTokenType;
+      const t = res.data as UserTokenType;
       const user = await axios
         .get('api/user/profile', {
           headers: {
@@ -87,9 +90,9 @@ const useProviderAuth = (): AuthContextProps => {
     }
   };
 
-  const getToken = useMemo(() => {
+  const jwt = useMemo(() => {
     if (token) {
-      var decoded = jwt_decode(token.access_token);
+      const decoded = jwt_decode(token.access_token);
       return {
         token: token.access_token,
         decoded: JwtToken.parse(decoded),
@@ -112,16 +115,21 @@ const useProviderAuth = (): AuthContextProps => {
       localStorage.clear();
     }
   };
+  const refreshToken = async () => {
+    const t = await fetchNewRefreshToken(token);
+    setToken(t);
+  };
 
   return {
     user: user,
     signIn: signIn,
     signOut: signOut,
     register: register,
-    token: getToken,
+    token: jwt,
     forgotPassword: forgotPassword,
     resetPassword: resetPassword,
     isAuthenticated: isAuthenticated,
+    refreshToken: refreshToken,
   };
 };
 

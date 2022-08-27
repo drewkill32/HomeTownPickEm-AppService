@@ -38,7 +38,7 @@ const setUserToken = (token: UserTokenType | null) => {
   return token;
 };
 
-const fetchNewRefreshToken = async (
+export const fetchNewRefreshToken = async (
   token: UserTokenType
 ): Promise<UserTokenType | null> => {
   try {
@@ -56,9 +56,6 @@ const fetchNewRefreshToken = async (
     if (res.status === 200) {
       const newToken = await res.json();
       const t = UserToken.parse(newToken);
-      console.log(
-        `refreshed token: ${token.refresh_token} with token: ${t.refresh_token}`
-      );
       if (t.version > token.version) {
         console.log('the token is updated. forcing logout');
         setUserToken(null);

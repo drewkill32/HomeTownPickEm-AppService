@@ -133,13 +133,7 @@ namespace HomeTownPickEm.Controllers
             var teams = await Mediator.Send(query);
             return Ok(teams);
         }
-
-        [HttpPost("{leagueId}/updateleaguepicks")]
-        public async Task<ActionResult> UpdateLeague([FromRoute] UpdateLeague.Command command)
-        {
-            await Mediator.Send(command);
-            return NoContent();
-        }
+        
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserLeagueDto>>> GetLeagues([FromQuery] GetLeagues.Query query)

@@ -26,20 +26,24 @@ public class CurrentSeason
         {
             var year = _date.Now.Year.ToString();
             var dates = await _context.Calendar.Where(x => x.Season == year)
-                .Select(c => new
-                {
-                    c.FirstGameStart,
-                    c.LastGameStart
-                }).ToArrayAsync(cancellationToken);
+                .ToArrayAsync(cancellationToken);
 
             var minDate = dates.Min(x => x.FirstGameStart);
             var lastDate = dates.Max(x => x.LastGameStart);
 
+
+            var week = (from cal in dates.OrderBy(x => x.FirstGameStart).ToArray()
+                    where DateOnly.FromDateTime(_date.UtcNow.DateTime) >=
+                          DateOnly.FromDateTime(cal.FirstGameStart.DateTime)
+                    select cal.Week)
+                .FirstOrDefault();
+            
             return new SeasonDto
             {
                 Season = year,
                 FirstGameStart = minDate,
-                LastGameStart = lastDate
+                LastGameStart = lastDate,
+                Week = week
             };
         }
     }
