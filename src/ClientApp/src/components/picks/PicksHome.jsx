@@ -53,7 +53,7 @@ const PicksHome = () => {
   useEffect(() => {
     setPaddingBottom('60px');
     return () => setPaddingBottom(0);
-  }, []);
+  }, [setPaddingBottom]);
 
   const { isLoading, data: games } = useGetPicks();
 
