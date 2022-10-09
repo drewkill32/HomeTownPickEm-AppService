@@ -37,7 +37,7 @@ public static class WebApplicationBuilderExtensions
         }
 
         builder.Services.AddDbContext<ApplicationDbContext>((Action<DbContextOptionsBuilder>)Configure);
-  
+
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         return builder;

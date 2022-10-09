@@ -24,5 +24,10 @@ namespace HomeTownPickEm.Models
         public string AltColor { get; set; }
         public string Logos { get; set; }
         public ICollection<Season> Seasons { get; set; }
+
+        public override string ToString()
+        {
+            return $"{School} {Mascot}";
+        }
     }
 }

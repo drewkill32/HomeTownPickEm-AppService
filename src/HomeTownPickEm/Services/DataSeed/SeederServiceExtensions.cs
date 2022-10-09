@@ -36,6 +36,7 @@ namespace HomeTownPickEm.Services.DataSeed
             services.AddSeeder<UserProfilePicSeeder>();
             services.AddSeeder<CalendarSeeder>();
             services.AddSeeder<SeasonSeeder>();
+            services.AddSeeder<PickFixSeeder>();
             return services;
         }
     }

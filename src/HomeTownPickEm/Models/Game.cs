@@ -67,6 +67,10 @@ namespace HomeTownPickEm.Models
         {
             return TeamIsPlaying(team.Id);
         }
-        
+
+        public override string ToString()
+        {
+            return $"{Away} at {Home}";
+        }
     }
 }
