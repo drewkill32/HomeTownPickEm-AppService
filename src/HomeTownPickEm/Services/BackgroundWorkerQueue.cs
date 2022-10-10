@@ -1,9 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using HomeTownPickEm.Application.Common;
 using MediatR;
 
 namespace HomeTownPickEm.Services;
 
-public class BackgroundWorkerQueue : IDisposable
+public class BackgroundWorkerQueue : IDisposable, IBackgroundWorkerQueue
 {
     private readonly ConcurrentQueue<string> _keyQueue = new();
     private readonly ConcurrentDictionary<string, IRequest> _queue = new();

@@ -169,6 +169,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         builder.Services.AddScoped<GameTeamRepository>();
         builder.Services.AddSingleton(BackgroundWorkerQueue.Instance);
+        builder.Services.AddSingleton<IBackgroundWorkerQueue>(BackgroundWorkerQueue.Instance);
         builder.Services.AddHostedService<BackgroundWorker>();
 
         if (builder.Environment.IsDevelopment())

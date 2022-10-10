@@ -1,5 +1,6 @@
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Application.Common;
+using HomeTownPickEm.Application.Games.Commands;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
@@ -23,20 +24,24 @@ namespace HomeTownPickEm.Application.Picks.Queries
         public class QueryHandler : IRequestHandler<Query, IEnumerable<GameProjection>>
         {
             private readonly IUserAccessor _accessor;
+            private readonly IBackgroundWorkerQueue _workerQueue;
             private readonly ISystemDate _date;
             private readonly ApplicationDbContext _context;
 
-            public QueryHandler(ApplicationDbContext context, IUserAccessor accessor, ISystemDate date)
+            public QueryHandler(ApplicationDbContext context, IUserAccessor accessor,
+                IBackgroundWorkerQueue workerQueue,
+                ISystemDate date)
             {
                 _context = context;
                 _accessor = accessor;
+                _workerQueue = workerQueue;
                 _date = date;
             }
 
             public async Task<IEnumerable<GameProjection>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var userId = (await _accessor.GetCurrentUserAsync()).Id;
-
+                await UpdateCache(request, cancellationToken);
                 var seasonId = await _context.Season
                     .Where(s => s.Year == request.Season && s.LeagueId == request.LeagueId)
                     .Select(s => s.Id)
@@ -114,6 +119,41 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .ThenBy(x => x.Home.Mascot)
                     .ToArray();
                 return orderedGames;
+            }
+
+            private async Task UpdateCache(Query request, CancellationToken cancellationToken)
+            {
+                var seasonCache = await _context.SeasonCaches.FirstOrDefaultAsync(
+                    x => x.Type == "regular" && x.Season == request.Season && x.Week == request.Week,
+                    cancellationToken);
+                var now = _date.UtcNow;
+                if (seasonCache == null || seasonCache.LastRefresh.AddMinutes(20) < now)
+                {
+                    var command = new LoadGames.Command
+                    {
+                        SeasonType = "regular",
+                        Week = request.Week,
+                        Year = request.Season
+                    };
+                    _workerQueue.Queue(command.ToString(), command);
+                    if (seasonCache == null)
+                    {
+                        _context.SeasonCaches.Add(new SeasonCache
+                        {
+                            LastRefresh = now,
+                            Season = request.Season,
+                            Type = "regular",
+                            Week = request.Week
+                        });
+                    }
+                    else
+                    {
+                        seasonCache.LastRefresh = now;
+                        _context.SeasonCaches.Update(seasonCache);
+                    }
+
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
 
             private async Task<(int[] TeamIds, Dictionary<int, PickTotalDto> PickTotals)>

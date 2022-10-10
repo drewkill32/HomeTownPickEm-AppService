@@ -7,7 +7,6 @@ using HomeTownPickEm.Application.Users;
 using HomeTownPickEm.Application.Users.Commands;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
-using HomeTownPickEm.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -17,20 +16,18 @@ namespace HomeTownPickEm.Security;
 
 public class TokenService : ITokenService
 {
-    private readonly IHostEnvironment _env;
     private readonly ApplicationDbContext _context;
-    private readonly BackgroundWorkerQueue _queue;
+    private readonly IBackgroundWorkerQueue _queue;
     private readonly ISystemDate _date;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly JwtOptions _opt;
     private readonly HttpContext _httpContext;
 
-    public TokenService(IOptions<JwtOptions> options, IHostEnvironment env,
+    public TokenService(IOptions<JwtOptions> options,
         ApplicationDbContext context, IHttpContextAccessor contextAccessor,
-        BackgroundWorkerQueue queue,
+        IBackgroundWorkerQueue queue,
         ISystemDate date, UserManager<ApplicationUser> userManager)
     {
-        _env = env;
         _context = context;
         _queue = queue;
         _date = date;

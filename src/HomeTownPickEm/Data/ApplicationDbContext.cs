@@ -26,6 +26,8 @@ namespace HomeTownPickEm.Data
 
         public DbSet<Pick> Pick { get; set; }
 
+        public DbSet<SeasonCache> SeasonCaches { get; set; }
+
         public DbSet<Game> Games { get; set; }
 
         public DbSet<PendingInvite> PendingInvites { get; set; }
@@ -144,6 +146,15 @@ namespace HomeTownPickEm.Data
                     x.UserId,
                     x.Season,
                     x.LeagueId
+                });
+
+            //SeasonCaches
+            builder.Entity<SeasonCache>()
+                .HasKey(x => new
+                {
+                    x.Season,
+                    x.Type,
+                    x.Week
                 });
         }
     }
