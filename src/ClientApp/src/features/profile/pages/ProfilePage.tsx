@@ -87,7 +87,7 @@ const FetchDataButton = ({ children, type, week }: FetchDataButtonProps) => {
 };
 
 export const ProfilePage = () => {
-  const { user, token: jwt, refreshToken } = useAuth();
+  const { user, token, refreshToken } = useAuth();
   const [copied, setCopied] = useState(false);
   const [week, setWeek] = useState(1);
   const [showToken, setShowToken] = useState(false);
@@ -105,7 +105,7 @@ export const ProfilePage = () => {
   }
 
   const isAdmin = user.claims['admin'] === 'true';
-  const accessToken = jwt?.token || '';
+  const accessToken = token?.jwt || '';
 
   const weeks = schedule?.map((s) => s.week) || [];
 
@@ -141,8 +141,8 @@ export const ProfilePage = () => {
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      if (jwt?.token) {
-                        navigator.clipboard.writeText(jwt.token);
+                      if (token?.jwt) {
+                        navigator.clipboard.writeText(token.jwt);
                         setCopied(true);
                         setTimeout(() => setCopied(false), 1200);
                       }
@@ -159,7 +159,7 @@ export const ProfilePage = () => {
               </ProfileItem>
               <ProfileItem>
                 <Typography>{`expires ${formatDistance(
-                  fromUnixTime(jwt?.decoded.exp || 0),
+                  fromUnixTime(token?.decoded.exp || 0),
                   Date.now(),
                   {
                     addSuffix: true,

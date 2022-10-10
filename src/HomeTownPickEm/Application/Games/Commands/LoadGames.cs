@@ -1,4 +1,5 @@
 using HomeTownPickEm.Abstract.Interfaces;
+using HomeTownPickEm.Application.Attributes;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
@@ -9,6 +10,7 @@ namespace HomeTownPickEm.Application.Games.Commands
 {
     public class LoadGames
     {
+        [CacheRefresh]
         public class Command : GameRequest, IRequest
         {
         }

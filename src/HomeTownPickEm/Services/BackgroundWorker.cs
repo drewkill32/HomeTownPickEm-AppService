@@ -1,16 +1,24 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
+using HomeTownPickEm.Application.Attributes;
+using HomeTownPickEm.Hubs;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace HomeTownPickEm.Services;
 
 public class BackgroundWorker : BackgroundService
 {
     private readonly BackgroundWorkerQueue _queue;
+    private readonly IHubContext<CacheHub, ICacheClient> _hubContext;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public BackgroundWorker(BackgroundWorkerQueue queue, IServiceScopeFactory scopeFactory)
+    public BackgroundWorker(BackgroundWorkerQueue queue,
+        IHubContext<CacheHub, ICacheClient> hubContext,
+        IServiceScopeFactory scopeFactory)
     {
         _queue = queue;
+        _hubContext = hubContext;
         _scopeFactory = scopeFactory;
     }
 
@@ -36,6 +44,12 @@ public class BackgroundWorker : BackgroundService
             sw.Stop();
             logger.LogInformation("Completed Background Task {WorkItem} in {Elapsed} seconds", type,
                 sw.Elapsed.TotalSeconds.ToString("N"));
+            if (workItem.GetType().GetCustomAttribute<CacheRefreshAttribute>() != null)
+            {
+                await _hubContext.Clients.All.RefreshCache();
+            }
+  
+         
         }
         catch (Exception e)
         {

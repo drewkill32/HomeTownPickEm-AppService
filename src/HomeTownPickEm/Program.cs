@@ -1,4 +1,5 @@
 ﻿using HomeTownPickEm.Filters;
+using HomeTownPickEm.Hubs;
 using HomeTownPickEm.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -19,12 +20,17 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddRazorPages();
 
-var spaUrl = builder.Configuration.GetValue("Spa:Url", "http://localhost:3000;https://localhost:5001").Split(";");
+var spaUrl = builder.Configuration
+    .GetValue("Spa:Url", "http://localhost:3000;https://localhost:3000;https://localhost:5001").Split(";");
 builder.Services.Configure<OriginOptions>(options => { options.AllowedOrigins = spaUrl; });
 builder.Services.AddCors(ctx =>
 {
     ctx.AddDefaultPolicy(ply =>
-        ply.WithOrigins(spaUrl).AllowAnyHeader().AllowAnyMethod());
+        ply.WithOrigins(spaUrl)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+    );
 });
 
 builder.AddIdentity();
@@ -73,11 +79,15 @@ app.UseEndpoints(endpoints =>
         name: "default",
         pattern: "{controller}/{action=Index}/{id?}");
     endpoints.MapRazorPages();
+    endpoints.MapHub<CacheHub>("/hubs/cache");
 });
+
 
 
 
 await app.RunStartup();
 
 await app.RunAsync();
+
+
 

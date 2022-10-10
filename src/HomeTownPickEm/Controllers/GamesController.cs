@@ -67,7 +67,7 @@ namespace HomeTownPickEm.Controllers
         [HttpPost("load")]
         public ActionResult LoadGames(LoadGames.Command command)
         {
-            var result = Mediator.Enqueue("load_games", command);
+            var result = Mediator.Enqueue(command.ToString(), command);
             return result ? Accepted() : StatusCode(StatusCodes.Status208AlreadyReported);
         }
     }

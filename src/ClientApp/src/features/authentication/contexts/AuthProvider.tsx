@@ -29,9 +29,9 @@ export interface AuthContextProps {
   register: (user: RegisterProps) => Promise<AxiosResponse<any> | null>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (email: ForgotPasswordProps) => Promise<void>;
-  token: { token: string; decoded: JwtTokenType } | null;
+  token: { jwt: string; decoded: JwtTokenType } | null;
   isAuthenticated: boolean;
-  refreshToken: () => Promise<void>;
+  refreshToken: () => Promise<{ jwt: string; decoded: JwtTokenType } | null>;
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -43,7 +43,8 @@ const AuthContext = createContext<AuthContextProps>({
   resetPassword: () => Promise.resolve(),
   token: null,
   isAuthenticated: false,
-  refreshToken: () => Promise.resolve(),
+  refreshToken: () =>
+    Promise.resolve<{ jwt: string; decoded: JwtTokenType } | null>(null),
 });
 
 export const useAuth = () => {
@@ -90,11 +91,11 @@ const useProviderAuth = (): AuthContextProps => {
     }
   };
 
-  const jwt = useMemo(() => {
+  const jwtToken = useMemo(() => {
     if (token) {
       const decoded = jwt_decode(token.access_token);
       return {
-        token: token.access_token,
+        jwt: token.access_token,
         decoded: JwtToken.parse(decoded),
       };
     }
@@ -118,6 +119,14 @@ const useProviderAuth = (): AuthContextProps => {
   const refreshToken = async () => {
     const t = await fetchNewRefreshToken(token);
     setToken(t);
+    if (t) {
+      const decoded = jwt_decode(token.access_token);
+      return {
+        jwt: t.access_token,
+        decoded: JwtToken.parse(decoded),
+      };
+    }
+    return null;
   };
 
   return {
@@ -125,7 +134,7 @@ const useProviderAuth = (): AuthContextProps => {
     signIn: signIn,
     signOut: signOut,
     register: register,
-    token: jwt,
+    token: jwtToken,
     forgotPassword: forgotPassword,
     resetPassword: resetPassword,
     isAuthenticated: isAuthenticated,
