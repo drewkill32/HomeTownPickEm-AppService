@@ -25,19 +25,21 @@ public class CurrentSeason
         public async Task<SeasonDto> Handle(Query request, CancellationToken cancellationToken)
         {
             var year = _date.Now.Year.ToString();
-            var dates = await _context.Calendar.Where(x => x.Season == year)
-                .ToArrayAsync(cancellationToken);
+            var dates = (await _context.Calendar.Where(x => x.Season == year)
+                    .ToArrayAsync(cancellationToken))
+                .OrderBy(x => x.FirstGameStart)
+                .ToArray();
 
             var minDate = dates.Min(x => x.FirstGameStart);
             var lastDate = dates.Max(x => x.LastGameStart);
 
 
-            var week = (from cal in dates.OrderBy(x => x.FirstGameStart).ToArray()
-                    where DateOnly.FromDateTime(_date.UtcNow.DateTime) >=
-                          DateOnly.FromDateTime(cal.FirstGameStart.DateTime)
+            var week = (from cal in dates
+                    where DateOnly.FromDateTime(_date.UtcNow.DateTime) <=
+                          DateOnly.FromDateTime(cal.LastGameStart.DateTime)
                     select cal.Week)
                 .FirstOrDefault();
-            
+
             return new SeasonDto
             {
                 Season = year,
