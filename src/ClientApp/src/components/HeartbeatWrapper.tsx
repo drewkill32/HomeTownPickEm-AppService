@@ -11,8 +11,9 @@ interface HeartbeatWrapperProps {
 
 const loadingMessages = [
   'Gathering Scores',
-  'Rotating Texas Logo 180 degress',
-  'Scoring touchdowns',
+  'Rotating Texas Logo 180 degrees',
+  'Joe Pa Knew',
+  'UMass is worse than the Detroit Lions',
   'Starting Michigan State Riot',
   "Calculating Florida's losing season",
 ];
