@@ -33,7 +33,7 @@ export const SignalRProvider = (props: SignalRProviderProps) => {
       await queryClient.invalidateQueries();
     });
     setConnection(newConnection);
-  }, []);
+  }, [auth, queryClient]);
 
   useEffect(() => {
     if (connection) {
