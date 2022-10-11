@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import useLocalStorage from '../../../hooks/useLocalStorage';
 import { useQueryClient } from 'react-query';
@@ -119,7 +119,7 @@ const useProviderAuth = (): AuthContextProps => {
       localStorage.clear();
     }
   };
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     const t = await throttler.callFunction(() => fetchNewRefreshToken(token));
     setToken(t);
     if (t) {
@@ -130,7 +130,7 @@ const useProviderAuth = (): AuthContextProps => {
       };
     }
     return null;
-  };
+  }, [token, setToken]);
 
   return {
     user: user,

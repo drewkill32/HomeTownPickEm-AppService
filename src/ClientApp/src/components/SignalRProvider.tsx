@@ -12,24 +12,24 @@ interface SignalRProviderProps {
 export const SignalRProvider = (props: SignalRProviderProps) => {
   const [connection, setConnection] = useState<HubConnection>();
   const queryClient = useQueryClient();
-  const auth = useAuth();
+  const { isAuthenticated, token, refreshToken } = useAuth();
 
   useEffect(() => {
-    if (!auth.isAuthenticated) {
+    if (!isAuthenticated) {
       return;
     }
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${process.env.REACT_APP_API_URL}/hubs/cache`, {
         accessTokenFactory: async () => {
-          const token = auth.token;
-          const exp = fromUnixTime(token?.decoded.exp || 0);
+          const t = token;
+          const exp = fromUnixTime(t?.decoded.exp || 0);
           console.log({ exp });
           if (isPast(exp)) {
             console.log({ message: 'refreshing token' });
-            const t = await auth.refreshToken();
+            const t = await refreshToken();
             return t?.jwt || '';
           }
-          return token?.jwt || '';
+          return t?.jwt || '';
         },
       })
       .withAutomaticReconnect()
@@ -38,7 +38,7 @@ export const SignalRProvider = (props: SignalRProviderProps) => {
       await queryClient.invalidateQueries();
     });
     setConnection(newConnection);
-  }, [auth, queryClient]);
+  }, [queryClient, token, isAuthenticated, refreshToken]);
 
   useEffect(() => {
     if (connection) {
