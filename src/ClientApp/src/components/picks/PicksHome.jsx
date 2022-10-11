@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Container, LinearProgress, Typography } from '@mui/material';
+import {
+  Container,
+  FormControlLabel,
+  LinearProgress,
+  Switch,
+  Typography,
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 import { withStyles } from '@mui/styles';
@@ -8,6 +14,9 @@ import PickLayout from './PickLayout';
 import { Box } from '@mui/system';
 import { PickLayoutSkeleton } from './PicksHomeSkeleton';
 import { useLayout } from '../../layout/LayoutContext';
+import { isPast } from 'date-fns';
+import { useSchedule } from '../../hooks/useSchedule';
+import { useWeek } from '../../features/SeasonPicks/hooks/useWeek';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -46,8 +55,36 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+function LockPicks(props) {
+  const { week } = useWeek();
+  const { data } = useSchedule();
+  if (!data) {
+    return null;
+  }
+  const cur = data.find((x) => x.week === week);
+  const allGamesComplete = isPast(cur.lastGameStart);
+  if (allGamesComplete) {
+    return null;
+  }
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignContent: 'center',
+        justifyContent: 'center',
+        paddingBottom: 3,
+      }}>
+      <FormControlLabel
+        control={<Switch checked={props.checked} onChange={props.onChange} />}
+        label="Lock all Picks"
+      />
+    </Box>
+  );
+}
+
 const PicksHome = () => {
   const { setPaddingBottom } = useLayout();
+  const [locked, setLocked] = React.useState(false);
   const classes = useStyles();
 
   useEffect(() => {
@@ -75,6 +112,7 @@ const PicksHome = () => {
   if (isLoading || !games) {
     return <PickLayoutSkeleton />;
   }
+
   return (
     <div className={classes.root}>
       <Container
@@ -83,15 +121,23 @@ const PicksHome = () => {
           marginTop: '30px',
           paddingBottom: '40px',
         }}>
-        {games.length === 0 ? (
-          <Container>
-            <Typography variant="h6" align="center">
-              There are league games this week
-            </Typography>
-          </Container>
-        ) : (
-          games.map((game) => <PickLayout key={game.id} game={game} />)
-        )}
+        <>
+          <LockPicks
+            checked={locked}
+            onChange={(e) => setLocked(e.target.checked)}
+          />
+          {games.length === 0 ? (
+            <Container>
+              <Typography variant="h6" align="center">
+                There are league games this week
+              </Typography>
+            </Container>
+          ) : (
+            games.map((game) => (
+              <PickLayout locked={locked} key={game.id} game={game} />
+            ))
+          )}
+        </>
       </Container>
       <Box
         sx={{

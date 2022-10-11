@@ -63,7 +63,7 @@ const DisabledTooltip = ({ children, disabled }) => {
   return children;
 };
 
-const PickLayout = ({ game: currentGame }) => {
+const PickLayout = ({ game: currentGame, locked }) => {
   const classes = useStyles();
 
   const {
@@ -78,6 +78,7 @@ const PickLayout = ({ game: currentGame }) => {
   } = useGame(currentGame);
 
   const { mutateAsync } = useMakePick();
+  const isLocked = locked || pastCutoff;
   const handleClick = async (picks, type) => {
     switch (type) {
       case 'home':
@@ -108,9 +109,9 @@ const PickLayout = ({ game: currentGame }) => {
       <Typography gutterBottom align="center">
         {format(game.startDate, 'E MMM do h:mm a')}
       </Typography>
-      <DisabledTooltip disabled={pastCutoff}>
+      <DisabledTooltip disabled={isLocked}>
         <div className={classes.buttonContainer}>
-          {pastCutoff && (
+          {isLocked && (
             <LockOutlinedIcon
               sx={{
                 position: 'absolute',
@@ -126,8 +127,8 @@ const PickLayout = ({ game: currentGame }) => {
           )}
           <PickButton
             team={game.away}
-            disabled={pastCutoff}
-            noWrap={pastCutoff}
+            disabled={isLocked}
+            noWrap={isLocked}
             onClick={() =>
               handleClick(
                 game.picks.map((p) => ({
@@ -148,7 +149,7 @@ const PickLayout = ({ game: currentGame }) => {
           </PickButton>
           {game.head2Head && (
             <SplitButton
-              disabled={pastCutoff}
+              disabled={isLocked}
               selected={splitSelected}
               onClick={() =>
                 handleClick(
@@ -171,8 +172,8 @@ const PickLayout = ({ game: currentGame }) => {
           )}
           <PickButton
             team={game.home}
-            disabled={pastCutoff}
-            noWrap={pastCutoff}
+            disabled={isLocked}
+            noWrap={isLocked}
             onClick={() =>
               handleClick(
                 game.picks.map((p) => ({

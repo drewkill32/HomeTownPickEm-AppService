@@ -34,18 +34,20 @@ public class CurrentSeason
             var lastDate = dates.Max(x => x.LastGameStart);
 
 
-            var week = (from cal in dates
+            var w = (from cal in dates
                     where DateOnly.FromDateTime(_date.UtcNow.DateTime) <=
                           DateOnly.FromDateTime(cal.LastGameStart.DateTime)
-                    select cal.Week)
-                .FirstOrDefault();
+                    select cal)
+                .FirstOrDefault(dates.First());
 
             return new SeasonDto
             {
                 Season = year,
                 FirstGameStart = minDate,
                 LastGameStart = lastDate,
-                Week = week
+                Week = w.Week,
+                WeekStart = w.FirstGameStart,
+                WeekEnd = w.LastGameStart.AddHours(4)
             };
         }
     }

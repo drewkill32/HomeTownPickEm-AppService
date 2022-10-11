@@ -6,6 +6,8 @@ export interface CurrentSeasonProps {
   firstGameStart: Date;
   lastGameStart: Date;
   week: number;
+  weekStart: Date;
+  weekEnd: Date;
 }
 
 export const useCurrentSeason = () => {
@@ -16,6 +18,8 @@ export const useCurrentSeason = () => {
         ...res.data,
         firstGameStart: new Date(res.data.firstGameStart),
         lastGameStart: new Date(res.data.lastGameStart),
+        weekStart: new Date(res.data.weekStart),
+        weekEnd: new Date(res.data.weekEnd),
       })),
     {
       staleTime: 1000 * 60 * 60 * 24,

@@ -11,7 +11,6 @@ const HomeSelection = () => {
   if (!user || !leagues || !season) {
     return null;
   }
-  console.log({ user, leagues });
   if (leagues.length === 1) {
     const l = leagues[0];
     const year = Math.max(...l.years.map((x) => Number(x)));
