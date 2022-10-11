@@ -10,7 +10,7 @@ interface SignalRProviderProps {
 }
 
 export const SignalRProvider = (props: SignalRProviderProps) => {
-  const [connection, setConnection] = useState<HubConnection>();
+  const [, setConnection] = useState<HubConnection>();
   const queryClient = useQueryClient();
   const { isAuthenticated, token, refreshToken } = useAuth();
 
@@ -37,13 +37,18 @@ export const SignalRProvider = (props: SignalRProviderProps) => {
     newConnection.on('RefreshCache', async () => {
       await queryClient.invalidateQueries();
     });
+    newConnection
+      .start()
+      .then(() => console.log('starting SignalR'))
+      .catch((e) => console.error('Connection failed: ', e));
     setConnection(newConnection);
-  }, [queryClient, token, isAuthenticated, refreshToken]);
+    return () => {
+      newConnection
+        .stop()
+        .then(() => console.log('stopping SignalR'))
+        .catch((e) => console.error(e));
+    };
+  }, [queryClient, isAuthenticated, token, refreshToken]);
 
-  useEffect(() => {
-    if (connection) {
-      connection.start().catch((e) => console.error('Connection failed: ', e));
-    }
-  }, [connection]);
   return <div>{props.children}</div>;
 };
