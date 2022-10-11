@@ -17,6 +17,7 @@ import { useLayout } from '../../layout/LayoutContext';
 import { isPast } from 'date-fns';
 import { useSchedule } from '../../hooks/useSchedule';
 import { useWeek } from '../../features/SeasonPicks/hooks/useWeek';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -84,7 +85,7 @@ function LockPicks(props) {
 
 const PicksHome = () => {
   const { setPaddingBottom } = useLayout();
-  const [locked, setLocked] = React.useState(false);
+  const [locked, setLocked] = useLocalStorage('locked', false);
   const classes = useStyles();
 
   useEffect(() => {
