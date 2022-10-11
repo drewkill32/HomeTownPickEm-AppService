@@ -55,7 +55,7 @@ const DisabledTooltip = ({ children, disabled }) => {
     return (
       <Tooltip
         enterDelay={500}
-        title="You are unable to change your pick. The Game has already started.">
+        title="You are unable to change your pick. Either the game has started or the pick is manually locked.">
         {children}
       </Tooltip>
     );
