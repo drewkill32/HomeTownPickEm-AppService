@@ -7,6 +7,7 @@ import { JwtToken } from '../../../zod';
 import { getUnixTime } from 'date-fns';
 import jwt_decode from 'jwt-decode';
 import { fetchNewRefreshToken } from '../../../utils/agent';
+import Semaphore from '../../../utils/Semaphore';
 
 interface ForgotPasswordProps {
   email: string;
@@ -21,6 +22,8 @@ interface RegisterProps {
   password: string;
   code: string;
 }
+
+const throttler = new Semaphore<UserTokenType | null>();
 
 export interface AuthContextProps {
   user: User | null;
@@ -117,7 +120,7 @@ const useProviderAuth = (): AuthContextProps => {
     }
   };
   const refreshToken = async () => {
-    const t = await fetchNewRefreshToken(token);
+    const t = await throttler.callFunction(() => fetchNewRefreshToken(token));
     setToken(t);
     if (t) {
       const decoded = jwt_decode(token.access_token);
