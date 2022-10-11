@@ -15,12 +15,17 @@ export const SignalRProvider = (props: SignalRProviderProps) => {
   const auth = useAuth();
 
   useEffect(() => {
+    if (!auth.isAuthenticated) {
+      return;
+    }
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${process.env.REACT_APP_API_URL}/hubs/cache`, {
         accessTokenFactory: async () => {
           const token = auth.token;
           const exp = fromUnixTime(token?.decoded.exp || 0);
+          console.log({ exp });
           if (isPast(exp)) {
+            console.log({ message: 'refreshing token' });
             const t = await auth.refreshToken();
             return t?.jwt || '';
           }
