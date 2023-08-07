@@ -36,7 +36,7 @@ namespace HomeTownPickEm.Application.Games.Queries
                     .Include(x => x.Away)
                     .Include(x => x.Home)
                     .ToArrayAsync(cancellationToken);
-
+                
                 await _repository.LoadTeamCollection(games, cancellationToken);
                 
                 
