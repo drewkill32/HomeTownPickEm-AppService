@@ -70,5 +70,12 @@ namespace HomeTownPickEm.Controllers
             var result = Mediator.Enqueue(command.ToString(), command);
             return result ? Accepted() : StatusCode(StatusCodes.Status208AlreadyReported);
         }
+        
+        [HttpDelete]
+        public async Task<ActionResult> DeleteTeams([FromQuery] DeleteGames.Command command)
+        {
+            await Mediator.Send(command);
+            return NoContent();
+        }
     }
 }
