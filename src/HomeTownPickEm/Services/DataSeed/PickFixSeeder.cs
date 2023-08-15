@@ -46,7 +46,6 @@ public class PickFixSeeder : ISeeder
             {
                 x.UserId, x.User.Name
             }).ToArray();
-            Debug.Assert(userPicks.Length == 18);
 
             foreach (var userPick in userPicks)
             {

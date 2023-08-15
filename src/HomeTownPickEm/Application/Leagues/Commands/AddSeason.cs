@@ -50,6 +50,15 @@ public class AddSeason
                 await CopyFromPrevSeason(request, newSeason, cancellationToken);
             }
 
+            var oldSeasons = await _context.Season
+                .AsTracking().
+                ToArrayAsync(cancellationToken);
+
+            foreach (var oldSeason in oldSeasons)
+            {
+                oldSeason.Active = false;
+                _context.Season.Update(oldSeason);
+            }
             _context.Add(newSeason);
             await _context.SaveChangesAsync(cancellationToken);
             return Unit.Value;
