@@ -7,6 +7,7 @@ import {
   LeagueAdminResult,
   MakeCommissionerData,
   RemoveCommissionerData,
+  RemoveLeagueData,
   RemoveMemberData,
   RemoveTeamData,
 } from '../types';
@@ -53,6 +54,9 @@ const removePendingMember = async (data: RemoveMemberData) => {
 const removeCommissioner = async (data: RemoveCommissionerData) => {
   await axios.post('/api/league/remove-commissioner', data);
 };
+const removeLeague = async ({ leagueId, season }: RemoveLeagueData) => {
+  await axios.delete(`/api/League?LeagueId=${leagueId}&Season=${season}`);
+};
 
 const admin = async (league: League | null) => {
   return axios
@@ -64,6 +68,7 @@ export const leagueAgent = {
   removeMember,
   removeCommissioner,
   makeCommissioner,
+  removeLeague,
   addMember,
   removePendingTeam,
   removePendingMember,

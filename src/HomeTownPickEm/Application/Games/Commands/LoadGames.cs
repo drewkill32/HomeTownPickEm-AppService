@@ -19,24 +19,27 @@ namespace HomeTownPickEm.Application.Games.Commands
         {
             private readonly ApplicationDbContext _context;
             private readonly IPublisher _publisher;
+            private readonly ILogger<LoadGames> _logger;
             private readonly ICfbdHttpClient _httpClient;
 
 
-            public Handler(ICfbdHttpClient httpClient, ApplicationDbContext context, IPublisher publisher)
+            public Handler(ICfbdHttpClient httpClient, ApplicationDbContext context, IPublisher publisher, ILogger<LoadGames> logger)
             {
                 _context = context;
                 _publisher = publisher;
+                _logger = logger;
                 _httpClient = httpClient;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
+                _logger.LogInformation("Loading Games for {Year}. Week: {Week}", request.Year, request.Week);
                 var games = (await _httpClient.GetGames(request, cancellationToken))
                     .ToHashSet(new IdEqualityComparer<GameResponse>())
                     .Select(g => g.ToGame())
                     .ToArray();
 
-
+                _logger.LogInformation("Loaded {Count} Games for {Year}. Week: {Week}", games.Length, request.Year, request.Week);
                 _context.Games.AddOrUpdateRange(games, q =>
                     q.Where(g => g.Season == request.Year && g.SeasonType == request.SeasonType)
                         .WhereWeekIs(request.Week));

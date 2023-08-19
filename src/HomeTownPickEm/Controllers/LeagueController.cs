@@ -135,6 +135,14 @@ namespace HomeTownPickEm.Controllers
         }
         
 
+        [HttpDelete]
+        public async Task<ActionResult<IEnumerable<UserLeagueDto>>> DeleteSeason([FromQuery] RemoveSeason.Command query)
+        {
+            var leagues = await Mediator.Send(query);
+            return Ok(leagues);
+        }
+        
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserLeagueDto>>> GetLeagues([FromQuery] GetLeagues.Query query)
         {

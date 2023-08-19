@@ -55,7 +55,7 @@ const CopySeasonContent = ({
         control={
           <Switch color="primary" checked={m} onChange={() => setMembers(!m)} />
         }
-        label={`Copy ${season.memberCount} Memeber(s)`}
+        label={`Copy ${season.memberCount} Member(s)`}
         labelPlacement="start"
       />
     </DialogContent>

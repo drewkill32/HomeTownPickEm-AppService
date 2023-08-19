@@ -43,6 +43,11 @@ export interface RemoveTeamData extends AddTeamData {}
 
 export interface RemoveCommissionerData extends MakeCommissionerData {}
 
+export interface RemoveLeagueData {
+  leagueId: number;
+  season: string;
+}
+
 export interface LeagueAdminMember {
   firstName: string;
   lastName: string;
