@@ -67,6 +67,8 @@ namespace HomeTownPickEm.Controllers
         [HttpPost("load")]
         public ActionResult LoadGames(LoadGames.Command command)
         {
+            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<LoadGames>>();
+            logger.LogInformation("Enqueueing LoadGames Command");
             var result = Mediator.Enqueue(command.ToString(), command);
             return result ? Accepted() : StatusCode(StatusCodes.Status208AlreadyReported);
         }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,8 @@ builder.AddIdentity();
 builder.AddJwt();
 
 builder.AddSwagger();
+
+builder.Services.AddApplicationInsightsTelemetry();
 
 builder.AddServices();
 
