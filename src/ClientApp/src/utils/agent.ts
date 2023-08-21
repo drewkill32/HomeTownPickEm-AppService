@@ -106,7 +106,12 @@ export function setupAxios() {
   axios.interceptors.response.use(
     (res) => res,
     async (error) => {
+      console.log('axios error', { error });
+      if (error.response && error.response.status === 401) {
+        window.location.href = '/login';
+      }
       if (error.response && error.response.data) {
+        console.log('here');
         throw error.response.data as RequestErrorType;
       }
 
