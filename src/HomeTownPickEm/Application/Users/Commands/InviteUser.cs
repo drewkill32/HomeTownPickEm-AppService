@@ -53,15 +53,28 @@ public class InviteUser
                     Last = request.LastName
                 }
             };
-            var result = await _userManager.CreateAsync(user);
-
-            if (!result.Succeeded)
+            var existingUser = await _userManager.FindByNameAsync(request.Email);
+            if (existingUser == null)
             {
-                throw new Exception(
-                    $"Problem inviting user. {string.Join(", ", result.Errors.Select(x => x.Description))}");
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new Exception(
+                        $"Problem inviting user. {string.Join(", ", result.Errors.Select(x => x.Description))}");
+                }
             }
-
-
+            else
+            {
+                user = existingUser;
+                user.TeamId = request.TeamId;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new Exception(
+                        $"Problem inviting user. {string.Join(", ", result.Errors.Select(x => x.Description))}");
+                }
+            }
+            
             try
             {
                 _context.PendingInvites.Add(new PendingInvite
