@@ -40,9 +40,7 @@ namespace HomeTownPickEm.Application.Games.Commands
                     .ToArray();
 
                 _logger.LogInformation("Loaded {Count} Games for {Year}. Week: {Week}", games.Length, request.Year, request.Week);
-                _context.Games.AddOrUpdateRange(games, q =>
-                    q.Where(g => g.Season == request.Year && g.SeasonType == request.SeasonType)
-                        .WhereWeekIs(request.Week));
+                _context.Games.AddOrUpdateRange(games);
 
                 await _context.SaveChangesAsync(cancellationToken);
                 await _publisher.Publish(new GamesUpdatedNotification
