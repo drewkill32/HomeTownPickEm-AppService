@@ -30,7 +30,7 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
                 _httpClient = httpClientFactory.CreateClient(CfbdSettings.SettingsKey);
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 var teamsResponse = await _httpClient.GetFromJsonAsync<IEnumerable<TeamResponse>>("/teams",
                     new JsonSerializerOptions
@@ -43,7 +43,6 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
 
                 await UpdateTeams(teams, cancellationToken);
                 _logger.LogInformation("Loaded {Count} teams", teams.Length);
-                return Unit.Value;
             }
 
             private async Task UpdateTeams(Team[] teams, CancellationToken cancellationToken)

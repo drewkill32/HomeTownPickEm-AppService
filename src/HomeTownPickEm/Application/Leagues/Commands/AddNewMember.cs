@@ -26,7 +26,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 _context = context;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 //get the season
                 var season = await
@@ -55,8 +55,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
 
                 season.AddMember(user, games);
                 await _context.SaveChangesAsync(cancellationToken);
-
-                return Unit.Value;
+                
             }
         }
     }

@@ -53,7 +53,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _opt = originOptions.Value;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 var user = await _context.Users
                     .Where(x => x.Email == request.Email)
@@ -92,7 +92,6 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _context.PendingInvites.RemoveRange(pendingInvites);
                 
                 await _context.SaveChangesAsync(cancellationToken);
-                return Unit.Value;
                 
             }
 

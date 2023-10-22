@@ -25,7 +25,7 @@ public class RemoveUser
             _userManager = userManager;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(request.UserId);
 
@@ -55,8 +55,7 @@ public class RemoveUser
                 throw new Exception(
                     $"Unable to delete user. {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
-
-            return Unit.Value;
+            
         }
     }
 }

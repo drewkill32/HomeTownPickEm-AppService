@@ -23,7 +23,7 @@ public class RevokeOldTokens
             _date = date;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var tokensToRemove = (await _context.RefreshTokens
                     .Where(y => y.UserId == request.UserId)
@@ -37,8 +37,7 @@ public class RevokeOldTokens
                 _context.Remove(token);
                 await _context.SaveChangesAsync(cancellationToken);
             }
-
-            return Unit.Value;
+            
         }
     }
 }

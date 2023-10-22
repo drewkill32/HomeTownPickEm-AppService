@@ -23,7 +23,7 @@ public class RemovePendingTeam
             _context = context;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var pendingInvites = await _context.PendingInvites
                 .AsTracking()
@@ -38,7 +38,7 @@ public class RemovePendingTeam
             }
 
             await _context.SaveChangesAsync(cancellationToken);
-            return Unit.Value;
+  
         }
     }
 }

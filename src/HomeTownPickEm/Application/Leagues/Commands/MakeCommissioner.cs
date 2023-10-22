@@ -31,7 +31,7 @@ public class MakeCommissioner
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await _context.Users
                 .Where(u => u.Id == request.MemberId)
@@ -44,8 +44,7 @@ public class MakeCommissioner
                 await _userManager.AddClaimAsync(user,
                     new Claim(Claims.Types.Commissioner, request.LeagueId.ToString()));
             }
-
-            return Unit.Value;
+            
         }
     }
 }

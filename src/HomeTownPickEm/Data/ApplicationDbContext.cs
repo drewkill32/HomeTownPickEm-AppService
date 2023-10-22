@@ -6,11 +6,18 @@ namespace HomeTownPickEm.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        protected ApplicationDbContext(DbContextOptions options
+        ) : base(options)
+        {
+           
+        }
+        
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         ) : base(options)
         {
            
         }
+        
         
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }

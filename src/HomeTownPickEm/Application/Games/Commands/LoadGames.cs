@@ -3,6 +3,7 @@ using HomeTownPickEm.Application.Attributes;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
+using HomeTownPickEm.Models;
 using HomeTownPickEm.Services.Cfbd;
 using MediatR;
 
@@ -31,7 +32,7 @@ namespace HomeTownPickEm.Application.Games.Commands
                 _httpClient = httpClient;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Loading Games for {Year}. Week: {Week}", request.Year, request.Week);
                 var games = (await _httpClient.GetGames(request, cancellationToken))
@@ -48,8 +49,7 @@ namespace HomeTownPickEm.Application.Games.Commands
                     Week = request.Week,
                     Year = request.Year
                 }, cancellationToken);
-                return Unit.Value;
-                
+            
             }
             
         }

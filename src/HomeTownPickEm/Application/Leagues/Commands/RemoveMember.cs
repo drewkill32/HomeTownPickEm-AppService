@@ -25,7 +25,7 @@ public class RemoveMember
             _context = context;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var season = await _context.Season
                 .AsTracking()
@@ -45,7 +45,6 @@ public class RemoveMember
 
             season.RemoveMember(member);
             await _context.SaveChangesAsync(cancellationToken);
-            return Unit.Value;
         }
     }
 }

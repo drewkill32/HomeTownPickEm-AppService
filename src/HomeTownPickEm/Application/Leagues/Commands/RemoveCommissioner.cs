@@ -30,7 +30,7 @@ public class RemoveCommissioner
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await _context.Users
                 .Where(u => u.Id == request.MemberId)
@@ -45,7 +45,6 @@ public class RemoveCommissioner
                 await _userManager.RemoveClaimsAsync(user, claims);
             }
 
-            return Unit.Value;
         }
     }
 }

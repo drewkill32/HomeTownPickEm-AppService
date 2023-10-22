@@ -28,7 +28,7 @@ public class RemovePendingMember
             _userManager = userManager;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var pendingInvites = await _context.PendingInvites
                 .AsTracking()
@@ -44,8 +44,7 @@ public class RemovePendingMember
 
             await _context.SaveChangesAsync(cancellationToken);
             
-
-            return Unit.Value;
+            
         }
     }
 }

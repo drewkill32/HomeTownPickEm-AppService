@@ -27,7 +27,7 @@ public class VerifyEmail
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
@@ -42,7 +42,7 @@ public class VerifyEmail
             if (result.Succeeded)
             {
                 _logger.LogInformation("Confirm email for {Email}", request.Email);
-                return Unit.Value;
+                return;
             }
 
             _logger.LogError("Unable to verify user confirm email token for user '{Email}'. {Errors}", request.Email,

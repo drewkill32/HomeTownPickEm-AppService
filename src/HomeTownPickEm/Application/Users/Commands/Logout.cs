@@ -32,7 +32,7 @@ public class Logout
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             ClaimsPrincipal principal;
             try
@@ -42,14 +42,14 @@ public class Logout
             catch (Exception e)
             {
                 _logger.LogError(e, "Error parsing access token {Token}", request.AccessToken);
-                return Unit.Value;
+                return ;
             }
 
             var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
                 _logger.LogError("UserId is empty");
-                return Unit.Value;
+                return;
             }
 
             var token = await _context.RefreshTokens
@@ -63,7 +63,7 @@ public class Logout
                 await _context.SaveChangesAsync(cancellationToken);
             }
 
-            return Unit.Value;
+            
         }
     }
 }

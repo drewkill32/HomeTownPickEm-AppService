@@ -138,8 +138,8 @@ namespace HomeTownPickEm.Controllers
         [HttpDelete]
         public async Task<ActionResult<IEnumerable<UserLeagueDto>>> DeleteSeason([FromQuery] RemoveSeason.Command query)
         {
-            var leagues = await Mediator.Send(query);
-            return Ok(leagues);
+            await Mediator.Send(query);
+            return Ok();
         }
         
 
