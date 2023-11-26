@@ -22,7 +22,7 @@ public class DeleteGames
             _context = context;
         }
         
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
 
 
@@ -30,8 +30,7 @@ public class DeleteGames
                 
             _context.Games.RemoveRange(games);
             await _context.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
+            
         }
     }
 }

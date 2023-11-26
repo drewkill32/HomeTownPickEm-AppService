@@ -3,9 +3,9 @@
 
 public class Season
 {
-    private readonly HashSet<Team> _teams;
-    private readonly HashSet<Pick> _picks;
-    private readonly HashSet<ApplicationUser> _members;
+    private HashSet<Team> _teams;
+    private HashSet<Pick> _picks;
+    private HashSet<ApplicationUser> _members;
 
     public Season()
     {
@@ -24,11 +24,23 @@ public class Season
 
     public bool Active { get; set; }
 
-    public IReadOnlyCollection<Team> Teams => _teams;
+    public IReadOnlyCollection<Team> Teams 
+    {
+        get => _teams;
+        set => _teams = value.ToHashSet();
+    } 
 
-    public IReadOnlyCollection<ApplicationUser> Members => _members;
+    public IReadOnlyCollection<ApplicationUser> Members  
+    {
+        get => _members;
+        set => _members = value.ToHashSet();
+    } 
 
-    public IReadOnlyCollection<Pick> Picks => _picks;
+    public IReadOnlyCollection<Pick> Picks
+    {
+        get => _picks;
+        set => _picks = value.ToHashSet();
+    } 
 
 
     public void RemoveTeam(Team team)

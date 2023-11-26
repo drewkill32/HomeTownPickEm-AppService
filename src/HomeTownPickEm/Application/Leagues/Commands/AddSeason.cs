@@ -31,7 +31,7 @@ public class AddSeason
             _httpContext = accessor.HttpContext;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var league = await GetLeague(request);
 
@@ -61,7 +61,6 @@ public class AddSeason
             }
             _context.Add(newSeason);
             await _context.SaveChangesAsync(cancellationToken);
-            return Unit.Value;
         }
 
         private async Task CopyFromPrevSeason(Command request, Season newSeason, CancellationToken cancellationToken)

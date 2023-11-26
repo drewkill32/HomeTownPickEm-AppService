@@ -73,18 +73,15 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<TokenDto>> Register(Register.Command command)
         {
-            var user = await Mediator.Send(command);
-            return new ObjectResult(user)
-            {
-                StatusCode = (int)HttpStatusCode.Created
-            };
+            await Mediator.Send(command);
+            return Ok();
         }
 
         [HttpPost("invite")]
         [AllowAnonymous]
         public async Task<ActionResult<TokenDto>> Invite(InviteUser.Command command)
         {
-            var user = await Mediator.Send(command);
+            await Mediator.Send(command);
             return new StatusCodeResult(StatusCodes.Status201Created);
         }
 
@@ -93,11 +90,9 @@ namespace HomeTownPickEm.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<TokenDto>> Validate(Register.Command command)
         {
-            var user = await Mediator.Send(command);
-            return new ObjectResult(user)
-            {
-                StatusCode = (int)HttpStatusCode.Created
-            };
+            await Mediator.Send(command);
+            return Ok();
+        
         }
 
         [HttpPost("refresh")]

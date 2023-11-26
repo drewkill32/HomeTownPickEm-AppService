@@ -28,7 +28,7 @@ namespace HomeTownPickEm.Controllers
         [HttpPost("admin/update/pick")]
         public async Task<ActionResult<PickDto>> AdminUpdatePick(AdminCreatePick.Command command)
         {
-            var pick = await Mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 

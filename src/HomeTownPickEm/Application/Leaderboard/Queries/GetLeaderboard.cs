@@ -23,6 +23,7 @@ namespace HomeTownPickEm.Application.Leaderboard.Queries
 
             public async Task<IEnumerable<LeaderBoardDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                
                 var leaderboard = await _context.Leaderboard
                     .Where(x => x.LeagueSlug == request.LeagueSlug && x.Year == request.Season)
                     .OrderByDescending(x => x.TotalPoints)
@@ -33,5 +34,7 @@ namespace HomeTownPickEm.Application.Leaderboard.Queries
                 return leaderboard.Select(x => x.ToLeaderBoardDto());
             }
         }
+        
+        private record ApplicationUserSeason(string SeasonsId, string MembersId);
     }
 }

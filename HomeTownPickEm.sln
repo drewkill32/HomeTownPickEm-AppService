@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEmTests", "test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEm", "src\HomeTownPickEm\HomeTownPickEm.csproj", "{D63E29BB-9917-42C6-81EC-394E4190A76A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SupabaseMigration", "src\SupabaseMigration\SupabaseMigration.csproj", "{102920F9-96C0-41B3-BC48-6B551354E35C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D63E29BB-9917-42C6-81EC-394E4190A76A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{102920F9-96C0-41B3-BC48-6B551354E35C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{102920F9-96C0-41B3-BC48-6B551354E35C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{102920F9-96C0-41B3-BC48-6B551354E35C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{102920F9-96C0-41B3-BC48-6B551354E35C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

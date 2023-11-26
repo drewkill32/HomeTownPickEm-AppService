@@ -41,7 +41,7 @@ public class InviteUser
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var user = new ApplicationUser
             {
@@ -97,8 +97,7 @@ public class InviteUser
                 await _context.SaveChangesAsync(cancellationToken);
                 await _userManager.DeleteAsync(user);
             }
-
-            return Unit.Value;
+            
         }
     }
 }

@@ -40,7 +40,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _opt = options.Value;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 var user = await _userManager.FindByEmailAsync(request.Email);
 
@@ -48,7 +48,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 {
                     _logger.LogError("Attempt to reset password for user with {Email} that does not exist",
                         request.Email);
-                    return Unit.Value;
+                    return;
                 }
 
                 var origin = _context.Request.Headers["Origin"].ToString();
@@ -63,8 +63,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                     $"Click <a href=\"{url}\">here</a> to reset your password. If you did not request a password reset please ignore this email.";
 
                 await _emailSender.SendEmailAsync(user.Email, "St. Pete Pick'em Reset Password", htmlMessage);
-
-                return Unit.Value;
+                
             }
         }
     }

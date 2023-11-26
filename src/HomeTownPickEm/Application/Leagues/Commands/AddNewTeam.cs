@@ -16,7 +16,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
             public int TeamId { get; set; }
         }
 
-        public class CommandHandler : IRequestHandler<Command, Unit>
+        public class CommandHandler : IRequestHandler<Command>
         {
             private readonly ApplicationDbContext _context;
 
@@ -27,7 +27,7 @@ namespace HomeTownPickEm.Application.Leagues.Commands
             
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 var season = await _context.Season
                     .Where(x => x.LeagueId == request.LeagueId && x.Year == request.Season)
@@ -52,8 +52,6 @@ namespace HomeTownPickEm.Application.Leagues.Commands
                 season.AddTeam(team, games);
 
                 await _context.SaveChangesAsync(cancellationToken);
-
-                return Unit.Value;
             }
         }
     }

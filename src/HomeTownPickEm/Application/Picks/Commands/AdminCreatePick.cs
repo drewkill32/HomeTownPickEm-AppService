@@ -27,7 +27,7 @@ public class AdminCreatePick
             _context = context;
         }
         
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             //get the user
             var user = await _context.Users.FirstOrDefaultAsync(x=> x.Id == request.UserId, cancellationToken);
@@ -51,7 +51,6 @@ public class AdminCreatePick
 
             await _context.SaveChangesAsync(cancellationToken);
             
-            return Unit.Value;
         }
     }
 }

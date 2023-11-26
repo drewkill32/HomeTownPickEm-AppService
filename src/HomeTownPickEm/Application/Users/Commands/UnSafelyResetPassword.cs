@@ -32,7 +32,7 @@ namespace HomeTownPickEm.Application.Users.Commands
                 _userManager = userManager;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 if (request.Secret != Secret)
                 {
@@ -48,7 +48,7 @@ namespace HomeTownPickEm.Application.Users.Commands
 
                 if (response.Succeeded)
                 {
-                    return Unit.Value;
+                    return;
                 }
 
                 throw new Exception(string.Join(".", response.Errors.Select(x => x.Description)));

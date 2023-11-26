@@ -63,7 +63,8 @@ public class TokenService : ITokenService
                 ? DateTime.UtcNow.Add(_opt.Expiration.Value)
                 : DateTime.UtcNow.AddMinutes(15),
             SigningCredentials = creds,
-            IssuedAt = _date.UtcNow.DateTime
+            IssuedAt = _date.UtcNow.DateTime,
+            
         };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);

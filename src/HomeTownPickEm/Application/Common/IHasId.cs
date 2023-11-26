@@ -1,7 +1,11 @@
 ﻿namespace HomeTownPickEm.Application.Common
 {
-    public interface IHasId
+    public interface IHasId: IHasId<int>
     {
-        public int Id { get; }
+    }
+    
+    public interface IHasId<out T>
+    {
+        public T Id { get; }
     }
 }

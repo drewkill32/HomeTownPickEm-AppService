@@ -26,7 +26,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 _context = context;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task Handle(Command request, CancellationToken cancellationToken)
             {
                 var completedGames = await GetCompletedGames(request, cancellationToken);
 
@@ -35,8 +35,7 @@ namespace HomeTownPickEm.Application.Picks.Commands
                 UpdatePicks(picks, completedGames);
 
                 await _context.SaveChangesAsync(cancellationToken);
-
-                return Unit.Value;
+                
             }
 
             private async Task<Game[]> GetCompletedGames(Command request, CancellationToken cancellationToken)

@@ -29,19 +29,39 @@ public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder AddDbContext(this WebApplicationBuilder builder)
     {
-        void Configure(DbContextOptionsBuilder options)
+
+        var provider = builder.Configuration.GetValue("Provider", "Sqlite");
+
+        switch (provider)
         {
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+            case "PostgreSql":
+                builder.Services.AddDbContext<PostgreSqlAppDbContext>(options =>
+                {
+                    ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
+                    options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase"));
+                });
+                builder.Services.AddScoped<ApplicationDbContext>(p => p.GetRequiredService<PostgreSqlAppDbContext>());
+                break;
+            default:
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                {
+                    ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
+                    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+                });
+                break;
         }
-
-        builder.Services.AddDbContext<ApplicationDbContext>((Action<DbContextOptionsBuilder>)Configure);
-
+        
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         return builder;
     }
+
+    private static void ConfigureDbContextOptions(DbContextOptionsBuilder options, bool isDevelopment)
+    {
+        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+            .EnableSensitiveDataLogging(isDevelopment);
+    }
+    
 
 
 
@@ -162,11 +182,15 @@ public static class WebApplicationBuilderExtensions
         }).AddPolicyHandler(GetRetryPolicy());
 
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-        builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+        builder.Services.AddMediatR(cfg=>
+        {
+            cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
+            cfg.Lifetime = ServiceLifetime.Scoped;
+            cfg.AddOpenBehavior(typeof(LeagueCommissionerBehavior<,>));
+            cfg.AddOpenBehavior(typeof(UnhandledExceptionBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LeagueCommissionerBehavior<,>));
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         builder.Services.AddScoped<GameTeamRepository>();
         builder.Services.AddSingleton(BackgroundWorkerQueue.Instance);
         builder.Services.AddSingleton<IBackgroundWorkerQueue>(BackgroundWorkerQueue.Instance);
