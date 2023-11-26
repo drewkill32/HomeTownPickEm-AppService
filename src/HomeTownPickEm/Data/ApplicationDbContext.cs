@@ -1,10 +1,22 @@
 ﻿using HomeTownPickEm.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : ApplicationDbContext<ApplicationUser>
+    {
+        protected ApplicationDbContext(DbContextOptions options) : base(options)
+        {
+        }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+        }
+    }
+    
+    public class ApplicationDbContext<TUser> : IdentityDbContext<TUser> where TUser : IdentityUser
     {
         protected ApplicationDbContext(DbContextOptions options
         ) : base(options)

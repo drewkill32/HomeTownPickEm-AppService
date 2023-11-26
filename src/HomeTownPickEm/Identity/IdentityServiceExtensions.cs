@@ -13,10 +13,18 @@ public static class IdentityServiceExtensions
             opt.Password.RequireNonAlphanumeric = false;
             opt.Password.RequiredLength = 4;
         });
-        identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
+        identityBuilder.AddEntityFrameworkStores<SqliteAppDbContext>();
         identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
         identityBuilder.AddDefaultTokenProviders();
 
+        builder.Services.AddIdentityCore<PostgresApplicationUser>(opt =>
+            {
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 4;
+            }).AddEntityFrameworkStores<PostgreSqlIdentityAppDbContext>()
+            .AddSignInManager<SignInManager<PostgresApplicationUser>>();
+ 
+        
         return builder;
     }
 }
