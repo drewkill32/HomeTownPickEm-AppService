@@ -15,6 +15,8 @@ public class Startup
         
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Logging.AddAzureWebAppDiagnostics();
+        
         builder.AddDbContext();
 
 
