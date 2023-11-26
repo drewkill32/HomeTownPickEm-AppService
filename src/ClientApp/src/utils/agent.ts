@@ -85,6 +85,9 @@ export function setupAxios() {
 
   axios.interceptors.request //add bearer token to all requests
     .use(async (config) => {
+      if (config.headers.Authorization) {
+        return config;
+      }
       var userToken = getUserToken();
       if (userToken) {
         var decoded = jwt_decode(userToken.access_token);
