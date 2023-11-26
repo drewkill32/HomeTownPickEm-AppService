@@ -4,18 +4,26 @@ namespace HomeTownPickEm.Data
 {
     public class DatabaseMigrator
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _sqliteContext;
+        private readonly PostgreSqlAppDbContext _postgreSqlAppDbContext;
 
-        public DatabaseMigrator(ApplicationDbContext context)
+        public DatabaseMigrator(SqliteAppDbContext sqliteContext, PostgreSqlAppDbContext postgreSqlAppDbContext)
         {
-            _context = context;
+            _sqliteContext = sqliteContext;
+            _postgreSqlAppDbContext = postgreSqlAppDbContext;
         }
 
         public async Task Init()
         {
-            if ((await _context.Database.GetPendingMigrationsAsync()).Any())
+            await ApplyMigrations(_sqliteContext);
+            await ApplyMigrations(_postgreSqlAppDbContext);
+        }
+
+        private async Task ApplyMigrations(DbContext context)
+        {
+            if ((await context.Database.GetPendingMigrationsAsync()).Any())
             {
-                await _context.Database.MigrateAsync();
+                await context.Database.MigrateAsync();
             }
         }
     }

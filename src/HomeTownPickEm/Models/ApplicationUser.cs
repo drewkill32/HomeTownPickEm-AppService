@@ -17,5 +17,11 @@ namespace HomeTownPickEm.Models
         public int? TeamId { get; set; }
 
         public string ProfileImg { get; set; }
+        
+        public bool IsMigrated { get; set; }
+    }
+    public class PostgresApplicationUser : IdentityUser
+    {
+        public bool IsMigrated { get; set; }
     }
 }

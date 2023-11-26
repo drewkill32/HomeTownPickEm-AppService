@@ -32,22 +32,31 @@ public static class WebApplicationBuilderExtensions
 
         var provider = builder.Configuration.GetValue("Provider", "Sqlite");
 
+        builder.Services.AddDbContext<SqliteAppDbContext>(options =>
+        {
+            ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
+        builder.Services.AddDbContext<PostgreSqlAppDbContext>(options =>
+        {
+            ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
+            options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase"));
+        });
+        builder.Services.AddDbContext<PostgreSqlIdentityAppDbContext>(options =>
+        {
+            ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
+            options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase"));
+        });
+        
         switch (provider)
         {
             case "PostgreSql":
-                builder.Services.AddDbContext<PostgreSqlAppDbContext>(options =>
-                {
-                    ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
-                    options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase"));
-                });
+        
                 builder.Services.AddScoped<ApplicationDbContext>(p => p.GetRequiredService<PostgreSqlAppDbContext>());
+     
                 break;
             default:
-                builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                {
-                    ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
-                    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-                });
+                builder.Services.AddScoped<ApplicationDbContext>(p => p.GetRequiredService<SqliteAppDbContext>());
                 break;
         }
         
