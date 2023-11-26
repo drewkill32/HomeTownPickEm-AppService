@@ -54,6 +54,5 @@ catch (Exception e)
 Console.WriteLine("Press any key to continue...");  
 Console.ReadKey();
 
-public record CalendarKey(string Season, int Week, string SeasonType);
 
-public record UserLoginKey(string LoginProvider, string ProviderKey);
+

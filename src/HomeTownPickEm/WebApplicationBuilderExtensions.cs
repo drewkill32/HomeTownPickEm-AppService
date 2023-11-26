@@ -185,6 +185,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddMediatR(cfg=>
         {
             cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
+            cfg.Lifetime = ServiceLifetime.Scoped;
             cfg.AddOpenBehavior(typeof(LeagueCommissionerBehavior<,>));
             cfg.AddOpenBehavior(typeof(UnhandledExceptionBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));

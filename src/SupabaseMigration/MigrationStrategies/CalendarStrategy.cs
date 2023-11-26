@@ -9,4 +9,6 @@ public class CalendarStrategy:IMigrationStrategy
     {
         await migrator.Migrate<Calendar,CalendarKey>(x=> new CalendarKey(x.Season,x.Week,x.SeasonType));
     }
+    
+    private record CalendarKey(string Season, int Week, string SeasonType);
 }

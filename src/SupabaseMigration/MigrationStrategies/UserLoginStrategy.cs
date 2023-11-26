@@ -9,4 +9,5 @@ public class UserLoginStrategy: IMigrationStrategy
     {
         await migrator.Migrate<IdentityUserLogin<string>,UserLoginKey>(x=> new UserLoginKey(x.LoginProvider,x.ProviderKey));
     }
+    private record UserLoginKey(string LoginProvider, string ProviderKey);
 }

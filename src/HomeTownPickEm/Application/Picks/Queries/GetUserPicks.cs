@@ -47,7 +47,7 @@ namespace HomeTownPickEm.Application.Picks.Queries
                     .Select(s => s.Id)
                     .FirstOrDefaultAsync(cancellationToken);
 
-                var dataTask = GetRelatedData(request, seasonId, cancellationToken);
+                var (leagueTeamIds, pickTotals) = await GetRelatedData(request, seasonId, cancellationToken);
 
                 var games =
                     await _context.Games
@@ -96,7 +96,6 @@ namespace HomeTownPickEm.Application.Picks.Queries
                         .Where(x => x.Picks.Any())
                         .ToArrayAsync(cancellationToken);
 
-                var (leagueTeamIds, pickTotals) = await dataTask;
 
                 foreach (var game in games)
                 {
