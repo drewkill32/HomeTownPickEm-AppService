@@ -1,8 +1,9 @@
-import type { APIRoute } from "astro";
 import { supabase } from "@/lib/supabase";
-import { Cookie } from "lucide-react";
+import type { APIRoute } from "astro";
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+  const redirectUrl =
+    new URL(request.url).searchParams.get("redirect_url") || "/dashboard";
   const formData = await request.formData();
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
@@ -32,5 +33,5 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     path: "/",
   });
 
-  return redirect("/dashboard");
+  return redirect(redirectUrl);
 };

@@ -11,3 +11,12 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare namespace App {
+  interface Locals {
+    supabase: SupabaseClient<any, "public", any>;
+    user: User | null;
+    isAuthenticated: boolean;
+    protect: () => Response | void;
+  }
+}
