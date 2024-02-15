@@ -1,0 +1,53 @@
+---
+import SimpleFormLayout from "@/layouts/SimpleFormLayout.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<SimpleFormLayout title="Login" heading="Sign in to St. Pete Pick'em">
+  <form
+    class="rounded-lg border bg-card shadow-sm"
+    action="/api/auth/signin"
+    method="post"
+  >
+    <div class="space-y-4 p-6">
+      <div class="space-y-2">
+        <label
+          class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          for="email">Email</label
+        ><input
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          id="email"
+          name="email"
+          placeholder="m@example.com"
+          required=""
+          type="email"
+        />
+      </div><div class="space-y-2">
+        <div class="flex items-center">
+          <label
+            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            for="password">Password</label
+          ><a class="ml-auto inline-block text-sm" href="/forgot-password">
+            Forgot your password?
+          </a>
+        </div><input
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          id="password"
+          name="password"
+          required=""
+          type="password"
+        />
+      </div>
+    </div><div class="flex items-center p-6">
+      <button
+        type="submit"
+        class="mx-auto inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        >Sign in</button
+      >
+    </div><div class="p-2 text-center">
+      <p>
+        New to St. Pete Pick'em? <a href="/register">Create an account</a>
+      </p>
+    </div>
+  </form>
+</SimpleFormLayout>

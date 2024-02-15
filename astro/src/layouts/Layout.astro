@@ -1,12 +1,22 @@
 ---
 import { Icon } from "astro-icon/components";
+import { MobileNavMenuButton } from "@/components/MobileNavMenu";
 import "@/styles/globals.css";
+import { buttonVariants } from "@/components/ui/button";
 
 interface Props {
   title: string;
+  footer?: "hidden";
+  header?: "hidden";
 }
 
-const { title } = Astro.props;
+const { title, footer, header } = Astro.props;
+
+const navItems = [
+  { label: "Start a League", href: "#" },
+  { label: "Pricing", href: "#" },
+  { label: "Support", href: "#" },
+];
 ---
 
 <!doctype html>
@@ -21,178 +31,65 @@ const { title } = Astro.props;
   </head>
   <body>
     <div class="bg-white text-gray-800">
-      <header class="bg-white px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-          <div class="flex grow items-center justify-center gap-5 md:grow-0">
-            <Icon name="logo" class="text-4xl text-emerald-700" />
-            <h1 class="text-xl font-bold text-[#002244] sm:text-2xl">
-              St. Pete Pick-em
-            </h1>
-          </div>
-          <div class="md:hidden">
-            <button
-              aria-label="Open Menu"
-              id="open-menu"
-              class="ring-offset-background focus-visible:ring-ring border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-10 w-10 items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-6 w-6"
-              >
-                <line x1="4" x2="20" y1="12" y2="12"></line>
-                <line x1="4" x2="20" y1="6" y2="6"></line>
-                <line x1="4" x2="20" y1="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-          <nav
-            class="fixed inset-y-0 left-0 w-44 border bg-white pt-16 transition md:relative md:block md:w-auto md:border-none md:bg-inherit md:pt-0"
-          >
-            <ul class="flex flex-col md:flex-row md:space-x-4">
-              <li
-                class="py-4 pl-2 transition hover:bg-slate-500 hover:text-white md:py-0 md:pl-0 md:hover:bg-inherit md:hover:text-[#d50a0a] md:hover:text-inherit"
-              >
-                <a href="#">Features</a>
-              </li>
-              <li
-                class="py-4 pl-2 transition hover:bg-slate-500 hover:text-white md:py-0 md:pl-0 md:hover:bg-inherit md:hover:text-[#d50a0a] md:hover:text-inherit"
-              >
-                <a href="#">Testimonials</a>
-              </li>
-              <li
-                class="py-4 pl-2 transition hover:bg-slate-500 hover:text-white md:py-0 md:pl-0 md:hover:bg-inherit md:hover:text-[#d50a0a] md:hover:text-inherit"
-              >
-                <a href="#">Sign Up</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-      <main>
-        <section class="bg-[#002244] py-20 text-center text-white">
-          <h2 class="text-5xl font-bold">Pick Your Winning Teams</h2><p
-            class="mt-4 text-xl"
-          >
-            Join the ultimate college football game-picking app.
-          </p><a
-            class="mt-6 inline-flex rounded-md bg-[#d50a0a] px-6 py-3 text-sm font-medium text-white hover:bg-[#b80808]"
-            href="#">Sign Up Now</a
-          >
-        </section><section id="features" class="px-4 py-20 sm:px-6 lg:px-8">
-          <h2 class="mb-12 text-center text-4xl font-bold">Features</h2><div
-            class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
-          >
-            <div class="flex flex-col items-center text-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="mb-4 h-16 w-16"
-                ><path
-                  d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
-                ></path><line x1="4" x2="4" y1="22" y2="15"></line></svg
-              ><h3 class="mb-2 text-2xl font-bold">Pick Games</h3><p>
-                Choose your winning teams for each week's games.
-              </p>
-            </div><div class="flex flex-col items-center text-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="mb-4 h-16 w-16"
-                ><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path
-                  d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"
-                ></path><path
-                  d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"
-                ></path><path
-                  d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"
-                ></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg
-              ><h3 class="mb-2 text-2xl font-bold">Compete</h3><p>
-                Compete against friends and other users for the top spot.
-              </p>
-            </div><div class="flex flex-col items-center text-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="mb-4 h-16 w-16"
-                ><polygon
-                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                ></polygon></svg
-              ><h3 class="mb-2 text-2xl font-bold">Earn Points</h3><p>
-                Earn points for each correct pick and climb the leaderboard.
+      {
+        header !== "hidden" && (
+          <header class="bg-white px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-evenly">
+              <div class="flex grow items-center gap-5 pl-2">
+                <Icon name="logo" class="text-4xl text-emerald-700" />
+                <h1 class="font-bold text-[#002244] sm:text-2xl">
+                  St. Pete Pick'em
+                </h1>
+              </div>
+              <MobileNavMenuButton
+                client:load
+                navigationItems={navItems}
+                className="mr-2 md:hidden"
+              />
+
+              <nav class="hidden justify-self-end md:block md:shrink md:pr-3">
+                <ul class="hidden items-center space-x-4 md:flex">
+                  {navItems.map((item) => (
+                    <li>
+                      <a
+                        class="transition hover:text-[#d50a0a]"
+                        href={item.href}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              <a class={buttonVariants({ className: "" })} href="/signin">
+                Sign In
+              </a>
+            </div>
+          </header>
+        )
+      }
+
+      <slot />
+      {
+        footer !== "hidden" && (
+          <footer class="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
+            <div class="text-center">
+              <p>
+                © <span id="copyright-year" /> St. Pete Pick'em. All rights
+                reserved.
               </p>
             </div>
-          </div>
-        </section><section
-          id="testimonials"
-          class="bg-[#f2f2f2] px-4 py-20 sm:px-6 lg:px-8"
-        >
-          <h2 class="mb-12 text-center text-4xl font-bold">
-            What Users Are Saying
-          </h2><div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <div class="rounded-lg bg-white p-6 shadow">
-              <p>
-                "GamePicker has made watching college football even more
-                exciting. I love competing against my friends each week!"
-              </p><p class="mt-4 font-bold">- User 1</p>
-            </div><div class="rounded-lg bg-white p-6 shadow">
-              <p>
-                "The app is easy to use and I love seeing how I rank against
-                other users."
-              </p><p class="mt-4 font-bold">- User 2</p>
-            </div>
-          </div>
-        </section><section id="signup" class="px-4 py-20 sm:px-6 lg:px-8">
-          <div class="mx-auto max-w-md text-center">
-            <h2 class="mb-8 text-4xl font-bold">Ready to start picking?</h2><a
-              class="inline-flex rounded-md bg-[#d50a0a] px-6 py-3 text-sm font-medium text-white hover:bg-[#b80808]"
-              href="#">Sign Up Now</a
-            >
-          </div>
-        </section>
-      </main>
-      <footer class="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
-        <div class="text-center">
-          <p>
-            © <span id="copyright-year"></span> St. Pete Pick-em. All rights reserved.
-          </p>
-        </div>
-      </footer>
+          </footer>
+        )
+      }
     </div>
   </body>
-</html>
 
-<script>
-  const year = new Date().getFullYear();
-  const spanEl = document.getElementById("copyright-year");
-  if (spanEl) {
-    spanEl.textContent = year.toString();
-  }
-</script>
+  <script>
+    const year = new Date().getFullYear();
+    const spanEl = document.getElementById("copyright-year");
+    if (spanEl) {
+      spanEl.textContent = year.toString();
+    }
+  </script>
+</html>
