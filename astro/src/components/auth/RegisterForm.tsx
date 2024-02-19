@@ -159,7 +159,10 @@ export const RegisterForm = ({ errorMsg }: Props) => {
         </div>
         <div className="p-2 text-center">
           <p>
-            Already have an account? <a href="/signin">Sign In</a>
+            Already have an account?{" "}
+            <a href="/signin" className="hover:underline">
+              Sign In
+            </a>
           </p>
         </div>
       </form>

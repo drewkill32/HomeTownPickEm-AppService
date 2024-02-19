@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 import { MobileNavMenuButton } from "@/components/MobileNavMenu";
 import "@/styles/globals.css";
 import { buttonVariants } from "@/components/ui/button";
+import NavMenu from "@/components/NavMenu";
 
 interface Props {
   title: string;
@@ -11,6 +12,14 @@ interface Props {
 }
 
 const { title, footer, header } = Astro.props;
+
+const { isAuthenticated } = Astro.locals;
+
+const mobileNavItems = [
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Account", href: "/account" },
+  { label: "Signout", href: "/signout" },
+];
 
 const navItems = [
   { label: "Start a League", href: "#" },
@@ -43,7 +52,7 @@ const navItems = [
               </div>
               <MobileNavMenuButton
                 client:load
-                navigationItems={navItems}
+                navigationItems={[...navItems, ...mobileNavItems]}
                 className="mr-2 md:hidden"
               />
 
@@ -61,9 +70,19 @@ const navItems = [
                   ))}
                 </ul>
               </nav>
-              <a class={buttonVariants({ className: "" })} href="/signin">
-                Sign In
-              </a>
+              {isAuthenticated ? (
+                <NavMenu
+                  client:load
+                  menuItems={mobileNavItems}
+                  className="hidden md:block"
+                >
+                  <Icon name="account" class="text-2xl" />
+                </NavMenu>
+              ) : (
+                <a class={buttonVariants()} href="/signin">
+                  Sign In
+                </a>
+              )}
             </div>
           </header>
         )

@@ -75,7 +75,7 @@ export const SignInForm = ({ errorMsg, redirectUrl }: Props) => {
                 Password
               </label>
               <a
-                className="ml-auto inline-block text-sm"
+                className="ml-auto inline-block text-sm hover:underline"
                 href="/forgot-password"
               >
                 Forgot your password?
@@ -101,7 +101,10 @@ export const SignInForm = ({ errorMsg, redirectUrl }: Props) => {
         </div>
         <div className="p-2 text-center">
           <p>
-            New to St. Pete Pick'em? <a href="/register">Create an account</a>
+            New to St. Pete Pick'em?{" "}
+            <a className="hover:underline" href="/register">
+              Create an account
+            </a>
           </p>
         </div>
       </form>
