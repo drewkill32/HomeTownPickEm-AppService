@@ -66,6 +66,9 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      gridTemplateColumns: {
+        "league-dashboard": "minmax(0, 300px), 250px, minmax(0, 1fr)",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

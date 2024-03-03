@@ -1,31 +1,193 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+import { cn } from "@/lib/utils";
 
 const { isAuthenticated, protect } = Astro.locals;
 
 if (!isAuthenticated) {
   return protect();
 }
+
+const leagueInfo = {
+  name: "College Cup",
+  rank: 2,
+  leagueImg: null,
+  weeksRemaining: 2,
+  weeks: [
+    { week: 1, startDate: "Aug 28", progress: 25 },
+    { week: 2, startDate: "Sep 4", progress: 50 },
+    { week: 3, startDate: "Sep 11", progress: 75 },
+    { week: 4, startDate: "Sep 18", progress: 100 },
+  ],
+};
+
+const leaderboard = [
+  { place: 1, name: "John Doe", avatar: "/placeholder.svg" },
+  { place: 2, name: "Jane Doe", avatar: "/placeholder.svg" },
+  { place: 3, name: "You", avatar: "/placeholder.svg" },
+  { place: 4, name: "John Doe", avatar: "/placeholder.svg" },
+  { place: 5, name: "Jane Doe", avatar: "/placeholder.svg" },
+  { place: 6, name: "John Doe", avatar: "/placeholder.svg" },
+];
+
+const getNumberWithOrdinal = (n: number) => {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
 ---
 
 <Layout title="Dashboard">
-  <div class="container">
-    <h1>Dashboard</h1>
-    <div class="grid grid-cols-3 grid-rows-8 py-3">
-      <div class="row-span-full m-3 h-52 w-52 rounded-full bg-slate-600"></div>
-      <h2 class="text-lg">St. Pete Bois</h2>
-      <div class="flex items-center gap-3">
-        <div class="h-8 w-8 rounded-full bg-green-500"></div>
-        <p>Drew Killion</p>
+  <div class="grid gap-4 md:gap-8 lg:gap-12 xl:gap-16">
+    <div
+      class="rounded-lg border bg-card p-0 text-card-foreground shadow-sm"
+      data-v0-t="card"
+    >
+      <div class="p-0">
+        <div
+          class="md:grid-cols-league-dashboard grid w-full grid-cols-1 items-stretch"
+        >
+          <div
+            class="flex flex-col items-center justify-center p-4 text-center md:items-start md:justify-start md:gap-2 md:p-6 lg:gap-4"
+          >
+            <div
+              class="flex items-center gap-2 text-2xl font-semibold md:gap-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-6 w-6"
+                ><circle cx="12" cy="8" r="6"></circle><path
+                  d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg
+              ><h2 class="text-3xl font-bold tracking-tighter">
+                {leagueInfo.name}
+              </h2>
+            </div><p class="text-sm text-gray-500 dark:text-gray-400">
+              You are {getNumberWithOrdinal(leagueInfo.rank)} in this league
+            </p><p class="text-sm text-gray-500 dark:text-gray-400">
+              {leagueInfo.weeksRemaining} weeks remaining
+            </p>
+          </div><div
+            class="mx-auto flex w-full items-center justify-center p-4 md:p-6"
+          >
+            {
+              leagueInfo.leagueImg ? (
+                <img
+                  src={leagueInfo.leagueImg}
+                  width="200"
+                  height="200"
+                  alt={`${leagueInfo.leagueImg} League image`}
+                  class="aspect-square rounded-full object-cover"
+                />
+              ) : (
+                <Icon name="logo-round" width={200} height={200} />
+              )
+            }
+          </div><div
+            class="grid w-full grid-cols-1 items-stretch gap-1 p-4 text-center md:grid-cols-2 md:gap-2 md:p-6 lg:gap-4"
+          >
+            {
+              leagueInfo.weeks.map((week) => (
+                <div class="flex flex-col items-center justify-center gap-1 md:items-start md:justify-start md:gap-0">
+                  <>
+                    <h3 class="text-lg font-bold">Week {week.week}</h3>
+                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      {week.startDate}
+                    </p>
+                    <div class=" relative h-2 w-full max-w-56 overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        class="h-full bg-blue-500"
+                        style={`width: ${week.progress}%;`}
+                      />
+                    </div>
+                  </>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div><div
+      class="rounded-lg border bg-card text-card-foreground shadow-sm"
+      data-v0-t="card"
+    >
+      <div
+        class="flex flex-row items-center justify-between space-y-0 p-6 pb-2"
+      >
+        <h3 class="whitespace-nowrap text-sm font-medium tracking-tight">
+          Leaderboard
+        </h3><a class="text-sm font-medium" href="#"> View all </a>
+      </div><div class="p-0">
+        <div class="space-y-1">
+          <div class="grid w-full grid-cols-3 items-center gap-2 p-2">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">1.</span><img
+                src="/placeholder.svg"
+                width="32"
+                height="32"
+                class="rounded-full"
+                alt="Avatar"
+                style="aspect-ratio: 32 / 32; object-fit: cover;"
+              />
+            </div><div class="flex items-center gap-2 text-sm">
+              <span class="font-semibold">2.</span><img
+                src="/placeholder.svg"
+                width="32"
+                height="32"
+                class="rounded-full"
+                alt="Avatar"
+                style="aspect-ratio: 32 / 32; object-fit: cover;"
+              />
+            </div><div class="flex items-center gap-2 text-sm">
+              <span class="font-semibold">3.</span><img
+                src="/placeholder.svg"
+                width="32"
+                height="32"
+                class="rounded-full"
+                alt="Avatar"
+                style="aspect-ratio: 32 / 32; object-fit: cover;"
+              />
+            </div>
+          </div><div class="grid w-full grid-cols-3 items-center gap-2 p-2">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">4.</span><img
+                src="/placeholder.svg"
+                width="32"
+                height="32"
+                class="rounded-full"
+                alt="Avatar"
+                style="aspect-ratio: 32 / 32; object-fit: cover;"
+              />
+            </div><div class="flex items-center gap-2 text-sm">
+              <span class="font-semibold">5.</span><img
+                src="/placeholder.svg"
+                width="32"
+                height="32"
+                class="rounded-full"
+                alt="Avatar"
+                style="aspect-ratio: 32 / 32; object-fit: cover;"
+              />
+            </div><div class="flex items-center gap-2 text-sm">
+              <span class="font-semibold">6.</span><img
+                src="/placeholder.svg"
+                width="32"
+                height="32"
+                class="rounded-full"
+                alt="Avatar"
+                style="aspect-ratio: 32 / 32; object-fit: cover;"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </Layout>
-
-<style>
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(5fr);
-    grid-template-rows: repeat(10fr);
-  }
-</style>
