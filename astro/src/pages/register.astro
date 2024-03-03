@@ -1,0 +1,9 @@
+---
+import SimpleFormLayout from "@/layouts/SimpleFormLayout.astro";
+import { RegisterForm } from "@/components/auth/RegisterForm";
+var errorMsg = Astro.url.searchParams.get("error_msg");
+---
+
+<SimpleFormLayout title="register" heading="Register at St. Pete Pick'em">
+  <RegisterForm client:load errorMsg={errorMsg} />
+</SimpleFormLayout>

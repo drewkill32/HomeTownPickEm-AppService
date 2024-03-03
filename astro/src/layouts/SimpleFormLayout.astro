@@ -1,0 +1,25 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+  heading: string;
+}
+
+const { title, heading } = Astro.props;
+---
+
+<Layout title={title} footer="hidden" header="hidden">
+  <div class="mt-12 flex flex-col space-y-1.5 p-6">
+    <Icon name="logo" class="m-auto h-16 w-16" />
+    <h3
+      class="whitespace-nowrap text-center text-2xl font-semibold tracking-tight"
+    >
+      {heading}
+    </h3>
+  </div>
+  <div class="m-auto mx-auto my-4 max-w-sm px-3 text-card-foreground">
+    <slot />
+  </div>
+</Layout>

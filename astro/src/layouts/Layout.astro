@@ -1,0 +1,114 @@
+---
+import { Icon } from "astro-icon/components";
+import { MobileNavMenuButton } from "@/components/MobileNavMenu";
+import "@/styles/globals.css";
+import { buttonVariants } from "@/components/ui/button";
+import NavMenu from "@/components/NavMenu";
+
+interface Props {
+  title: string;
+  footer?: "hidden";
+  header?: "hidden";
+}
+
+const { title, footer, header } = Astro.props;
+
+const { isAuthenticated } = Astro.locals;
+
+const mobileNavItems = [
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Account", href: "/account" },
+  { label: "Signout", href: "/signout" },
+];
+
+const navItems = [
+  { label: "Start a League", href: "#" },
+  { label: "Pricing", href: "#" },
+  { label: "Support", href: "#" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="bg-white text-gray-800">
+      {
+        header !== "hidden" && (
+          <header class="bg-white px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-evenly">
+              <div class="flex grow items-center gap-5 pl-2">
+                <Icon name="logo" class="text-4xl text-emerald-700" />
+                <h1 class="font-bold text-[#002244] sm:text-2xl">
+                  St. Pete Pick'em
+                </h1>
+              </div>
+              <MobileNavMenuButton
+                client:load
+                navigationItems={[...navItems, ...mobileNavItems]}
+                className="mr-2 md:hidden"
+              />
+
+              <nav class="hidden justify-self-end md:block md:shrink md:pr-3">
+                <ul class="hidden items-center space-x-4 md:flex">
+                  {navItems.map((item) => (
+                    <li>
+                      <a
+                        class="transition hover:text-[#d50a0a]"
+                        href={item.href}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              {isAuthenticated ? (
+                <NavMenu
+                  client:load
+                  menuItems={mobileNavItems}
+                  className="hidden md:block"
+                >
+                  <Icon name="account" class="text-2xl" />
+                </NavMenu>
+              ) : (
+                <a class={buttonVariants()} href="/signin">
+                  Sign In
+                </a>
+              )}
+            </div>
+          </header>
+        )
+      }
+
+      <slot />
+      {
+        footer !== "hidden" && (
+          <footer class="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
+            <div class="text-center">
+              <p>
+                © <span id="copyright-year" /> St. Pete Pick'em. All rights
+                reserved.
+              </p>
+            </div>
+          </footer>
+        )
+      }
+    </div>
+  </body>
+
+  <script>
+    const year = new Date().getFullYear();
+    const spanEl = document.getElementById("copyright-year");
+    if (spanEl) {
+      spanEl.textContent = year.toString();
+    }
+  </script>
+</html>

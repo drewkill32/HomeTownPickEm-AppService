@@ -1,0 +1,10 @@
+---
+import SimpleFormLayout from "@/layouts/SimpleFormLayout.astro";
+import { SignInForm } from "@/components/auth/SignInForm";
+var errorMsg = Astro.url.searchParams.get("error_msg");
+var redirectUrl = Astro.url.searchParams.get("redirect_url");
+---
+
+<SimpleFormLayout title="Login" heading="Sign in to St. Pete Pick'em">
+  <SignInForm client:load errorMsg={errorMsg} redirectUrl={redirectUrl} />
+</SimpleFormLayout>
