@@ -1,5 +1,5 @@
 import SimpleLayout from "@/components/SimpleLayout";
-import { SignInForm } from "./LoginForm";
+import { SignUpForm } from "./SignUpForm";
 
 export default function Login({
   searchParams,
@@ -7,16 +7,11 @@ export default function Login({
   searchParams: {
     message: string | undefined;
     redirectUrl: string | undefined;
-    newUser: string | undefined;
   };
 }) {
   return (
     <SimpleLayout heading="Sign in to St. Pete Pick'em">
-      <SignInForm
-        message={searchParams.message}
-        redirectUrl={searchParams.redirectUrl}
-        newUser={searchParams.newUser}
-      />
+      <SignUpForm message={searchParams.message} />
     </SimpleLayout>
   );
 }
