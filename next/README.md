@@ -2,10 +2,13 @@
 
 ToDo List
 
+- [ ] Home Page
+  - [In Progress] Header
+  - [In Progress] Content
+  - [ ] Footer
 - [ ] SiteMap
 - [ ] Update title on every page
 - [ ] Forgot Password
-- [ ] Home Page
 - [ ] League Dashboard Page
 - [ ] Profile Page
 - [ ] Admin Area
