@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground">
-        <main className="">{children}</main>
+        <main className="bg-white text-gray-800">{children}</main>
       </body>
     </html>
   );
