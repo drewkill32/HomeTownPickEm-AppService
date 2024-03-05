@@ -32,9 +32,6 @@ export const SignInForm = ({ message, redirectUrl, newUser }: Props) => {
     criteriaMode: "all",
     defaultValues,
   });
-  if (!redirectUrl) {
-    redirectUrl = "/dashboard";
-  }
 
   return (
     <div className="m-auto mx-auto my-4 max-w-sm px-3 text-card-foreground">
@@ -91,6 +88,7 @@ export const SignInForm = ({ message, redirectUrl, newUser }: Props) => {
               {...register("password", { required: true })}
             />
           </div>
+          <input type="hidden" name="redirectUrl" value={redirectUrl} />
           {newUser && (
             <div className="mb-2 rounded-sm border border-green-500 p-3">
               <p className="text-center text-sm font-semibold text-green-500">

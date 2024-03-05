@@ -2,17 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/tailwind";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useEscape } from "@/hooks/useEscape";
-
-export type NavtigationItem = {
-  label: string;
-  href: string;
-};
+import { NavItem } from "./navItems";
+import { useEffect, useState } from "react";
 
 interface MobileNavMenuButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  navigationItems: NavtigationItem[];
+  navigationItems: NavItem[];
 }
 
 export const MobileNavMenuButton = ({
@@ -20,7 +16,20 @@ export const MobileNavMenuButton = ({
   className,
   ...props
 }: MobileNavMenuButtonProps) => {
-  const [isOpen, setIsOpen] = useLocalStorage("drawerOpen", false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    // Clean up function
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
   useEscape(() => setIsOpen(false));
 
@@ -33,8 +42,8 @@ export const MobileNavMenuButton = ({
         onClick={() => setIsOpen(!isOpen)}
         {...props}
         className={cn(
-          "z-50 inline-flex h-10 w-10 items-center justify-center whitespace-nowrap rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-          className
+          "z-50 inline-flex h-10 w-10 items-center  justify-center whitespace-nowrap rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          className,
         )}
       >
         {isOpen ? (
@@ -68,7 +77,7 @@ export const MobileNavMenuButton = ({
 };
 
 type MobileNavMenuProps = {
-  navigationItems: NavtigationItem[];
+  navigationItems: NavItem[];
   open: boolean;
 };
 
@@ -77,18 +86,26 @@ const MobileNavMenu = ({ navigationItems, open }: MobileNavMenuProps) => {
     <nav
       className={cn(
         "fixed inset-0  transform border bg-white pt-16 transition-transform duration-300 ease-in-out",
-        open ? "translate-x-0" : "translate-x-full"
+        open ? "translate-x-0" : "translate-x-full",
       )}
     >
-      <div className="flex flex-col">
+      <div className="flex-start flex h-full flex-col">
         {navigationItems.map((item) => (
-          <a
-            key={item.label}
-            className="py-4 pl-2 hover:bg-slate-500 hover:text-white hover:no-underline  "
-            href={item.href}
-          >
-            {item.label}
-          </a>
+          <>
+            {item.divider && (
+              <div className="mx-auto my-3 w-[90%] border-b-2 border-gray-400" />
+            )}
+            <a
+              key={item.label}
+              className={cn(
+                "item  py-4 pl-2 hover:bg-slate-500 hover:text-white hover:no-underline",
+                item.className || "",
+              )}
+              href={item.href}
+            >
+              {item.label}
+            </a>
+          </>
         ))}
       </div>
     </nav>
