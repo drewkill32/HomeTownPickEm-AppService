@@ -131,6 +131,14 @@ export default async function Index() {
           </Link>
         </div>
       </section>
+      <footer className="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
+        <div className="text-center">
+          <p>
+            © <span id="copyright-year" /> St. Pete Pick'em. All rights
+            reserved.
+          </p>
+        </div>
+      </footer>
     </>
   );
 }

@@ -8,11 +8,11 @@
   - [x] Drawer.
   - [x] Account Nav. Still too wide
 - [In Progress] Content
-- [ ] Footer
+- [x] Footer
+- [x] Update HTML title on every page
 
 - [ ] Theme Colors
 - [ ] SiteMap
-- [ ] Update HTML title on every page
 - [ ] Forgot Password page and email
 - [ ] League Dashboard Page
 - [ ] Profile Page
