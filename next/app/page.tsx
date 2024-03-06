@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Header from "@/components/header/Header";
+import Link from "next/link";
 
 export default async function Index() {
   const canInitSupabaseClient = () => {
@@ -23,12 +24,12 @@ export default async function Index() {
         <p className="mt-4 text-xl">
           Join the ultimate college football game-picking app.
         </p>
-        <a
+        <Link
           className="mt-6 inline-flex rounded-md bg-[#d50a0a] px-6 py-3 text-sm font-medium text-white hover:bg-[#b80808]"
-          href="/register"
+          href="/sign-up"
         >
           Sign Up Now
-        </a>
+        </Link>
       </section>
       <section id="features" className="px-4 py-20 sm:px-6 lg:px-8">
         <h2 className="mb-12 text-center text-4xl font-bold">Features</h2>
@@ -41,9 +42,9 @@ export default async function Index() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="mb-4 h-16 w-16"
             >
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
@@ -60,9 +61,9 @@ export default async function Index() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="mb-4 h-16 w-16"
             >
               <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
@@ -83,9 +84,9 @@ export default async function Index() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="mb-4 h-16 w-16"
             >
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -122,12 +123,12 @@ export default async function Index() {
       <section id="signup" className="px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-md text-center">
           <h2 className="mb-8 text-4xl font-bold">Ready to start picking?</h2>
-          <a
+          <Link
             className="inline-flex rounded-md bg-[#d50a0a] px-6 py-3 text-sm font-medium text-white hover:bg-[#b80808]"
-            href="/register"
+            href="/sign-up"
           >
             Sign Up Now
-          </a>
+          </Link>
         </div>
       </section>
     </>
