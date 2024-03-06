@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/utils/tailwind";
-import { BaseNavItem } from "./navItems";
+import { NavItem } from "./navItems";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -17,7 +17,7 @@ import Account from "../icons/Account";
 
 export interface NavMenuProps {
   className?: string;
-  menuItems: BaseNavItem[];
+  menuItems: NavItem[];
 }
 
 export default function AccountNavMenu({ menuItems, className }: NavMenuProps) {
