@@ -18,7 +18,7 @@ export const login = async (formData: FormData) => {
   const result = signUpSchema.safeParse(Object.fromEntries(formData));
   if (!result.success) {
     return redirect(
-      `/login?message=${encodeURIComponent("Email and password are required.")}`
+      `/login?message=${encodeURIComponent("Email and password are required.")}`,
     );
   }
   const { email, password, redirectUrl } = result.data;

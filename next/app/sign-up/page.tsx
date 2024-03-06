@@ -1,7 +1,11 @@
 import SimpleLayout from "@/components/SimpleLayout";
 import { SignUpForm } from "./SignUpForm";
+import { Metadata } from "next";
+import { metadataTitle } from "@/utils";
 
-export default function Login({
+export const metadata: Metadata = metadataTitle("Sign Up");
+
+export default function Signup({
   searchParams,
 }: {
   searchParams: {
