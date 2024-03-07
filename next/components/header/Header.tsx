@@ -12,6 +12,7 @@ interface HeaderProps extends ComponentProps<"header"> {}
 
 export default async function Header({ className, ...rest }: HeaderProps) {
   const { isAuthenticated, user } = await getUser();
+  console.log("isAuthenticated", isAuthenticated);
   const protectedRoutes = getProtectedRoutes(user);
   const acountNavItems = getAccountNavItems(user);
 

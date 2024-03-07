@@ -9,9 +9,8 @@
   - [x] Account Nav. Still too wide
 - [In Progress] Content
 - [x] Footer
-- [x] Update HTML title on every page
-
-- [ ] Theme Colors
+- [x] Update HTML title on every
+- [ ] Dark mode
 - [ ] SiteMap
 - [ ] Forgot Password page and email
 - [ ] League Dashboard Page

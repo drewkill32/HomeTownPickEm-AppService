@@ -3,7 +3,7 @@ import Logo from "@/components/icons/Logo";
 
 type Props = {
   children?: React.ReactNode;
-  heading: string;
+  heading?: string;
 };
 
 export default function SimpleLayout({ children, heading }: Props) {
