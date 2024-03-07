@@ -19,7 +19,7 @@ export const getAccountNavItems = (user: User | null): NavItem[] => {
 };
 
 export const navItems: NavItem[] = [
-  { label: "Start a League", href: "#" },
+  { label: "Start a League", href: "/create-league" },
   { label: "Pricing", href: "#" },
   { label: "Support", href: "#" },
 ];

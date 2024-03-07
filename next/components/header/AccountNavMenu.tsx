@@ -21,7 +21,6 @@ export interface NavMenuProps {
 }
 
 export default function AccountNavMenu({ menuItems, className }: NavMenuProps) {
-  console.log("menuItems", menuItems);
   return (
     <NavigationMenu className={className}>
       <NavigationMenuList>

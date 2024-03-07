@@ -1,5 +1,4 @@
 import { createClient } from "@/utils/supabase/server";
-import Header from "@/components/header/Header";
 import Link from "next/link";
 
 export default async function Index() {
@@ -17,8 +16,7 @@ export default async function Index() {
   const isSupabaseConnected = canInitSupabaseClient();
 
   return (
-    <>
-      <Header />
+    <main>
       <section className="bg-[#002244] py-20 text-center text-white">
         <h2 className="text-5xl font-bold">Pick Your Winning Teams</h2>
         <p className="mt-4 text-xl">
@@ -131,14 +129,6 @@ export default async function Index() {
           </Link>
         </div>
       </section>
-      <footer className="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
-        <div className="text-center">
-          <p>
-            © <span id="copyright-year" /> St. Pete Pick'em. All rights
-            reserved.
-          </p>
-        </div>
-      </footer>
-    </>
+    </main>
   );
 }
