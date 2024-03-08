@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -8,9 +9,19 @@ const signUpSchema = z.object({
   password: z.string(),
   redirectUrl: z
     .string()
-    .refine((value) => value.startsWith("/") || value === "", {
-      message: "Redirect URL must start with '/' or be an empty string",
-    })
+    .refine(
+      (value) => {
+        const origin = headers().get("origin");
+        return (
+          value.startsWith("/") ||
+          value.startsWith(origin || "") ||
+          value === ""
+        );
+      },
+      {
+        message: "Redirect URL must start with '/' or be an empty string",
+      },
+    )
     .optional(),
 });
 
@@ -24,7 +35,6 @@ export const login = async (formData: FormData) => {
   const { email, password, redirectUrl } = result.data;
 
   const supabase = createClient();
-
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
