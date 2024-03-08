@@ -1,6 +1,13 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+const protectedRoutes = [
+  "/dashboard",
+  "/create-league",
+  "/account",
+  "/signout",
+];
+
 export const updateSession = async (request: NextRequest) => {
   // This `try/catch` block is only here for the interactive tutorial.
   // Feel free to remove once you have Supabase connected.
@@ -62,7 +69,20 @@ export const updateSession = async (request: NextRequest) => {
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const pathname = request.nextUrl.pathname;
+    //protect routes
+    if (protectedRoutes.some((path) => pathname.startsWith(path)) && !user) {
+      const requestUrl = new URL(request.url);
+      const origin = requestUrl.origin;
+      const url = new URL(
+        `${origin}/login?redirectUrl=${request.nextUrl.toString()}`,
+      );
+      return NextResponse.redirect(url);
+    }
 
     return response;
   } catch (e) {
