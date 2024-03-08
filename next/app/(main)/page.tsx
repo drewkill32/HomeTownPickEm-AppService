@@ -16,7 +16,7 @@ export default async function Index() {
   const isSupabaseConnected = canInitSupabaseClient();
 
   return (
-    <main>
+    <>
       <section className="bg-[#002244] py-20 text-center text-white">
         <h2 className="text-5xl font-bold">Pick Your Winning Teams</h2>
         <p className="mt-4 text-xl">
@@ -129,6 +129,6 @@ export default async function Index() {
           </Link>
         </div>
       </section>
-    </main>
+    </>
   );
 }

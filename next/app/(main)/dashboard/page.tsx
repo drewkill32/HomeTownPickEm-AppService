@@ -5,5 +5,5 @@ export const metadata: Metadata = metadataTitle("Dashboard");
 type Props = {};
 
 export default function Page({}: Props) {
-  return <main>TODO: Dashboard</main>;
+  return <div>TODO: Dashboard</div>;
 }

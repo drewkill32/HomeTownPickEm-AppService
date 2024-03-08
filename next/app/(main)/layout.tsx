@@ -8,7 +8,7 @@ export default function MainLayout({
   return (
     <>
       <Header />
-      {children}
+      <main className="container">{children}</main>
       <footer className="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
         <div className="text-center">
           <p>
