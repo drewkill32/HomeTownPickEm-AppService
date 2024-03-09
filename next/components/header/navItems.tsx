@@ -1,5 +1,5 @@
 import { User } from "@supabase/supabase-js";
-import { CircleUser } from "lucide-react";
+import { CircleUser, LogOut } from "lucide-react";
 
 export const getProtectedRoutes = (user: User | null) => {
   if (!user) return [];
@@ -13,8 +13,12 @@ const protectedRoutes: ProtectedNavItem[] = [
 export const getAccountNavItems = (user: User | null): NavItem[] => {
   if (!user) return [];
   return [
-    { label: "Account", href: "/account", icon: <CircleUser /> },
-    { label: "Sign Out", href: "/signout" },
+    {
+      label: "Account",
+      href: "/account",
+      icon: <CircleUser />,
+    },
+    { label: "Sign Out", href: "/signout", icon: <LogOut /> },
   ];
 };
 
@@ -32,4 +36,5 @@ type BaseNavItem = {
   label: string;
   href: string;
   icon?: React.ReactNode;
+  protected?: boolean;
 };

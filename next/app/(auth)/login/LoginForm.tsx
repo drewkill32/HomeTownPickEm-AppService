@@ -18,8 +18,8 @@ type Inputs = {
 const defaultValues =
   process.env.NODE_ENV === "development"
     ? {
-        email: process.env.NEXT_PUBLIC_REGISTER_EMAIL,
-        password: process.env.NEXT_PUBLIC_REGISTER_PASSWORD,
+        email: process.env.NEXT_PUBLIC_REGISTER_EMAIL || "",
+        password: process.env.NEXT_PUBLIC_REGISTER_PASSWORD || "",
       }
     : ({} as Inputs);
 
