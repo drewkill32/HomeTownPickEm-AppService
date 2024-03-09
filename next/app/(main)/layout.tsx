@@ -1,12 +1,19 @@
+import SupabaseContextProvider from "@/components/SupabaseContext";
 import Header from "@/components/header/Header";
+import { createClient } from "@/utils/supabase/server";
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
-    <>
+    <SupabaseContextProvider user={user}>
       <Header />
       <main className="container">{children}</main>
       <footer className="bg-[#002244] px-4 py-6 text-white sm:px-6 lg:px-8">
@@ -17,6 +24,6 @@ export default function MainLayout({
           </p>
         </div>
       </footer>
-    </>
+    </SupabaseContextProvider>
   );
 }
