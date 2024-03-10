@@ -7,7 +7,7 @@ export const getProtectedRoutes = (user: User | null) => {
 };
 
 const protectedRoutes: ProtectedNavItem[] = [
-  { label: "Dashboard", href: "/dashboard" },
+  { label: "Leagues", href: "/leagues" },
 ];
 
 export const getAccountNavItems = (user: User | null): NavItem[] => {

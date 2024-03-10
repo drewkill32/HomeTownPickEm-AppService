@@ -10,7 +10,7 @@
 - [x] Footer
 - [x] Update HTML title on every
 - [x] Add protected routes
-- [ ] Create a new League Page
+- [x] Create a new League Page
 - [ ] Leaderboard Page
 - [ ] Dark mode
 - [ ] Forgot Password page and email
@@ -21,7 +21,10 @@
 - [ ] SiteMap
 - [ ] make footer sticky at the bottom of the page
 - [ ] Customize toast to to timeout with an indicator bar
-- [ ] Create useFormState hook that wraps in the toast message
+- [ ] Create useFormState hook that wraps in the toast message and zod schema. I need to study typescript more
+- [ ] update header title to link
+- [ ] badge system
+- [ ] current week stats
 
 ## Issues
 
