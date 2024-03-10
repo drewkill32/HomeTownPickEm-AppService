@@ -11,10 +11,10 @@
 - [x] Update HTML title on every
 - [x] Add protected routes
 - [x] Create a new League Page
-- [ ] Leaderboard Page
+- [x] Leaderboard Page
+- [x] League Dashboard Page
 - [ ] Dark mode
 - [ ] Forgot Password page and email
-- [ ] League Dashboard Page
 - [ ] Profile Page
 - [ ] Admin Area
 - [ ] Pick Page
@@ -24,7 +24,7 @@
 - [ ] Create useFormState hook that wraps in the toast message and zod schema. I need to study typescript more
 - [ ] update header title to link
 - [ ] badge system
-- [ ] current week stats
+- [ ] replace dashboard with current week stats current games correct
 
 ## Issues
 
