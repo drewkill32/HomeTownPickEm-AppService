@@ -43,6 +43,6 @@ export const login = async (formData: FormData) => {
   if (error) {
     return redirect("/login?message=Could not authenticate user");
   }
-  const redirectTo = redirectUrl || "/dashboard";
+  const redirectTo = redirectUrl || "/leagues";
   return redirect(redirectTo);
 };
