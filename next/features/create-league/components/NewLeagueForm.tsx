@@ -16,8 +16,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFormState } from "react-dom";
-import { createLeague } from "../actions/createLeague";
-import { newLeagueSchema } from "../validation";
+import { FormErrorOption, createLeague } from "../actions/createLeague";
+import { NewLeagueNameKeys, newLeagueSchema } from "../validation";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -35,19 +35,39 @@ export function NewLeagueForm({}: Props) {
     },
   });
 
-  const [state, formAction] = useFormState(createLeague, {
-    error: "",
-  });
+  const [state, formAction] = useFormState(createLeague, null);
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (state.error) {
+  const displayError = (error: FormErrorOption) => {
+    if (error.type === "root") {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: state.error,
+        description: error.message,
       });
+    } else {
+      form.setError(error.name as NewLeagueNameKeys, {
+        message: error.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (state === null) return;
+    if (state.success) {
+      form.reset();
+      toast({
+        title: "Success",
+        description: state.message,
+      });
+    }
+    if (!state.success) {
+      if (Array.isArray(state.error)) {
+        state.error.forEach((error) => displayError(error));
+      } else {
+        displayError(state.error);
+      }
     }
   }, [state]);
 
@@ -101,13 +121,12 @@ export function NewLeagueForm({}: Props) {
           name="public"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="flex cursor-pointer flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormLabel className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                 <FormControl>
                   <Checkbox
-                    checked={field.value}
+                    {...{ ...field, value: field.value.toString() }}
                     name="public"
-                    value={field.value.toString()}
-                    onCheckedChange={field.onChange}
+                    className="mr-2"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

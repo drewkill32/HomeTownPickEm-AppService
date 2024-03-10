@@ -6,3 +6,7 @@ export const newLeagueSchema = z.object({
   password: z.string().optional(),
   public: z.coerce.boolean(),
 });
+
+export type NewLeague = z.infer<typeof newLeagueSchema>;
+
+export type NewLeagueNameKeys = keyof NewLeague | "root";
