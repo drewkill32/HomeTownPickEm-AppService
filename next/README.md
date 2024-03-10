@@ -19,6 +19,9 @@
 - [ ] Admin Area
 - [ ] Pick Page
 - [ ] SiteMap
+- [ ] make footer sticky at the bottom of the page
+- [ ] Customize toast to to timeout with an indicator bar
+- [ ] Create useFormState hook that wraps in the toast message
 
 ## Issues
 
