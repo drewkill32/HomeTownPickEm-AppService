@@ -1,16 +1,13 @@
 import SupabaseContextProvider from "@/components/SupabaseContext";
 import Header from "@/components/header/Header";
-import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/server/user";
 
 export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUser();
 
   return (
     <SupabaseContextProvider user={user}>

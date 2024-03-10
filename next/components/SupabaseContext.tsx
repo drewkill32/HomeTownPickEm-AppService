@@ -27,14 +27,10 @@ export default function SupabaseContextProvider({
 
   useEffect(() => {
     (async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error("error getting user", error);
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
     })();
   }, [supabase]);
 
@@ -42,7 +38,6 @@ export default function SupabaseContextProvider({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("auth change", event, session);
       setUser(session?.user ?? null);
     });
 
