@@ -57,5 +57,5 @@ jobs:
         with:
           app-name: "st-pete-pickem"
           slot-name: "Production"
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B6FA4D99CB254F7381C401039D3C46FD }}
           package: .
