@@ -1,10 +1,10 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEmTests", "test\HomeTownPickEmTests\HomeTownPickEmTests.csproj", "{995873DE-A820-412D-9A2F-C25508968E0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeTownPickEmTests", "test\HomeTownPickEmTests\HomeTownPickEmTests.csproj", "{995873DE-A820-412D-9A2F-C25508968E0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeTownPickEm", "src\HomeTownPickEm\HomeTownPickEm.csproj", "{D63E29BB-9917-42C6-81EC-394E4190A76A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeTownPickEm", "src\HomeTownPickEm\HomeTownPickEm.csproj", "{D63E29BB-9917-42C6-81EC-394E4190A76A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SupabaseMigration", "src\SupabaseMigration\SupabaseMigration.csproj", "{102920F9-96C0-41B3-BC48-6B551354E35C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SupabaseMigration", "src\SupabaseMigration\SupabaseMigration.csproj", "{102920F9-96C0-41B3-BC48-6B551354E35C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
