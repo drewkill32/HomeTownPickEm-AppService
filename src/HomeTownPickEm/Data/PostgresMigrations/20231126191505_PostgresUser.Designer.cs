@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomeTownPickEm.Data.PostgresMigrations
 {
-    [DbContext(typeof(PostgreSqlAppDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20231126191505_PostgresUser")]
     partial class PostgresUser
     {

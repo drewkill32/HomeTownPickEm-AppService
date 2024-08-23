@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomeTownPickEm.Data.PostgresMigrations
 {
-    [DbContext(typeof(PostgreSqlAppDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     partial class PostgreSqlAppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

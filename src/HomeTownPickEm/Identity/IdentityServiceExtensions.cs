@@ -8,21 +8,13 @@ public static class IdentityServiceExtensions
 {
     public static WebApplicationBuilder AddIdentity(this WebApplicationBuilder builder)
     {
-        var identityBuilder = builder.Services.AddIdentityCore<ApplicationUser>(opt =>
-        {
-            opt.Password.RequireNonAlphanumeric = false;
-            opt.Password.RequiredLength = 4;
-        });
-        identityBuilder.AddEntityFrameworkStores<SqliteAppDbContext>();
-        identityBuilder.AddSignInManager<SignInManager<ApplicationUser>>();
-        identityBuilder.AddDefaultTokenProviders();
-
-        builder.Services.AddIdentityCore<PostgresApplicationUser>(opt =>
+        
+        builder.Services.AddIdentityCore<ApplicationUser>(opt =>
             {
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.Password.RequiredLength = 4;
-            }).AddEntityFrameworkStores<PostgreSqlIdentityAppDbContext>()
-            .AddSignInManager<SignInManager<PostgresApplicationUser>>();
+            }).AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddSignInManager<SignInManager<ApplicationUser>>();
  
         
         return builder;

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HomeTownPickEm.Data.PostgresMigrations
 {
-    [DbContext(typeof(PostgreSqlAppDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20231022002200_InitMigration")]
     partial class InitMigration
     {
