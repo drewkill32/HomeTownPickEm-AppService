@@ -1,30 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace HomeTownPickEm.Data
+namespace HomeTownPickEm.Data;
+
+public class DatabaseMigrator
 {
-    public class DatabaseMigrator
+    private readonly ApplicationDbContext _dbContext;
+
+    public DatabaseMigrator(ApplicationDbContext dbContext)
     {
-        private readonly ApplicationDbContext _sqliteContext;
-        private readonly PostgreSqlAppDbContext _postgreSqlAppDbContext;
+        _dbContext = dbContext;
+    }
 
-        public DatabaseMigrator(SqliteAppDbContext sqliteContext, PostgreSqlAppDbContext postgreSqlAppDbContext)
-        {
-            _sqliteContext = sqliteContext;
-            _postgreSqlAppDbContext = postgreSqlAppDbContext;
-        }
+    public async Task Init()
+    {
+        await ApplyMigrations(_dbContext);
+    }
 
-        public async Task Init()
-        {
-            await ApplyMigrations(_sqliteContext);
-            await ApplyMigrations(_postgreSqlAppDbContext);
-        }
-
-        private async Task ApplyMigrations(DbContext context)
-        {
-            if ((await context.Database.GetPendingMigrationsAsync()).Any())
-            {
-                await context.Database.MigrateAsync();
-            }
-        }
+    private async Task ApplyMigrations(DbContext context)
+    {
+        if ((await context.Database.GetPendingMigrationsAsync()).Any()) await context.Database.MigrateAsync();
     }
 }

@@ -1,27 +1,22 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace HomeTownPickEm.Models
+namespace HomeTownPickEm.Models;
+
+public class ApplicationUser : IdentityUser
 {
-    public class ApplicationUser : IdentityUser
+    public ApplicationUser()
     {
-        public ApplicationUser()
-        {
-            Seasons = new HashSet<Season>();
-        }
-
-        public ICollection<Season> Seasons { get; set; }
-        public UserName Name { get; set; }
-
-        public Team Team { get; set; }
-
-        public int? TeamId { get; set; }
-
-        public string ProfileImg { get; set; }
-        
-        public bool IsMigrated { get; set; }
+        Seasons = new HashSet<Season>();
     }
-    public class PostgresApplicationUser : IdentityUser
-    {
-        public bool IsMigrated { get; set; }
-    }
+
+    public ICollection<Season> Seasons { get; set; }
+    public UserName Name { get; set; }
+
+    public Team Team { get; set; }
+
+    public int? TeamId { get; set; }
+
+    public string ProfileImg { get; set; }
+
+    public bool IsMigrated { get; set; }
 }
