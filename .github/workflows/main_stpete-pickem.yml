@@ -25,13 +25,11 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Restore with dotnet
-        run: dotnet restore ./src/HomeTownPickEm
       - name: Build with dotnet
-        run: dotnet build ./src/HomeTownPickEm --no-restore --configuration Release
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ./src/HomeTownPickEm/HomeTownPickEm.csproj --no-build -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
