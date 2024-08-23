@@ -29,13 +29,13 @@ public class Startup
 
         builder.Services.AddRazorPages();
 
-        var spaUrl = builder.Configuration
-            .GetValue("Spa:Url", "http://localhost:3000;https://localhost:3000;https://localhost:5001").Split(";");
-        builder.Services.Configure<OriginOptions>(options => { options.AllowedOrigins = spaUrl; });
+        var spaUrls = builder.Configuration
+            .GetValue("Spa:Url", "http://localhost:3000;https://localhost:3000;https://localhost:5001;https://stpetepickem.com").Split(";");
+        builder.Services.Configure<OriginOptions>(options => { options.AllowedOrigins = spaUrls; });
         builder.Services.AddCors(ctx =>
         {
             ctx.AddDefaultPolicy(ply =>
-                ply.WithOrigins(spaUrl)
+                ply.WithOrigins(spaUrls)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()
