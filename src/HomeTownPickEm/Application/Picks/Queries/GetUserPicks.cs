@@ -51,7 +51,8 @@ namespace HomeTownPickEm.Application.Picks.Queries
 
                 var games =
                     await _context.Games
-                        .Where(x => x.Week == request.Week)
+                        .Where(x => x.Week == request.Week && x.Season == request.Season &&
+                                    (leagueTeamIds.Contains(x.Home.Id) || leagueTeamIds.Contains(x.Away.Id)))
                         .Select(x =>
                             new GameProjection
                             {
@@ -93,7 +94,6 @@ namespace HomeTownPickEm.Application.Picks.Queries
                                         SelectedTeamId = p.SelectedTeamId
                                     })
                             })
-                        .Where(x => x.Picks.Any())
                         .ToArrayAsync(cancellationToken);
 
 

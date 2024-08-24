@@ -12,6 +12,7 @@ import { PickButton, SplitButton } from './PickButtons';
 import Head2HeadFooter from './Head2HeadFooter';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import UserPicks from './UserPicks';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,34 +67,27 @@ const DisabledTooltip = ({ children, disabled }) => {
 const PickLayout = ({ game: currentGame, locked }) => {
   const classes = useStyles();
 
+  const { league, season } = useParams();
+
   const {
     game,
     homeSelected,
     awaySelected,
     splitSelected,
-    pastCutoff,
-    selectHome,
-    selectAway,
-    selectSplit,
+    pastCutoff
   } = useGame(currentGame);
+
 
   const { mutateAsync } = useMakePick();
   const isLocked = locked || pastCutoff;
-  const handleClick = async (picks, type) => {
-    switch (type) {
-      case 'home':
-        selectHome();
-        break;
-      case 'split':
-        selectSplit();
-        break;
-      case 'away':
-        selectAway();
-        break;
-      default:
-        break;
-    }
-    await mutateAsync(picks);
+  const handleClick = async (selectedTeamIds, type) => {
+
+    await mutateAsync({
+      leagueSlug: league,
+      season: season,
+      gameId: game.id,
+      selectedTeamIds
+    });
   };
 
   return (
@@ -131,10 +125,7 @@ const PickLayout = ({ game: currentGame, locked }) => {
             noWrap={isLocked}
             onClick={() =>
               handleClick(
-                game.picks.map((p) => ({
-                  pickId: p.id,
-                  selectedTeamId: game.away.id,
-                })),
+                game.head2Head ? [game.away.id, game.away.id]: [game.away.id],
                 'away'
               )
             }
@@ -153,10 +144,7 @@ const PickLayout = ({ game: currentGame, locked }) => {
               selected={splitSelected}
               onClick={() =>
                 handleClick(
-                  [
-                    { pickId: game.picks[0].id, selectedTeamId: game.away.id },
-                    { pickId: game.picks[1].id, selectedTeamId: game.home.id },
-                  ],
+                  [game.away.id, game.home.id],
                   'split'
                 )
               }
@@ -176,10 +164,7 @@ const PickLayout = ({ game: currentGame, locked }) => {
             noWrap={isLocked}
             onClick={() =>
               handleClick(
-                game.picks.map((p) => ({
-                  pickId: p.id,
-                  selectedTeamId: game.home.id,
-                })),
+                game.head2Head ? [game.home.id, game.home.id]: [game.home.id],
                 'home'
               )
             }

@@ -14,7 +14,8 @@ public static class IdentityServiceExtensions
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.Password.RequiredLength = 4;
             }).AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddSignInManager<SignInManager<ApplicationUser>>();
+            .AddSignInManager<SignInManager<ApplicationUser>>()
+            .AddDefaultTokenProviders();
  
         
         return builder;

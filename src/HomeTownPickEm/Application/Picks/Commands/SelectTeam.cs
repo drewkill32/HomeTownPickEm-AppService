@@ -7,122 +7,130 @@ using HomeTownPickEm.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace HomeTownPickEm.Application.Picks.Commands
-{
-    public class SelectTeam
-    {
-        public class Command : List<Command.SelectTeamCommand>, IRequest<IEnumerable<PickDto>>
-        {
-            public class SelectTeamCommand
-            {
-                public int? SelectedTeamId { get; set; }
+namespace HomeTownPickEm.Application.Picks.Commands;
 
-                public int PickId { get; set; }
+public class SelectTeam
+{
+    public class Command : IRequest<IEnumerable<PickDto>>
+    {
+        public int GameId { get; set; }
+
+        public string Season { get; set; }
+
+        public string LeagueSlug { get; set; }
+
+        public int[] SelectedTeamIds { get; set; }
+    }
+
+    public class CommandHandler : IRequestHandler<Command, IEnumerable<PickDto>>
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<CommandHandler> _logger;
+        private readonly IUserAccessor _userAccessor;
+        private readonly ISystemDate _date;
+
+        public CommandHandler(ApplicationDbContext context,
+            IUserAccessor userAccessor,
+            ISystemDate date,
+            ILogger<CommandHandler> logger)
+        {
+            _context = context;
+            _userAccessor = userAccessor;
+            _date = date;
+            _logger = logger;
+        }
+
+        public async Task<IEnumerable<PickDto>> Handle(Command request, CancellationToken cancellationToken)
+        {
+            var user = (await _userAccessor.GetCurrentUserAsync())
+                .GuardAgainstNotFound("No current user found");
+
+
+            var season = await _context.Season
+                .Where(s => s.Year == request.Season && s.League.Slug == request.LeagueSlug)
+                .Include(x => x.Teams)
+                .FirstOrDefaultAsync(cancellationToken).GuardAgainstNotFound("No season found");
+
+            var game = await _context.Games.FindAsync(request.GameId, cancellationToken);
+
+            var seasonId = season.Id;
+            var selectedTeamIds = request.SelectedTeamIds;
+
+            var gameId = request.GameId;
+
+            GuardAgainstInvalidRequest(request.SelectedTeamIds, season, game);
+
+            var picks = await _context.Pick
+                .Where(x => x.UserId == user.Id && x.GameId == gameId && x.SeasonId == seasonId)
+                .AsTracking()
+                .ToArrayAsync(cancellationToken);
+
+            if (picks.Length > 0)
+            {
+                if (picks.Length == request.SelectedTeamIds.Length)
+                {
+                    for (var i = 0; i < picks.Length; i++)
+                    {
+                        picks[i].SelectedTeamId = request.SelectedTeamIds[i];
+                    }
+
+                    await _context.SaveChangesAsync(cancellationToken);
+
+                    return picks.Select(x => x.ToPickDto());
+                }
+
+                //somehow we have more picks in the database clean it up
+                _logger.LogError("The number of teams selected do not match.");
+                _context.Pick.RemoveRange(picks);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+
+            var newPicks = selectedTeamIds.Select(teamId => new Pick()
+            {
+                Points = 0,
+                GameId = gameId,
+                SelectedTeamId = teamId,
+                SeasonId = seasonId,
+                UserId = user.Id
+            }).ToArray();
+
+            _context.Pick.AddRange(newPicks);
+            await _context.SaveChangesAsync(cancellationToken);
+            return newPicks.Select(x => x.ToPickDto());
+        }
+
+        private static void GuardAgainstInvalidRequest(int[] selectedTeamIds, Season season, Game game)
+        {
+            var isHead2Head = season.IsHead2Head(game);
+            if (isHead2Head && selectedTeamIds.Length != 2)
+            {
+                throw new BadRequestException("Head 2 Head games should have two picks");
+            }
+
+            if (!isHead2Head && selectedTeamIds.Length != 1)
+            {
+                throw new BadRequestException("Non Head 2 Head games should have one pick");
             }
         }
 
-        public class CommandHandler : IRequestHandler<Command, IEnumerable<PickDto>>
+        private void GuardAgainstPickPastCutoff(Game game)
         {
-            private readonly ApplicationDbContext _context;
-            private readonly ILogger<CommandHandler> _logger;
-            private readonly IUserAccessor _userAccessor;
-            private readonly ISystemDate _date;
-
-            public CommandHandler(ApplicationDbContext context,
-                IUserAccessor userAccessor,
-                ISystemDate date,
-                ILogger<CommandHandler> logger)
+            var cutOffDate = game.StartDate.AddMinutes(-1);
+            var currDate = _date.UtcNow;
+            if (currDate > cutOffDate)
             {
-                _context = context;
-                _userAccessor = userAccessor;
-                _date = date;
-                _logger = logger;
+                throw new BadRequestException(
+                    $"The current time {currDate:f} is past the cutoff {cutOffDate:f}");
             }
+        }
 
-            public async Task<IEnumerable<PickDto>> Handle(Command request, CancellationToken cancellationToken)
+        private static void GuardAgainstTeamNotPlaying(int teamId, Game game)
+        {
+            if (game.HomeId != teamId && game.AwayId != teamId)
             {
-                var user = (await _userAccessor.GetCurrentUserAsync())
-                    .GuardAgainstNotFound("No current user found");
-
-                var pickIds = request.Select(x => x.PickId).ToArray();
-
-                var picks = await _context.Pick
-                    .Where(x => pickIds.Contains(x.Id))
-                    .ToArrayAsync(cancellationToken);
-
-                GuardAgainstForbiddenAccess(picks, user);
-
-
-                foreach (var pick in picks)
-                {
-                    var singleRequest = request.Single(x => x.PickId == pick.Id);
-                    if (singleRequest.SelectedTeamId.HasValue)
-                    {
-                        var team = await GetTeam(singleRequest.SelectedTeamId.Value, pick.GameId, pick.SeasonId,
-                            cancellationToken);
-                        pick.SelectedTeamId = team.Id;
-                    }
-                    else
-                    {
-                        pick.SelectedTeamId = null;
-                    }
-                }
-
-
-                _context.Pick.UpdateRange(picks);
-                await _context.SaveChangesAsync(cancellationToken);
-                return picks.Select(x => x.ToPickDto());
-            }
-
-            private async Task<Team> GetTeam(int teamId, int gameId, int seasonId, CancellationToken cancellationToken)
-            {
-                var game = (await _context.Games
-                        .SingleOrDefaultAsync(x => x.Id == gameId, cancellationToken))
-                    .GuardAgainstNotFound(gameId);
-
-                GuardAgainstPickPastCutoff(game);
-
-                var selectedTeam = (await _context.Teams
-                        .SingleOrDefaultAsync(x => x.Id == teamId, cancellationToken))
-                    .GuardAgainstNotFound(teamId);
-
-                GuardAgainstTeamNotPlaying(teamId, game);
-
-
-                return selectedTeam;
-            }
-
-            private void GuardAgainstForbiddenAccess(Pick[] picks, ApplicationUser user)
-            {
-                foreach (var pick in picks)
-                {
-                    if (pick.UserId != user.Id)
-                    {
-                        _logger.LogError(
-                            $"The user {_userAccessor.GetCurrentUserId()} is not valid of the pick Id: {pick.Id}");
-                        throw new ForbiddenAccessException();
-                    }
-                }
-            }
-
-            private void GuardAgainstPickPastCutoff(Game game)
-            {
-                var cutOffDate = game.StartDate.AddMinutes(-1);
-                var currDate = _date.UtcNow;
-                if (currDate > cutOffDate)
-                {
-                    throw new BadRequestException(
-                        $"The current time {currDate:f} is past the cutoff {cutOffDate:f}");
-                }
-            }
-
-            private static void GuardAgainstTeamNotPlaying(int teamId, Game game)
-            {
-                if (game.HomeId != teamId && game.AwayId != teamId)
-                {
-                    throw new BadRequestException(
-                        $"You picked a team that is not playing this game. GameId: {game.Id} teamId: {teamId}");
-                }
+                throw new BadRequestException(
+                    $"You picked a team that is not playing this game. GameId: {game.Id} teamId: {teamId}");
             }
         }
     }

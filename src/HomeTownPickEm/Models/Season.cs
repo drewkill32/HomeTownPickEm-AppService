@@ -1,6 +1,5 @@
 ﻿namespace HomeTownPickEm.Models;
 
-
 public class Season
 {
     private HashSet<Team> _teams;
@@ -9,9 +8,9 @@ public class Season
 
     public Season()
     {
-        _teams = new HashSet<Team>();
-        _members = new HashSet<ApplicationUser>();
-        _picks = new HashSet<Pick>();
+        _teams = new();
+        _members = new();
+        _picks = new();
     }
 
     public int Id { get; set; }
@@ -24,23 +23,23 @@ public class Season
 
     public bool Active { get; set; }
 
-    public IReadOnlyCollection<Team> Teams 
+    public IReadOnlyCollection<Team> Teams
     {
         get => _teams;
         set => _teams = value.ToHashSet();
-    } 
+    }
 
-    public IReadOnlyCollection<ApplicationUser> Members  
+    public IReadOnlyCollection<ApplicationUser> Members
     {
         get => _members;
         set => _members = value.ToHashSet();
-    } 
+    }
 
     public IReadOnlyCollection<Pick> Picks
     {
         get => _picks;
         set => _picks = value.ToHashSet();
-    } 
+    }
 
 
     public void RemoveTeam(Team team)
@@ -90,11 +89,6 @@ public class Season
     public void AddTeam(Team team, IEnumerable<Game> games)
     {
         AddTeam(team);
-        
-        foreach (var member in Members)
-        {
-            AssignPicks(member, games);
-        }
     }
 
     public void AddMember(ApplicationUser user)
@@ -130,48 +124,5 @@ public class Season
     public void AddMember(ApplicationUser member, IEnumerable<Game> games)
     {
         AddMember(member);
-
-        AssignPicks(member, games);
     }
-
-    private void AssignPicks(ApplicationUser member, IEnumerable<Game> games)
-    {
-        var newPicks = games
-            .Where(g => g.Season == Year)
-            .Select(x => new Pick
-        {
-            Points = 0,
-            GameId = x.Id,
-            Game = x,
-            UserId = member.Id
-        }).ToArray();
-
-        foreach (var newPick in newPicks)
-        {
-            var picks = Picks
-                .Where(x => x.UserId == member.Id && x.GameId == newPick.GameId)
-                .ToArray();
-
-            if (picks.Length == 0)
-            {
-                _picks.Add(newPick);
-            }
-
-            var isHead2Head = IsHead2Head(newPick.Game);
-
-            //add another pick 
-            if (isHead2Head && picks.Length < 2)
-            {
-                _picks.Add(new Pick
-                {
-                    Points = 0,
-                    GameId = newPick.Id,
-                    Game = newPick.Game,
-                    UserId = newPick.UserId
-                });
-            }
-        }
-    }
-
-
 }

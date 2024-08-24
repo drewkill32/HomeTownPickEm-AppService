@@ -1,76 +1,35 @@
-import { useMemo, useReducer } from 'react';
+import { useMemo } from 'react';
 
-const ACTIONS = {
-  SELECT_HOME: 'SELECT_HOME',
-  SELECT_AWAY: 'SELECT_AWAY',
-  SELECT_SPLIT: 'SELECT_SPLIT',
-};
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case ACTIONS.SELECT_HOME:
-      return {
-        ...state,
-        picks: state.picks.map((p) => ({
-          ...p,
-          selectedTeamId: state.home.id,
-        })),
-      };
-    case ACTIONS.SELECT_AWAY:
-      return {
-        ...state,
-        picks: state.picks.map((p) => ({
-          ...p,
-          selectedTeamId: state.away.id,
-        })),
-      };
-    case ACTIONS.SELECT_SPLIT:
-      var pickOne = { ...state.picks[0], selectedTeamId: state.away.id };
-      var pickTwo = { ...state.picks[1], selectedTeamId: state.home.id };
-      return {
-        ...state,
-        picks: [pickOne, pickTwo],
-      };
-    default:
-      return state;
-  }
-};
 
 export const useGame = (game) => {
-  const [state, dispatch] = useReducer(reducer, game);
 
   const homeSelected = useMemo(
-    () => state.picks.every((p) => p.selectedTeamId === state.home.id),
-    [state]
+    () => game.picks.length > 0 && game.picks.every((p) => p.selectedTeamId === game.home.id),
+    [game]
   );
 
   const awaySelected = useMemo(
-    () => state.picks.every((p) => p.selectedTeamId === state.away.id),
-    [state]
+    () => game.picks.length > 0 && game.picks.every((p) => p.selectedTeamId === game.away.id),
+    [game]
   );
 
   const pastCutoff = game.isPastCutoff;
 
   const splitSelected = useMemo(
     () =>
-      state.picks.length === 2 &&
-      state.picks[0].selectedTeamId === state.away.id &&
-      state.picks[1].selectedTeamId === state.home.id,
-    [state]
+      game.picks.length === 2 &&
+      game.picks[0].selectedTeamId === game.away.id &&
+      game.picks[1].selectedTeamId === game.home.id,
+    [game]
   );
 
-  const selectHome = () => dispatch({ type: ACTIONS.SELECT_HOME });
-  const selectAway = () => dispatch({ type: ACTIONS.SELECT_AWAY });
-  const selectSplit = () => dispatch({ type: ACTIONS.SELECT_SPLIT });
 
   return {
-    game: state,
+    game: game,
     homeSelected,
     awaySelected,
     splitSelected,
-    pastCutoff,
-    selectHome,
-    selectAway,
-    selectSplit,
+    pastCutoff
   };
 };
