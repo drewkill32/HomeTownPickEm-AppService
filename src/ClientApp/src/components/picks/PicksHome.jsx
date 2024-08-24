@@ -100,7 +100,7 @@ const PicksHome = () => {
   const selCount = useMemo(
     () =>
       games
-        ? games.filter((g) => g.picks.every((p) => p.selectedTeamId !== null))
+        ? games.filter((g) => g.picks.length > 0)
             .length
         : 0,
     [games]

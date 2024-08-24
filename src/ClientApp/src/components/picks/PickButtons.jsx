@@ -135,6 +135,7 @@ export const PickButton = ({
       onClick={onClick}
       disabled={disabled}
       {...rest}
+      data-testid={`pick-button-${team.id}`}
       className={clsx(classes.teamButton, { [classes.selected]: selected })}>
       <Paper elevation={3} sx={{ mb: 6 }}>
         <div className={classes.teamButtonBg}>
