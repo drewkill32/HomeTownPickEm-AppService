@@ -1,17 +1,5 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  IconButton,
-  List,
-} from '@mui/material';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Grid, IconButton, List } from '@mui/material';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../authentication';
 import { useLeagueAdmin } from '../hooks/useLeagueAdmin';
 import { AddNewMemberButton } from '../components/AddNewMemberButton';
@@ -27,8 +15,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { leagueAgent } from '../utils/leagueAgent';
 import { useLeague } from '../contexts/LeagueProvider';
 import { LeagueKeys } from '../utils/queryKeys';
-import { useState } from 'react';
-import { useRemoveLeague } from '../hooks/useRemoveLeague';
+import { DeleteLeagueButton } from '../components/DeleteLeagueButton';
 
 function DeletePendingMember({ memberId }: { memberId: string }) {
   const queryClient = useQueryClient();
@@ -44,7 +31,7 @@ function DeletePendingMember({ memberId }: { memberId: string }) {
       onSuccess: async () => {
         await queryClient.invalidateQueries(LeagueKeys.LeagueAdmin);
       },
-    }
+    },
   );
 
   return (
@@ -68,7 +55,7 @@ function DeletePendingTeam({ teamId }: { teamId: number }) {
       onSuccess: async () => {
         await queryClient.invalidateQueries(LeagueKeys.LeagueAdmin);
       },
-    }
+    },
   );
 
   return (
@@ -82,17 +69,8 @@ export const LeagueAdmin = () => {
   const { user } = useAuth();
   const location = useLocation();
   const league = useLeague();
-  const { mutateAsync, isLoading: isDeleting } = useRemoveLeague();
-  const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
 
   const { data } = useLeagueAdmin();
-
-  const handleClose = async () => {
-    await mutateAsync();
-    setOpen(false);
-    navigate('/leagues');
-  };
 
   if (!user || !data) {
     return null;
@@ -105,38 +83,7 @@ export const LeagueAdmin = () => {
   return (
     <Grid container spacing={2} justifyContent="center" direction="row">
       <Grid item xs={12}>
-        <Button color="error" variant="contained" onClick={() => setOpen(true)}>
-          Delete League
-        </Button>
-        <Dialog onClose={handleClose} open={open}>
-          <DialogTitle>
-            Are you sure you want to delete this season of the league?
-          </DialogTitle>
-          <DialogContent>
-            {isDeleting && (
-              <Box
-                sx={{
-                  width: '100%',
-                  paddingBlock: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <CircularProgress />
-              </Box>
-            )}
-
-            <DialogContentText>This action cannot be undone.</DialogContentText>
-            <DialogActions>
-              <Button disabled={isDeleting} onClick={() => setOpen(false)}>
-                No
-              </Button>
-              <Button disabled={isDeleting} onClick={handleClose} autoFocus>
-                Yes
-              </Button>
-            </DialogActions>
-          </DialogContent>
-        </Dialog>
+        <DeleteLeagueButton />
       </Grid>
       <Grid item xs={12} sm={6}>
         <AdminList
