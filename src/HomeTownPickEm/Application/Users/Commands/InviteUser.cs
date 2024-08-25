@@ -2,6 +2,7 @@
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Models;
+using HomeTownPickEm.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,17 +27,17 @@ public class InviteUser
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly EmailTemplateFactory _templateFactory;
         private readonly IEmailSender _sender;
         private readonly ILogger<InviteUser> _logger;
 
         public Handler(UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
-            IMapper mapper, IEmailSender sender, ILogger<InviteUser> logger)
+            EmailTemplateFactory templateFactory, IEmailSender sender, ILogger<InviteUser> logger)
         {
             _userManager = userManager;
             _context = context;
-            _mapper = mapper;
+            _templateFactory = templateFactory;
             _sender = sender;
             _logger = logger;
         }
@@ -47,7 +48,7 @@ public class InviteUser
             {
                 Email = request.Email,
                 UserName = request.Email,
-                Name = new UserName
+                Name = new()
                 {
                     First = request.FirstName,
                     Last = request.LastName
@@ -59,7 +60,7 @@ public class InviteUser
                 var result = await _userManager.CreateAsync(user);
                 if (!result.Succeeded)
                 {
-                    throw new Exception(
+                    throw new(
                         $"Problem inviting user. {string.Join(", ", result.Errors.Select(x => x.Description))}");
                 }
             }
@@ -70,14 +71,14 @@ public class InviteUser
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {
-                    throw new Exception(
+                    throw new(
                         $"Problem inviting user. {string.Join(", ", result.Errors.Select(x => x.Description))}");
                 }
             }
-            
+
             try
             {
-                _context.PendingInvites.Add(new PendingInvite
+                _context.PendingInvites.Add(new()
                 {
                     LeagueId = request.LeagueId,
                     Season = request.Season,
@@ -85,7 +86,9 @@ public class InviteUser
                     TeamId = request.TeamId
                 });
                 await _context.SaveChangesAsync(cancellationToken);
-                await _sender.SendEmailAsync(EmailType.NewUser, user);
+                var emailTemplate = await _templateFactory.CreateEmailTemplate(EmailType.NewUser, user);
+
+                await _sender.SendEmailAsync(user.Email, emailTemplate.Subject, emailTemplate.HtmlMessage);
             }
             catch (Exception e)
             {
@@ -97,7 +100,6 @@ public class InviteUser
                 await _context.SaveChangesAsync(cancellationToken);
                 await _userManager.DeleteAsync(user);
             }
-            
         }
     }
 }
