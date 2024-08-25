@@ -1,4 +1,5 @@
 ﻿using System.Net.Mail;
+using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Config;
 using HomeTownPickEm.Models;
 using HomeTownPickEm.Security;
@@ -7,15 +8,16 @@ using Microsoft.Extensions.Options;
 
 namespace HomeTownPickEm.Services.Dev;
 
-public class DevEmailSender : EmailSenderBase
+public class DevEmailSender : IEmailSender
 {
-    public DevEmailSender(IOptions<SendGridSettings> options, IHttpContextAccessor accessor,
-        IOptions<OriginOptions> originOptions, UserManager<ApplicationUser> userManager,
-        ILogger<SendGridEmailSender> logger) : base(options, accessor, originOptions, userManager, logger)
+    private readonly ILogger<DevEmailSender> _logger;
+
+    public DevEmailSender(ILogger<DevEmailSender> logger)
     {
+        _logger = logger;
     }
 
-    public override Task SendEmailAsync(string email, string subject, string htmlMessage)
+    public Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
         var smtpClient = new SmtpClient()
         {
@@ -28,7 +30,7 @@ public class DevEmailSender : EmailSenderBase
             {
                 Body = htmlMessage,
                 To = { email },
-                From = new MailAddress("st-pete-pickem@localhost"),
+                From = new("st-pete-pickem@localhost"),
                 Subject = subject,
                 IsBodyHtml = true
             };

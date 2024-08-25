@@ -13,7 +13,6 @@ using HomeTownPickEm.Services.Cfbd;
 using HomeTownPickEm.Services.CFBD;
 using HomeTownPickEm.Services.DataSeed;
 using HomeTownPickEm.Services.Dev;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -29,16 +28,13 @@ public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder AddDbContext(this WebApplicationBuilder builder)
     {
-
-        
-
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
             ConfigureDbContextOptions(options, builder.Environment.IsDevelopment());
             options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase"));
         });
 
-        
+
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         return builder;
     }
@@ -48,8 +44,6 @@ public static class WebApplicationBuilderExtensions
         options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .EnableSensitiveDataLogging(isDevelopment);
     }
-    
-
 
 
     public static WebApplicationBuilder AddJwt(this WebApplicationBuilder builder)
@@ -73,7 +67,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
         {
             opt.SaveToken = true;
-            opt.Events = new JwtBearerEvents
+            opt.Events = new()
             {
                 OnMessageReceived = context =>
                 {
@@ -87,7 +81,7 @@ public static class WebApplicationBuilderExtensions
                     return Task.CompletedTask;
                 }
             };
-            opt.TokenValidationParameters = new TokenValidationParameters
+            opt.TokenValidationParameters = new()
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
@@ -112,7 +106,7 @@ public static class WebApplicationBuilderExtensions
         {
             opt.CustomSchemaIds(t =>
                 t.IsNested ? $"{t.DeclaringType.Name}_{t.Name}" : t.Name);
-            opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            opt.AddSecurityDefinition("Bearer", new()
             {
                 In = ParameterLocation.Header,
                 Description = "Please enter token",
@@ -122,12 +116,12 @@ public static class WebApplicationBuilderExtensions
                 Scheme = "bearer"
             });
 
-            opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+            opt.AddSecurityRequirement(new()
             {
                 {
-                    new OpenApiSecurityScheme
+                    new()
                     {
-                        Reference = new OpenApiReference
+                        Reference = new()
                         {
                             Type = ReferenceType.SecurityScheme,
                             Id = "Bearer"
@@ -144,8 +138,8 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddSeeders();
-        builder.Services.Configure<SendGridSettings>(
-            builder.Configuration.GetSection(SendGridSettings.SettingsKey));
+        builder.Services.Configure<EmailSenderSettings>(
+            builder.Configuration.GetSection(EmailSenderSettings.SettingsKey));
 
         builder.Services.AddSignalR();
 
@@ -154,22 +148,22 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddHttpClient(CfbdSettings.SettingsKey, (provider, client) =>
         {
             var settings = provider.GetRequiredService<IOptions<CfbdSettings>>().Value;
-            client.BaseAddress = new Uri(settings.BaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Key);
+            client.BaseAddress = new(settings.BaseUrl);
+            client.DefaultRequestHeaders.Authorization = new("Bearer", settings.Key);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         }).AddPolicyHandler(GetRetryPolicy());
 
         builder.Services.AddHttpClient<ICfbdHttpClient, CfbdHttpClient>((provider, client) =>
         {
             var settings = provider.GetRequiredService<IOptions<CfbdSettings>>().Value;
-            client.BaseAddress = new Uri(settings.BaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Key);
+            client.BaseAddress = new(settings.BaseUrl);
+            client.DefaultRequestHeaders.Authorization = new("Bearer", settings.Key);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.Timeout = TimeSpan.FromSeconds(5);
         }).AddPolicyHandler(GetRetryPolicy());
 
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-        builder.Services.AddMediatR(cfg=>
+        builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
             cfg.Lifetime = ServiceLifetime.Scoped;
@@ -191,8 +185,24 @@ public static class WebApplicationBuilderExtensions
         else
         {
             builder.Services.AddTransient<ISystemDate, SystemDate>();
-            builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
+            builder.Services.AddScoped<IEmailSender, PostmarkEmailSender>();
         }
+
+        builder.Services.AddTransient<EmailTemplateFactory>();
+        var emailSender = builder.Configuration.GetValue<string>("Email:Sender");
+        switch (emailSender.ToLower())
+        {
+            case "postmark":
+                builder.Services.AddScoped<IEmailSender, PostmarkEmailSender>();
+                break;
+            case "resend":
+                builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
+                break;
+            default:
+                builder.Services.AddScoped<IEmailSender, DevEmailSender>();
+                break;
+        }
+
 
         return builder;
     }

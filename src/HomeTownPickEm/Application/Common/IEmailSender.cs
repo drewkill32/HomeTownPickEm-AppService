@@ -12,8 +12,4 @@ public enum EmailType
 public interface IEmailSender
 {
     Task SendEmailAsync(string email, string subject, string htmlMessage);
-
-    Task SendEmailAsync(EmailType emailType, ApplicationUser user);
-    
-    
 }
