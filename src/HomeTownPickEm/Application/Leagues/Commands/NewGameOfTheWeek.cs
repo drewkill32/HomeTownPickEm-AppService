@@ -23,6 +23,8 @@ public class NewGameOfTheWeek
         private readonly ISystemDate _systemDate;
         private readonly ApplicationDbContext _context;
         private readonly ILogger<NewGameOfTheWeek> _logger;
+        private readonly Random _random;
+        private readonly SemaphoreSlim _mutex = new(1);
 
 
         public Handler(ISystemDate systemDate, ApplicationDbContext context, ILogger<NewGameOfTheWeek> logger)
@@ -30,31 +32,49 @@ public class NewGameOfTheWeek
             _systemDate = systemDate;
             _context = context;
             _logger = logger;
+            _random = new();
         }
 
         public async Task<int> Handle(Command request, CancellationToken cancellationToken)
         {
-            //check if the gow exists
-            var gow = await _context.WeeklyGames.FirstOrDefaultAsync(
-                x => x.Week == request.Week && x.SeasonId == request.SeasonId,
-                cancellationToken);
-
-            if (gow is not null)
+            try
             {
-                return gow.GameId;
+                await _mutex.WaitAsync(cancellationToken);
+                //check if the gow exists
+                var gow = await _context.WeeklyGames.FirstOrDefaultAsync(
+                    x => x.Week == request.Week && x.SeasonId == request.SeasonId,
+                    cancellationToken);
+
+                if (gow is not null)
+                {
+                    return gow.GameId;
+                }
+
+                var teamIds = await _context.Season.Where(x => x.Id == request.SeasonId)
+                    .SelectMany(s => s.Teams.Select(t => t.Id)).ToArrayAsync(cancellationToken);
+
+                //get the games that are in the league
+                var games = await _context.Games.WhereTeamsArePlaying(teamIds)
+                    .Where(x => x.Week == request.Week && x.StartTimeTbd == false && x.StartDate > _systemDate.UtcNow)
+                    .Select(x => x.Id)
+                    .ToArrayAsync(cancellationToken);
+
+                var randomGame = _random.Next(0, games.Length);
+
+                var gameId = games[randomGame];
+                _context.WeeklyGames.Add(new()
+                {
+                    GameId = gameId,
+                    SeasonId = request.SeasonId,
+                    Week = request.Week
+                });
+                await _context.SaveChangesAsync(cancellationToken);
+                return gameId;
             }
-
-            var teamIds = await _context.Season.Where(x => x.Id == request.SeasonId)
-                .SelectMany(s => s.Teams.Select(t => t.Id)).ToArrayAsync(cancellationToken);
-
-
-            //get the games that are in the league
-            var games = await _context.Games.WhereTeamsArePlaying(teamIds)
-                .Where(x => x.StartTimeTbd == false && x.StartDate > _systemDate.UtcNow)
-                .ToArrayAsync(cancellationToken);
-
-
-            return 0;
+            finally
+            {
+                _mutex.Release();
+            }
         }
     }
 }
