@@ -157,7 +157,7 @@ public class LeagueController : ApiControllerBase
     [HttpPost("new-gow")]
     public async Task<IActionResult> CreateGameOfTheWeek([FromBody] NewGameOfTheWeek.Command command)
     {
-        var gameId = await Mediator.Send(new NewGameOfTheWeek.Command());
+        var gameId = await Mediator.Send(command);
         return Ok(new
         {
             GameId = gameId
