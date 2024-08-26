@@ -5,12 +5,14 @@ public class Season
     private HashSet<Team> _teams;
     private HashSet<Pick> _picks;
     private HashSet<ApplicationUser> _members;
+    private HashSet<WeeklyGame> _weeklyGames;
 
     public Season()
     {
         _teams = new();
         _members = new();
         _picks = new();
+        _weeklyGames = new();
     }
 
     public int Id { get; set; }
@@ -39,6 +41,12 @@ public class Season
     {
         get => _picks;
         set => _picks = value.ToHashSet();
+    }
+
+    public IReadOnlyCollection<WeeklyGame> WeeklyGames
+    {
+        get => _weeklyGames;
+        set => _weeklyGames = value.ToHashSet();
     }
 
 
