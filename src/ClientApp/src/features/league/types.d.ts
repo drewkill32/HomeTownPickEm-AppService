@@ -1,7 +1,5 @@
 export interface League {
   id: number;
-  seasonId: number;
-  leagueId: number;
   name: string;
   slug: string;
   imageUrl: string;
