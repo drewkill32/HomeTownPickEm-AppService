@@ -18,11 +18,11 @@ public class LeagueCommissionerBehavior<TRequest, TResponse> : IPipelineBehavior
         _contextAccessor = contextAccessor;
     }
 
+    
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if (request is IBaseLeagueCommissionerRequest leagueCommissionerRequest)
+        if (request is ILeagueCommissionerRequest leagueCommissionerRequest)
         {
             var user = _contextAccessor.HttpContext.User;
             var result = await _authService.ValidateCommissioner(user, leagueCommissionerRequest.LeagueId);
