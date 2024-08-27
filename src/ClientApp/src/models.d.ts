@@ -7,8 +7,6 @@ export interface UserLeague {
   name: string;
   slug: string;
   imageUrl: string;
-  leagueId: number;
-  seasonId: number;
   years: [string];
 }
 

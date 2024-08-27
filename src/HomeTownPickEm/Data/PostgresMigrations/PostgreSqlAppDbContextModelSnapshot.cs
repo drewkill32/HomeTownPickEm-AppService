@@ -17,7 +17,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "7.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -34,7 +34,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasIndex("SeasonsId");
 
-                    b.ToTable("ApplicationUserSeason");
+                    b.ToTable("ApplicationUserSeason", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.ApplicationUser", b =>
@@ -131,7 +131,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasKey("Week", "Season", "SeasonType");
 
-                    b.ToTable("Calendar");
+                    b.ToTable("Calendar", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Game", b =>
@@ -172,7 +172,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasIndex("HomeId");
 
-                    b.ToTable("Games");
+                    b.ToTable("Games", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Leaderboard", b =>
@@ -237,7 +237,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("League");
+                    b.ToTable("League", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.PendingInvite", b =>
@@ -256,7 +256,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasKey("UserId", "Season", "LeagueId");
 
-                    b.ToTable("PendingInvites");
+                    b.ToTable("PendingInvites", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Pick", b =>
@@ -292,7 +292,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Pick");
+                    b.ToTable("Pick", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.RefreshToken", b =>
@@ -329,7 +329,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Season", b =>
@@ -355,7 +355,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasIndex("Year");
 
-                    b.ToTable("Season");
+                    b.ToTable("Season", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.SeasonCache", b =>
@@ -374,7 +374,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasKey("Season", "Type", "Week");
 
-                    b.ToTable("SeasonCaches");
+                    b.ToTable("SeasonCaches", (string)null);
                 });
 
             modelBuilder.Entity("HomeTownPickEm.Models.Team", b =>
@@ -408,60 +408,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.WeeklyGame", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SeasonId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Week")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId");
-
-                    b.HasIndex("SeasonId");
-
-                    b.ToTable("WeeklyGames");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.WeeklyGamePick", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TotalPoints")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("WeeklyGameId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("WeeklyGameId");
-
-                    b.ToTable("WeeklyGamePicks");
+                    b.ToTable("Teams", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -608,7 +555,7 @@ namespace HomeTownPickEm.Data.PostgresMigrations
 
                     b.HasIndex("TeamsId");
 
-                    b.ToTable("SeasonTeam");
+                    b.ToTable("SeasonTeam", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationUserSeason", b =>
@@ -632,13 +579,12 @@ namespace HomeTownPickEm.Data.PostgresMigrations
                         .WithMany()
                         .HasForeignKey("TeamId");
 
-                    b.OwnsOne("HomeTownPickEm.Models.UserName", "Name", b1 =>
+                    b.OwnsOne("HomeTownPickEm.Models.ApplicationUser.Name#HomeTownPickEm.Models.UserName", "Name", b1 =>
                         {
                             b1.Property<string>("ApplicationUserId")
                                 .HasColumnType("text");
 
                             b1.Property<string>("First")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("FirstName");
 
@@ -731,40 +677,6 @@ namespace HomeTownPickEm.Data.PostgresMigrations
                     b.Navigation("League");
                 });
 
-            modelBuilder.Entity("HomeTownPickEm.Models.WeeklyGame", b =>
-                {
-                    b.HasOne("HomeTownPickEm.Models.Game", null)
-                        .WithMany()
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HomeTownPickEm.Models.Season", "Season")
-                        .WithMany("WeeklyGames")
-                        .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Season");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.WeeklyGamePick", b =>
-                {
-                    b.HasOne("HomeTownPickEm.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("HomeTownPickEm.Models.WeeklyGame", "WeeklyGame")
-                        .WithMany("WeeklyGamePicks")
-                        .HasForeignKey("WeeklyGameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-
-                    b.Navigation("WeeklyGame");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -844,13 +756,6 @@ namespace HomeTownPickEm.Data.PostgresMigrations
             modelBuilder.Entity("HomeTownPickEm.Models.Season", b =>
                 {
                     b.Navigation("Picks");
-
-                    b.Navigation("WeeklyGames");
-                });
-
-            modelBuilder.Entity("HomeTownPickEm.Models.WeeklyGame", b =>
-                {
-                    b.Navigation("WeeklyGamePicks");
                 });
 #pragma warning restore 612, 618
         }
