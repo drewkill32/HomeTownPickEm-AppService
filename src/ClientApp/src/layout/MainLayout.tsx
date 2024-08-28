@@ -55,10 +55,10 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
     },
   ];
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
+    null,
   );
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
+    null,
   );
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -185,14 +185,14 @@ const MainLayout = ({ children, pages, header }: MainLayoutProps) => {
                 <Avatar
                   sizes="20px"
                   sx={{
-                    bgcolor: user?.team.color,
+                    bgcolor: user?.team?.color,
                     '& img': {
                       width: '25px',
                       height: '25px',
                     },
                   }}
                   alt={user?.lastName}
-                  src={user?.team.logo}
+                  src={user?.team?.logo}
                 />
               </IconButton>
 

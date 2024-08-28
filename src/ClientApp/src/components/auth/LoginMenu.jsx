@@ -25,7 +25,7 @@ const AuthenticatedView = ({ user }) => {
         <NavLink tag={Link} className="text-dark" to="/">
           <span>
             <img
-              src={user.team.logo}
+              src={user.team?.logo}
               alt="user"
               style={{ marginRight: '0.5rem' }}
               width="25"
