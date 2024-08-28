@@ -13,20 +13,21 @@ public class EmailTemplateFactory
 {
     private readonly HttpContext _context;
     private readonly OriginOptions _origin;
+    private readonly IConfiguration _config;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public EmailTemplateFactory(IHttpContextAccessor accessor,
+    public EmailTemplateFactory(IHttpContextAccessor accessor, IConfiguration config,
         IOptions<OriginOptions> originOptions, UserManager<ApplicationUser> userManager)
     {
         _context = accessor.HttpContext;
         _origin = originOptions.Value;
+        _config = config;
         _userManager = userManager;
     }
 
     public async Task<EmailTemplate> CreateEmailTemplate(EmailType emailType, ApplicationUser user)
     {
-        var origin = _context.Request.Headers["Origin"].ToString();
-        _origin.ValidateOrigin(origin);
+        var origin = _config["CanonicalUrl"];
 
         switch (emailType)
         {
