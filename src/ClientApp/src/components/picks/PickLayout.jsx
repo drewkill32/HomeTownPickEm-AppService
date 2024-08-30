@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Tooltip, Typography } from '@mui/material';
+import { Link, Box, Divider, Paper, Tooltip, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import format from 'date-fns/format';
@@ -13,6 +13,7 @@ import Head2HeadFooter from './Head2HeadFooter';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import UserPicks from './UserPicks';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../../features/authentication';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,24 +70,19 @@ const PickLayout = ({ game: currentGame, locked }) => {
 
   const { league, season } = useParams();
 
-  const {
-    game,
-    homeSelected,
-    awaySelected,
-    splitSelected,
-    pastCutoff
-  } = useGame(currentGame);
+  const { game, homeSelected, awaySelected, splitSelected, pastCutoff } =
+    useGame(currentGame);
 
+  const { user } = useAuth();
 
   const { mutateAsync } = useMakePick();
   const isLocked = locked || pastCutoff;
   const handleClick = async (selectedTeamIds, type) => {
-
     await mutateAsync({
       leagueSlug: league,
       season: season,
       gameId: game.id,
-      selectedTeamIds
+      selectedTeamIds,
     });
   };
 
@@ -122,11 +118,11 @@ const PickLayout = ({ game: currentGame, locked }) => {
           <PickButton
             team={game.away}
             disabled={isLocked}
-            noWrap={isLocked}
+            noWrap={game.winner !== 'Pending'}
             onClick={() =>
               handleClick(
-                game.head2Head ? [game.away.id, game.away.id]: [game.away.id],
-                'away'
+                game.head2Head ? [game.away.id, game.away.id] : [game.away.id],
+                'away',
               )
             }
             selected={awaySelected}>
@@ -142,12 +138,7 @@ const PickLayout = ({ game: currentGame, locked }) => {
             <SplitButton
               disabled={isLocked}
               selected={splitSelected}
-              onClick={() =>
-                handleClick(
-                  [game.away.id, game.home.id],
-                  'split'
-                )
-              }
+              onClick={() => handleClick([game.away.id, game.home.id], 'split')}
               teams={[
                 {
                   ...game.away,
@@ -161,15 +152,15 @@ const PickLayout = ({ game: currentGame, locked }) => {
           <PickButton
             team={game.home}
             disabled={isLocked}
-            noWrap={isLocked}
+            noWrap={game.winner !== 'Pending'}
             onClick={() =>
               handleClick(
-                game.head2Head ? [game.home.id, game.home.id]: [game.home.id],
-                'home'
+                game.head2Head ? [game.home.id, game.home.id] : [game.home.id],
+                'home',
               )
             }
             selected={homeSelected}>
-            <Box sx={{ mb: 0.5 }}>
+            <Box>
               {pastCutoff && game.home.percentPicked !== null && (
                 <Typography noWrap className={classes.percentPicked}>
                   {game.home.percentPicked}% picked
@@ -178,12 +169,22 @@ const PickLayout = ({ game: currentGame, locked }) => {
               <Typography variant="h6" gutterBottom>
                 {game.home.points}
               </Typography>
-              {game.winner === 'Home' && <ArrowDropUpIcon />}
+              {game.winner === 'Home' && <ArrowDropUpIcon color={'error'} />}
             </Box>
           </PickButton>
         </div>
       </DisabledTooltip>
       {game.winner === 'Pending' && game.head2Head && <Head2HeadFooter />}
+      {user.claims['admin'] === 'true' && (
+        <Link
+          href={`https://www.espn.com/college-football/game/_/gameId/${game.id}`}
+          rel="noopener noreferrer"
+          target="_blank"
+          align="center"
+          gutterBottom>
+          ESPN
+        </Link>
+      )}
 
       {pastCutoff && (
         <UserPicks
