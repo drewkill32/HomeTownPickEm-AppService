@@ -26,13 +26,13 @@ export function useSchedule() {
   return useLocalQuery<CalendarItem[]>(
     queryKey,
     () =>
-      axios.get(`api/calendar?season=2022`).then((res) => {
+      axios.get(`api/calendar?season=${season?.season}`).then((res) => {
         const data = res.data as CalendarItem[];
         return convertData(data);
       }),
     {
       enabled: Boolean(season),
     },
-    (data) => convertData(data)
+    (data) => convertData(data),
   );
 }

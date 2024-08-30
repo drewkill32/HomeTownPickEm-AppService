@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using HomeTownPickEm.Application.Leagues.Queries;
 using HomeTownPickEm.Application.Picks;
 using HomeTownPickEm.Application.Picks.Commands;
 using HomeTownPickEm.Application.Picks.Queries;
@@ -15,11 +16,21 @@ public class PickController : ApiControllerBase
         return Ok(pick);
     }
 
-    [HttpPost("weekly-pick")]
-    public async Task<ActionResult<PickDto>> WeeklyPick(SelectWeeklyPicks.Command command)
+    [HttpPost("tiebreaker-pick")]
+    public async Task<ActionResult> UpsertTiebreakerPick(SelectTiebreaker.Command command)
     {
         await Mediator.Send(command);
         return Ok();
+    }
+
+    [HttpGet("tiebreaker-pick/{WeeklyGameId}")]
+    public async Task<ActionResult<int?>> GetTiebreaker([FromRoute] GetTieBreakerPick.Query query)
+    {
+        var result = await Mediator.Send(query);
+        return Ok(new
+        {
+            TotalPoints = result
+        });
     }
 
     [HttpGet("{id}")]
