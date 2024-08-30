@@ -141,7 +141,7 @@ const TieBreakerPick = () => {
             }}
           />
           <Button variant="contained" type="submit" disabled={isLoading}>
-            Select
+            Save
           </Button>
           <Fade in={isVisible}>
             <CheckCircleIcon color="success" />

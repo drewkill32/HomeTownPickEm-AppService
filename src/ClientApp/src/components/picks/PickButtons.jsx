@@ -8,8 +8,8 @@ const useStyles = makeStyles((theme) => ({
     width: '7.4vmin',
     minWidth: '40px',
     minHeight: '40px',
-    height: '7.4vmin',
     display: 'block',
+    paddingBottom: theme.spacing(1),
     margin: '0 auto',
   },
   splitLogo: {
@@ -45,12 +45,12 @@ const useStyles = makeStyles((theme) => ({
     },
     overflow: 'hidden',
     '& p': {
-      [theme.breakpoints.up('med')]: {
+      [theme.breakpoints.up('md')]: {
         fontSize: '1rem',
         paddingBlock: '2px',
       },
       [theme.breakpoints.down('md')]: {
-        fontSize: ({ noWrap }) => (noWrap ? '0.75rem' : '0.85rem'),
+        fontSize: '0.8rem',
         paddingBlock: '1px',
       },
       paddingInline: '0.5rem',
@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
   teamButtonBg: {
     width: '100%',
-    height: '60%',
+    height: '50%',
     [theme.breakpoints.down('md')]: {
       maxHeight: '62px',
     },
