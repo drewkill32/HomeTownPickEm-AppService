@@ -1,4 +1,6 @@
-﻿using HomeTownPickEm.Data;
+﻿using HomeTownPickEm.Application.Common;
+using HomeTownPickEm.Application.Exceptions;
+using HomeTownPickEm.Data;
 using HomeTownPickEm.Extensions;
 using HomeTownPickEm.Security;
 using MediatR;
@@ -6,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeTownPickEm.Application.Picks.Commands;
 
-public class SelectWeeklyPicks
+public class SelectTiebreaker
 {
     public class Command : IRequest
     {
@@ -17,12 +19,14 @@ public class SelectWeeklyPicks
 
     public class Handler : IRequestHandler<Command>
     {
+        private readonly ISystemDate _systemDate;
         private readonly ApplicationDbContext _context;
         private readonly IUserAccessor _userAccessor;
 
 
-        public Handler(ApplicationDbContext context, IUserAccessor userAccessor)
+        public Handler(ISystemDate systemDate, ApplicationDbContext context, IUserAccessor userAccessor)
         {
+            _systemDate = systemDate;
             _context = context;
             _userAccessor = userAccessor;
         }
@@ -40,21 +44,35 @@ public class SelectWeeklyPicks
                 .Where(x => x.WeeklyGameId == request.WeeklyGameId && x.UserId == user.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (pick is not null)
+
+            var game = await _context.Games.FirstOrDefaultAsync(x => x.Id == weeklyGame.GameId, cancellationToken);
+
+            var cutOffDate = game.StartDate.AddMinutes(-1);
+            var currDate = _systemDate.UtcNow;
+
+            if (_systemDate.UtcNow > game.StartDate)
             {
-                pick.TotalPoints = request.TotalPoints;
-                _context.WeeklyGamePicks.Update(pick);
+                throw new BadRequestException(
+                    $"The current time {currDate:f} is past the cutoff {cutOffDate:f}");
             }
-            else
+
             {
-                _context.WeeklyGamePicks.Add(new()
-                    {
-                        TotalPoints = request.TotalPoints,
-                        UserId = user.Id,
-                        WeeklyGameId = request.WeeklyGameId,
-                        GameId = weeklyGame.GameId
-                    }
-                );
+                if (pick is not null)
+                {
+                    pick.TotalPoints = request.TotalPoints;
+                    _context.WeeklyGamePicks.Update(pick);
+                }
+                else
+                {
+                    _context.WeeklyGamePicks.Add(new()
+                        {
+                            TotalPoints = request.TotalPoints,
+                            UserId = user.Id,
+                            WeeklyGameId = request.WeeklyGameId,
+                            GameId = weeklyGame.GameId
+                        }
+                    );
+                }
             }
 
             await _context.SaveChangesAsync(cancellationToken);

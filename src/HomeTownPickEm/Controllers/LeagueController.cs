@@ -154,13 +154,17 @@ public class LeagueController : ApiControllerBase
         return Ok(leagues);
     }
 
-    [HttpPost("new-gow")]
-    public async Task<IActionResult> CreateGameOfTheWeek([FromBody] NewGameOfTheWeek.Command command)
+    [HttpPost("tiebreaker-game")]
+    public async Task<IActionResult> CreateGameOfTheWeek([FromBody] CreateTieBreakerGame.Command command)
     {
-        var gameId = await Mediator.Send(command);
-        return Ok(new
-        {
-            GameId = gameId
-        });
+        var game = await Mediator.Send(command);
+        return Ok(game);
+    }
+
+    [HttpGet("{SeasonId}/week/{Week}/tiebreaker-game")]
+    public async Task<IActionResult> GetGameOfTheWeek([FromRoute] GetTieBreakerGame.Query query)
+    {
+        var game = await Mediator.Send(query);
+        return Ok(game);
     }
 }

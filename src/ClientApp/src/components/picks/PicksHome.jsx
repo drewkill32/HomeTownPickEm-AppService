@@ -18,6 +18,7 @@ import { isPast } from 'date-fns';
 import { useSchedule } from '../../hooks/useSchedule';
 import { useWeek } from '../../features/SeasonPicks/hooks/useWeek';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import TieBreakerPick from './TieBreakerPick';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -98,16 +99,12 @@ const PicksHome = () => {
   const gameCount = useMemo(() => (games ? games.length : 0), [games]);
 
   const selCount = useMemo(
-    () =>
-      games
-        ? games.filter((g) => g.picks.length > 0)
-            .length
-        : 0,
-    [games]
+    () => (games ? games.filter((g) => g.picks.length > 0).length : 0),
+    [games],
   );
   const normalize = useCallback(
     (value) => ((value - 0) * 100) / (gameCount - 0),
-    [gameCount]
+    [gameCount],
   );
 
   if (isLoading || !games) {
@@ -123,6 +120,7 @@ const PicksHome = () => {
           paddingBottom: '40px',
         }}>
         <>
+          <TieBreakerPick />
           <LockPicks
             checked={locked}
             onChange={(e) => setLocked(e.target.checked)}
@@ -130,7 +128,7 @@ const PicksHome = () => {
           {games.length === 0 ? (
             <Container>
               <Typography variant="h6" align="center">
-                There are league games this week
+                There are no league games this week
               </Typography>
             </Container>
           ) : (
