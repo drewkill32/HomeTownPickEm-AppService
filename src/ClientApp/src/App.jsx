@@ -25,7 +25,6 @@ import { Unauthorized } from './pages/Unauthorized';
 import HomeSelection from './pages/HomeSelection';
 import { HeartbeatWrapper } from './components/HeartbeatWrapper';
 import { SignalRProvider } from './components/SignalRProvider';
-import WeeklyLeaderboard from './features/league/pages/WeeklyLeaderboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
