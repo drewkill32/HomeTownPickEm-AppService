@@ -44,17 +44,6 @@ export const LoginForm = ({ message, redirectUrl, newUser }: Props) => {
     }
   };
 
-  useEffect(() => {
-    //get the event before the window is unloaded
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      console.log("beforeunload");
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
   return (
     <div className="m-auto mx-auto my-4 max-w-sm px-3 text-card-foreground">
       <form
@@ -134,7 +123,7 @@ export const LoginForm = ({ message, redirectUrl, newUser }: Props) => {
             {isRedirecting ? (
               <>
                 <Loader2 className="mr-2 h-6 w-6 animate-spin text-secondary" />
-                Sign in
+                Signing in...
               </>
             ) : (
               "Sign in"

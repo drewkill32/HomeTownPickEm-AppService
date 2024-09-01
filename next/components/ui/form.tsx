@@ -13,6 +13,8 @@ import {
 import { cn } from "@/utils";
 import { Label } from "@/components/ui/label";
 import { Button, ButtonProps } from "./button";
+import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
 
 const Form = FormProvider;
 
@@ -166,12 +168,23 @@ const FormMessage = React.forwardRef<
 });
 FormMessage.displayName = "FormMessage";
 
-const SubmitButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ ...props }, ref) => {
+export type SubmitButtonProps = ButtonProps & {
+  LoadingComponent?: React.ReactNode;
+};
+const SubmitButton = React.forwardRef<HTMLButtonElement, SubmitButtonProps>(
+  ({ LoadingComponent, children, ...props }, ref) => {
+    const { pending } = useFormStatus();
+    const Slot = LoadingComponent || (
+      <Loader2 className="mr-2 h-6 w-6 animate-spin text-secondary" />
+    );
     const {
       formState: { isValid },
     } = useFormContext();
-    return <Button ref={ref} type="submit" disabled={!isValid} {...props} />;
+    return (
+      <Button ref={ref} type="submit" disabled={pending || !isValid} {...props}>
+        {pending ? Slot : children}
+      </Button>
+    );
   },
 );
 
