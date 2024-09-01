@@ -7,6 +7,8 @@ import {
   Skeleton,
   Box,
   Typography,
+  SxProps,
+  Theme,
 } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -14,7 +16,7 @@ import format from 'date-fns/format';
 import { useSchedule, CalendarItem } from '../hooks/useSchedule';
 import { useEffect, useState } from 'react';
 
-const Schedule = () => {
+const Schedule = ({ sx }: { sx?: SxProps<Theme> }) => {
   const { week, setWeek } = useWeek();
   const [curWeek, setCurWeek] = useState<CalendarItem>();
 
@@ -64,6 +66,7 @@ const Schedule = () => {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        ...sx,
       }}>
       <IconButton
         disabled={week <= 1}
@@ -79,7 +82,7 @@ const Schedule = () => {
           <Typography variant="subtitle1">
             {`${format(curWeek.firstGameStart, 'MMM do')} - ${format(
               curWeek.lastGameStart,
-              'MMM do'
+              'MMM do',
             )}`}
           </Typography>
         </CardContent>

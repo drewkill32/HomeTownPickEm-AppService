@@ -6,8 +6,30 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import { useQuery } from 'react-query';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-const LeaderboardTable = ({ ranks }) => {
+const LeaderboardTable = () => {
+  const { league, season } = useParams();
+  const { isLoading, data: ranks } = useQuery(
+    ['leaderboard', league, season],
+    () =>
+      axios
+        .get(`/api/league/${league}/${season}/leaderboard`)
+        .then((res) => res.data),
+  );
+
+  if (isLoading)
+    return (
+      <p>
+        <em>Loading...</em>
+      </p>
+    );
+
+  if (!ranks) {
+    return null;
+  }
   return (
     <List>
       <ListItem>

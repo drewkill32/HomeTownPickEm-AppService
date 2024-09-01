@@ -27,9 +27,12 @@ public class GetWeeklyLeaderboard
 
         public async Task<object> Handle(Query request, CancellationToken cancellationToken)
         {
+            var users = await _context.Season.Where(x => x.Id == request.SeasonId)
+                .SelectMany(x => x.Members).ToArrayAsync(cancellationToken);
+
             var leaderboard = await _context.WeeklyLeaderboard
                 .Where(x => x.SeasonId == request.SeasonId && x.Week == request.Week)
-                .ToArrayAsync(cancellationToken);
+                .ToDictionaryAsync(x => x.UserId, y => y.TotalPoints, cancellationToken);
 
             //see if the max number of points is a tie
 
@@ -44,53 +47,54 @@ public class GetWeeklyLeaderboard
                 throw new NotFoundException($"There is no tie breaker game for week '{request.Week}'");
             }
 
-            var userLookup = tieBreakerGame
+            var tiebreakerDict = tieBreakerGame
                 .WeeklyGamePicks.ToDictionary(x => x.UserId, y => y.TotalPoints);
 
             var totalPointsScored = await GetTotalPointsScored(tieBreakerGame, cancellationToken);
 
-            var sortedLeaderboard = leaderboard
-                .Select(x =>
+            var sortedUsers = users.Select(x =>
                 {
-                    var predictedPoints = userLookup.GetValueOrDefault(x.UserId, 0);
+                    var predictedPoints = tiebreakerDict.GetValueOrDefault(x.Id, 0);
+                    var totalPoints = leaderboard.GetValueOrDefault(x.Id, 0);
                     return new
                     {
-                        x.UserId,
-                        x.UserFirstName,
-                        x.UserLastName,
-                        x.TotalPoints,
-                        TeamLogo = LogoHelper.GetSingleLogo(x.TeamLogos),
-                        Diff = predictedPoints - totalPointsScored,
-                        AbsoluteDiff = Math.Abs(predictedPoints - totalPointsScored)
+                        x.Id,
+                        User = x.Name.Full,
+                        Img = x.ProfileImg,
+                        TotalPoints = totalPoints,
+                        Tiebreaker = totalPointsScored == -1
+                            ? null
+                            : new
+                            {
+                                Predicted = predictedPoints,
+                                Diff = predictedPoints - totalPointsScored,
+                                AbsDiff = Math.Abs(predictedPoints - totalPointsScored)
+                            }
                     };
                 }).OrderByDescending(x => x.TotalPoints)
-                .ThenBy(x => x.AbsoluteDiff)
-                .ThenBy(x => x.UserFirstName)
-                .ThenBy(x => x.UserLastName);
+                .ThenBy(x => x.Tiebreaker?.AbsDiff)
+                .ThenBy(x => x.Tiebreaker?.Diff)
+                .ThenBy(x => x.User);
 
 
-            return sortedLeaderboard;
+            return sortedUsers;
         }
 
         private async Task<int> GetTotalPointsScored(WeeklyGame tieBreakerGame, CancellationToken cancellationToken)
         {
             var game = await _context.Games
                 .Where(x => x.Id == tieBreakerGame.GameId)
-                .Select(x => new
-                {
-                    x.HomePoints,
-                    x.AwayPoints
-                })
+                .Select(x => new { x.HomePoints, x.AwayPoints })
                 .FirstOrDefaultAsync(cancellationToken);
 
+
             //the game has finished playing
-            var totalPointsScored = 0;
             if (game.HomePoints.HasValue && game.AwayPoints.HasValue)
             {
-                totalPointsScored = game.HomePoints.Value + game.AwayPoints.Value;
+                return game.HomePoints.Value + game.AwayPoints.Value;
             }
 
-            return totalPointsScored;
+            return -1;
         }
     }
 }
