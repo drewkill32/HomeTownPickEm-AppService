@@ -1,5 +1,5 @@
 import SimpleLayout from "@/components/SimpleLayout";
-import { SignInForm } from "./LoginForm";
+import { LoginForm } from "./LoginForm";
 import { Metadata } from "next";
 import { metadataTitle } from "@/utils";
 
@@ -16,7 +16,7 @@ export default function Login({
 }) {
   return (
     <SimpleLayout heading="Sign in to St. Pete Pick'em">
-      <SignInForm
+      <LoginForm
         message={searchParams.message}
         redirectUrl={searchParams.redirectUrl}
         newUser={searchParams.newUser}

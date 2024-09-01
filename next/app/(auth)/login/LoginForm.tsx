@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { login } from "./login";
 import { useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
+import { LoginFormInputs } from "@/app/(auth)/login/schema";
+import { useEffect } from "react";
 
 type Props = {
   message?: string | undefined;
@@ -10,32 +13,55 @@ type Props = {
   newUser?: string | undefined;
 };
 
-type Inputs = {
-  email: string;
-  password: string;
-};
-
-const defaultValues =
-  process.env.NODE_ENV === "development"
-    ? {
-        email: process.env.NEXT_PUBLIC_REGISTER_EMAIL || "",
-        password: process.env.NEXT_PUBLIC_REGISTER_PASSWORD || "",
-      }
-    : ({} as Inputs);
-
-export const SignInForm = ({ message, redirectUrl, newUser }: Props) => {
+export const LoginForm = ({ message, redirectUrl, newUser }: Props) => {
   const {
     register,
-    formState: { isValid },
-  } = useForm<Inputs>({
+    formState: { isValid, isSubmitting, isSubmitSuccessful },
+    handleSubmit,
+  } = useForm<LoginFormInputs>({
     mode: "all",
     criteriaMode: "all",
-    defaultValues,
+    defaultValues: {
+      email: "",
+      password: "",
+      redirectUrl: redirectUrl || "",
+    },
   });
+
+  //if submit is successful, the action will redirect
+  const isRedirecting = isSubmitting || isSubmitSuccessful;
+
+  const onSubmit = async (data: LoginFormInputs) => {
+    try {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("redirectUrl", data.redirectUrl);
+      await login(formData);
+      //there is a brief period where isSubmitting false but the redirect hasn't happened yet
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    //get the event before the window is unloaded
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      console.log("beforeunload");
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <div className="m-auto mx-auto my-4 max-w-sm px-3 text-card-foreground">
-      <form className="rounded-lg border bg-card shadow-sm" action={login}>
+      <form
+        className="rounded-lg border bg-card shadow-sm"
+        action={login}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <div className="space-y-4 p-6">
           {message && (
             <div className="mb-2 rounded-sm border border-red-500 p-3">
@@ -60,7 +86,7 @@ export const SignInForm = ({ message, redirectUrl, newUser }: Props) => {
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               id="email"
               {...register("email", { required: true })}
-              placeholder="m@example.com"
+              placeholder="me@example.com"
               required
               type="email"
             />
@@ -85,6 +111,7 @@ export const SignInForm = ({ message, redirectUrl, newUser }: Props) => {
               id="password"
               required
               type="password"
+              placeholder="password"
               {...register("password", { required: true })}
             />
           </div>
@@ -101,10 +128,17 @@ export const SignInForm = ({ message, redirectUrl, newUser }: Props) => {
         <div className="flex items-center p-6">
           <button
             type="submit"
-            disabled={!isValid}
+            disabled={isRedirecting || !isValid}
             className="mx-auto inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
           >
-            Sign in
+            {isRedirecting ? (
+              <>
+                <Loader2 className="mr-2 h-6 w-6 animate-spin text-secondary" />
+                Sign in
+              </>
+            ) : (
+              "Sign in"
+            )}
           </button>
         </div>
         <div className="p-2 text-center">
