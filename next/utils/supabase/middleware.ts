@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const protectedRoutes = ["/account", "/create-league", "/leagues", "/signout"];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -37,14 +39,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
+  const pathname = request.nextUrl.pathname;
+
+  const isProtectedRoute = protectedRoutes.some((path) =>
+    pathname.startsWith(path),
+  );
+  //protect routes
+  if (isProtectedRoute && !user) {
+    const url = new URL(
+      `/login?redirectUrl=${request.nextUrl.pathname}`,
+      request.nextUrl,
+    );
     return NextResponse.redirect(url);
   }
 
