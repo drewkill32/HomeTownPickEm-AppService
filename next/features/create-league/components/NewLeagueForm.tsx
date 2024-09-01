@@ -10,27 +10,25 @@ import {
   FormMessage,
   SubmitButton,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFormState } from "react-dom";
-import { FormErrorOption, createLeague } from "../actions/createLeague";
-import { NewLeagueNameKeys, newLeagueSchema } from "../validation";
+import { createLeague } from "../actions/createLeague";
+import { NewLeague, newLeagueSchema } from "../validation";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
-type Props = {};
-
-export function NewLeagueForm({}: Props) {
-  const form = useForm<z.infer<typeof newLeagueSchema>>({
+export function NewLeagueForm() {
+  const form = useForm<NewLeague>({
     resolver: zodResolver(newLeagueSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
-      leagueName: "",
+      name: "",
       description: "",
-      password: undefined,
+      password: "",
       public: false,
     },
   });
@@ -38,20 +36,6 @@ export function NewLeagueForm({}: Props) {
   const [state, formAction] = useFormState(createLeague, null);
 
   const { toast } = useToast();
-
-  const displayError = (error: FormErrorOption) => {
-    if (error.type === "root") {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error.message,
-      });
-    } else {
-      form.setError(error.name as NewLeagueNameKeys, {
-        message: error.message,
-      });
-    }
-  };
 
   useEffect(() => {
     if (state === null) return;
@@ -61,12 +45,22 @@ export function NewLeagueForm({}: Props) {
         title: "Success",
         description: state.message,
       });
-    }
-    if (!state.success) {
-      if (Array.isArray(state.error)) {
-        state.error.forEach((error) => displayError(error));
+    } else {
+      if (state.type === "validation") {
+        state.error.forEach((error) => {
+          form.setError(error.name, {
+            message: error.message,
+          });
+        });
+        if (state.error.length === 0) {
+          form.setFocus(state.error[0].name);
+        }
       } else {
-        displayError(state.error);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: state.error.message,
+        });
       }
     }
   }, [state]);
@@ -76,10 +70,10 @@ export function NewLeagueForm({}: Props) {
       <form className="space-y-4" action={formAction}>
         <FormField
           control={form.control}
-          name="leagueName"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>League Name</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="Enter the league name" />
               </FormControl>
@@ -94,7 +88,10 @@ export function NewLeagueForm({}: Props) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter the league name" />
+                <Textarea
+                  {...field}
+                  placeholder="Enter the league description"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,10 +104,16 @@ export function NewLeagueForm({}: Props) {
             <FormItem>
               <FormLabel>
                 Password
-                <FormDescription className="inline">(optional)</FormDescription>
+                <FormDescription className="inline">
+                  {" "}
+                  (optional)
+                </FormDescription>
               </FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter the league name" />
+                <Input
+                  {...field}
+                  placeholder="Enter a password for the league"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

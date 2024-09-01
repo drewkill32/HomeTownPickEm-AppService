@@ -6,5 +6,5 @@ export const metadata: Metadata = metadataTitle("Dashboard");
 type Props = {};
 
 export default function Page({}: Props) {
-  return redirect("/leagues/college-cup");
+  return redirect("/leagues/st");
 }

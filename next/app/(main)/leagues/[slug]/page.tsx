@@ -1,8 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { getNumberSuffix } from "@/utils";
 import Image from "next/image";
-import Link from "next/link";
 import roundLogo from "@/assets/round-logo.png";
 import WeekProgress from "@/features/league-dashboard/components/WeekProgress";
 import LeaderboardCard, {
@@ -173,7 +171,7 @@ export default function Page({ params: { slug } }: Props) {
           </div>
         </CardContent>
       </Card>
-      <LeaderboardCard data={leaderboardData} />
+      <LeaderboardCard data={leaderboardData} className="mb-4" />
     </main>
   );
 }
