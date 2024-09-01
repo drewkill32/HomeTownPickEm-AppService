@@ -41,6 +41,8 @@ public class ApplicationDbContext<TUser> : IdentityDbContext<TUser> where TUser 
 
     public DbSet<Leaderboard> Leaderboard { get; set; }
 
+    public DbSet<WeeklyLeaderboard> WeeklyLeaderboard { get; set; }
+
     public DbSet<Pick> Pick { get; set; }
 
     public DbSet<SeasonCache> SeasonCaches { get; set; }
@@ -160,6 +162,9 @@ public class ApplicationDbContext<TUser> : IdentityDbContext<TUser> where TUser 
         builder.Entity<Leaderboard>().HasNoKey();
         builder.Entity<Leaderboard>().ToView("Leaderboard");
 
+        //WeeklyLeaderboard
+        builder.Entity<WeeklyLeaderboard>().HasNoKey();
+        builder.Entity<WeeklyLeaderboard>().ToView("WeeklyLeaderboard");
 
         //PendingInvites
         builder.Entity<PendingInvite>()
