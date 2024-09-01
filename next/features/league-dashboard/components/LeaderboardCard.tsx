@@ -1,6 +1,7 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import React from "react";
+import { cn } from "@/utils";
 
 export type LeaderboardData = {
   id: string;
@@ -13,11 +14,12 @@ export type LeaderboardData = {
 
 type Props = {
   data: LeaderboardData[];
+  className?: string;
 };
 
-export default function LeaderboardCard({ data }: Props) {
+export default function LeaderboardCard({ data, className }: Props) {
   return (
-    <Card className="bg-inherit">
+    <Card className={cn("bg-inherit", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-center text-lg font-semibold">
           Leaderboard
