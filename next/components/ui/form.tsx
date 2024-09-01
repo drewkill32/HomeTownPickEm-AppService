@@ -169,20 +169,25 @@ const FormMessage = React.forwardRef<
 FormMessage.displayName = "FormMessage";
 
 export type SubmitButtonProps = ButtonProps & {
-  LoadingComponent?: React.ReactNode;
+  submitting?: React.ReactNode;
 };
 const SubmitButton = React.forwardRef<HTMLButtonElement, SubmitButtonProps>(
-  ({ LoadingComponent, children, ...props }, ref) => {
+  ({ disabled, submitting, children, ...props }, ref) => {
     const { pending } = useFormStatus();
-    const Slot = LoadingComponent || (
+    const loadingSlot = submitting || (
       <Loader2 className="mr-2 h-6 w-6 animate-spin text-secondary" />
     );
     const {
       formState: { isValid },
     } = useFormContext();
     return (
-      <Button ref={ref} type="submit" disabled={pending || !isValid} {...props}>
-        {pending ? Slot : children}
+      <Button
+        ref={ref}
+        type="submit"
+        disabled={disabled || pending || !isValid}
+        {...props}
+      >
+        {pending ? loadingSlot : children}
       </Button>
     );
   },

@@ -11,7 +11,7 @@ export default function Login({
   searchParams: {
     message: string | undefined;
     redirectUrl: string | undefined;
-    newUser: string | undefined;
+    newUser?: "true";
   };
 }) {
   return (
@@ -19,7 +19,7 @@ export default function Login({
       <LoginForm
         message={searchParams.message}
         redirectUrl={searchParams.redirectUrl}
-        newUser={searchParams.newUser}
+        newUser={searchParams.newUser === "true"}
       />
     </SimpleLayout>
   );
