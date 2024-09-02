@@ -3,7 +3,7 @@
 import { NewLeagueNameKeys, newLeagueSchema } from "../validation";
 import { createClient } from "@/utils/supabase/server";
 import slugify from "slugify";
-import { Tables } from "@/database.types";
+import { revalidatePath } from "next/cache";
 
 export type JoinLeagueReturnType =
   | { success: true; message?: string }
@@ -53,50 +53,60 @@ export const createLeague = async (
   if (userError) {
     return createPostgresError(userError);
   }
+  const slug = slugify(result.data.name, {
+    lower: true,
+    remove: /[^a-zA-Z0-9 -]/g,
+  });
+  const year = new Date().getFullYear();
 
-  const newLeague: Omit<Tables<"league">, "id"> = {
-    name: result.data.name,
-    slug: slugify(result.data.name, { lower: true, remove: /[^a-zA-Z0-9 -]/g }),
-    password: result.data.password || null,
-    description: result.data.description || null,
-    is_public: result.data.public,
-    owner_id: user!.id,
-    image_url: null,
-  };
+  console.log({
+    p_name: result.data.name,
+    p_slug: slug,
+    p_password: result.data.password || null,
+    p_description: result.data.description || null,
+    p_is_public: result.data.public,
+    p_owner_id: user!.id,
+    p_image_url: null,
+    p_year: year,
+  });
+  const { error } = await supabase.rpc("create_league", {
+    p_name: result.data.name,
+    p_slug: slug,
+    p_password: result.data.password || null,
+    p_description: result.data.description || null,
+    p_is_public: result.data.public,
+    p_owner_id: user!.id,
+    p_image_url: null,
+    p_year: year,
+  });
 
-  const { count, error: lookupError } = await supabase
-    .from("league")
-    .select("*", { count: "exact", head: true })
-    .eq("slug", newLeague.slug);
-
-  if (lookupError) {
-    return createPostgresError(lookupError);
-  }
-
-  if (count ?? 0 > 0) {
+  console.log(error);
+  if (error) {
+    if (error.message.includes("already exists")) {
+      return {
+        success: false,
+        type: "validation",
+        error: [
+          {
+            name: "name",
+            message:
+              "The league name already exists. Please pick a different name.",
+          },
+        ],
+      };
+    }
     return {
       success: false,
-      type: "validation",
-      error: [
-        {
-          name: "name",
-          message:
-            "The league name already exists. Please pick a different name.",
-        },
-      ],
+      type: "server",
+      error: {
+        message: "An error occurred while creating the league.",
+      },
     };
   }
 
-  const { error: insertError } = await supabase
-    .from("league")
-    .insert(newLeague);
-
-  if (insertError) {
-    return createPostgresError(insertError);
-  }
-
+  revalidatePath("/create-league");
   return {
     success: true,
-    message: "League created successfully.",
+    message: "League created",
   };
 };

@@ -4,7 +4,7 @@
     "dev": "next dev -p 7893",
     "build": "next build",
     "start": "next start",
-    "gen-types": "supabase gen types --lang=typescript --project-id \"exgslcwcjchiupciaedl\" --schema public > ./database.types.ts"
+    "gen-types": "supabase gen types --lang=typescript --project-id \"exgslcwcjchiupciaedl\" --schema public > ./database-generated.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -44,6 +44,7 @@
     "encoding": "^0.1.13",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
-    "supabase": "^1.191.3"
+    "supabase": "^1.191.3",
+    "type-fest": "^4.26.0"
   }
 }

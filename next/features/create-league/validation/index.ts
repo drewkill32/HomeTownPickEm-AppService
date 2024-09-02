@@ -10,3 +10,10 @@ export const newLeagueSchema = z.object({
 export type NewLeague = z.infer<typeof newLeagueSchema>;
 
 export type NewLeagueNameKeys = keyof NewLeague;
+
+export const joinLeagueSchema = z.object({
+  userId: z.string(),
+  leagueId: z.string(),
+});
+
+export type JoinLeagueReturnType = { error?: string };
