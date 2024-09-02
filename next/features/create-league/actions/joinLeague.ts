@@ -1,13 +1,9 @@
 "use server";
 
-import { z } from "zod";
-
-export const joinLeagueSchema = z.object({
-  userId: z.string(),
-  leagueId: z.string(),
-});
-
-export type JoinLeagueReturnType = { error?: string };
+import {
+  JoinLeagueReturnType,
+  joinLeagueSchema,
+} from "@/features/create-league/validation";
 
 export const joinLeague = async (
   prevState: JoinLeagueReturnType,

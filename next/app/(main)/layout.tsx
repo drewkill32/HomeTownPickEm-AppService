@@ -8,7 +8,6 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const { user } = await getUser();
-
   return (
     <SupabaseContextProvider user={user}>
       <Header />
