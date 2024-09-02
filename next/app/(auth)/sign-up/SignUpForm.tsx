@@ -28,7 +28,7 @@ const defaultValues =
 export const SignUpForm = ({ message }: Props) => {
   const {
     register,
-    formState: { errors, isDirty, isValid },
+    formState: { errors, dirtyFields, isValid },
   } = useForm<Inputs>({
     mode: "all",
     criteriaMode: "all",
@@ -94,7 +94,7 @@ export const SignUpForm = ({ message }: Props) => {
             </p>
             <ul>
               <li className="flex items-center gap-1 text-sm">
-                {!isDirty || errors?.password?.types?.hasLetter ? (
+                {!dirtyFields.password || errors?.password?.types?.hasLetter ? (
                   <CircleOutline />
                 ) : (
                   <CheckmarkCirle className="text-green-500" />
@@ -102,7 +102,7 @@ export const SignUpForm = ({ message }: Props) => {
                 <p>1 letter </p>
               </li>
               <li className="flex items-center gap-1 text-sm">
-                {!isDirty || errors?.password?.types?.hasLength ? (
+                {!dirtyFields.password || errors?.password?.types?.hasLength ? (
                   <CircleOutline />
                 ) : (
                   <CheckmarkCirle className="text-green-500" />
@@ -110,7 +110,8 @@ export const SignUpForm = ({ message }: Props) => {
                 <p>{passwordLength} characters</p>
               </li>
               <li className="flex items-center gap-1 text-sm">
-                {!isDirty || errors.password?.types?.hasNumberOrSpecial ? (
+                {!dirtyFields.password ||
+                errors.password?.types?.hasNumberOrSpecial ? (
                   <CircleOutline />
                 ) : (
                   <CheckmarkCirle className="text-green-500" />
@@ -138,7 +139,7 @@ export const SignUpForm = ({ message }: Props) => {
               })}
             />
             <div className="flex items-center gap-1 text-sm">
-              {!isDirty || errors?.confirmPassword ? (
+              {!dirtyFields.confirmPassword || errors?.confirmPassword ? (
                 <CircleOutline />
               ) : (
                 <CheckmarkCirle className="text-green-500" />

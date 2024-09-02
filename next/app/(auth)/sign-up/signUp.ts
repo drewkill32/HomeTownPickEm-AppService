@@ -10,7 +10,7 @@ export const signUp = async (formData: FormData) => {
   const password = formData.get("password")?.toString();
   if (!email || !password) {
     return redirect(
-      `/sign-up?message=${encodeURIComponent("Email and password are required")}`
+      `/sign-up?message=${encodeURIComponent("Email and password are required")}`,
     );
   }
 
@@ -28,5 +28,5 @@ export const signUp = async (formData: FormData) => {
     return redirect("/sign-up?message=Could not authenticate user");
   }
 
-  return redirect("/login?newUser=Check email to continue sign in process");
+  return redirect("/login?newUser=true");
 };

@@ -1,20 +1,6 @@
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 
 export default async function Index() {
-  const canInitSupabaseClient = () => {
-    // This function is just for the interactive tutorial.
-    // Feel free to remove it once you have Supabase connected.
-    try {
-      createClient();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const isSupabaseConnected = canInitSupabaseClient();
-
   return (
     <>
       <section className="bg-[#002244] py-20 text-center text-white">
