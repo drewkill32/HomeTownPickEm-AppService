@@ -32,8 +32,7 @@ public class RemoveTeam
                 .Include(x => x.Teams)
                 .Include(x => x.Picks)
                 .ThenInclude(p => p.Game)
-                .Where(x => x.LeagueId == request.LeagueId && x.Year == request.Season && x.Picks.Any(p =>
-                    p.Game.HomeId == request.TeamId || p.Game.AwayId == request.TeamId))
+                .Where(x => x.LeagueId == request.LeagueId && x.Year == request.Season)
                 .FirstOrDefaultAsync(cancellationToken)
                 .GuardAgainstNotFound("Season not found");
 
