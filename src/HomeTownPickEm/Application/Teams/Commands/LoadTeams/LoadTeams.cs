@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Data;
 using HomeTownPickEm.Data.Extensions;
@@ -99,6 +100,7 @@ namespace HomeTownPickEm.Application.Teams.Commands.LoadTeams
         public string Conference { get; set; }
         public string Division { get; set; }
         public string Color { get; set; }
+        [JsonPropertyName("alternateColor")]
         public string AltColor { get; set; }
         public string[] Logos { get; set; }
     }
