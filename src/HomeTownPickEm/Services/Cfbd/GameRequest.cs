@@ -12,7 +12,12 @@ namespace HomeTownPickEm.Services.Cfbd
 
         public string ToQueryString()
         {
-            return $"year={Year}&seasonType={SeasonType}&week={Week}";
+            var str =  $"year={Year}&seasonType={SeasonType}";
+            if (Week.HasValue)
+            {
+                str += $"&week={Week.Value}";
+            }
+            return str;
         }
 
         public override string ToString()

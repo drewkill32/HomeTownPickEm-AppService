@@ -1,4 +1,4 @@
-using System;
+using System.Text.Json.Serialization;
 using HomeTownPickEm.Application.Common;
 using HomeTownPickEm.Models;
 
@@ -36,6 +36,7 @@ namespace HomeTownPickEm.Services.Cfbd
 
         public DateTimeOffset StartDate { get; set; }
 
+        [JsonPropertyName("startTimeTBD")]
         public bool StartTimeTbd { get; set; }
 
         public int HomeId { get; set; }

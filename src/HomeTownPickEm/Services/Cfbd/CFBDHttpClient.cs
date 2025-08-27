@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using HomeTownPickEm.Abstract.Interfaces;
 using HomeTownPickEm.Json;
@@ -24,10 +25,7 @@ namespace HomeTownPickEm.Services.Cfbd
         {
             return await _policy.ExecuteAsync(token => _httpClient
                 .GetFromJsonAsync<IEnumerable<GameResponse>>($"/games?{request.ToQueryString()}",
-                    new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = new SnakeCaseNamingPolicy()
-                    }, token), cancellationToken) ?? throw new InvalidOperationException("The returned value was null");
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web), token), cancellationToken) ?? throw new InvalidOperationException("The returned value was null");
         }
     }
 }
