@@ -31,5 +31,6 @@
 ### [x] Signout doesn't refresh the page. Next Cache Issue
 
 When you sign out using the drawer sign out button. It doesn't refresh the page and Next thinks you are still signed in
+updated
 
 ### [ ] Home page - Replace placeholder content
